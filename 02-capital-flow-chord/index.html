@@ -606,9 +606,14 @@ d3.json(DATA_URL).then(raw => {
   // Build node-to-arc map: each investor occupies an arc on top semicircle, each company on bottom
   // Node arc width proportional to flow, with a minimum width.
   function buildArcs(width, height){
+    const headerOffset = 110; // reserved band at top for header (eyebrow + title + subtitle)
+    const footerOffset = 130; // reserved band at bottom for timeline
+    const labelMargin = 150; // radial outward labels at top can extend this far above the ring
     const cx = width/2;
-    const cy = height/2 + 6;
-    const R  = Math.min(width, height) * 0.42;
+    const cy = (height + headerOffset - footerOffset)/2;
+    // Constrain R so outer radial labels (which extend ~labelMargin past the ring) stay below the header
+    const vClear = (height - headerOffset - footerOffset) / 2; // symmetric vertical clearance
+    const R = Math.min(Math.min(width, height) * 0.42, Math.max(80, vClear - labelMargin));
     const ringT = 6; // ring thickness
     const labelPad = 14;
 

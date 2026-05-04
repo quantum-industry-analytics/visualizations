@@ -1,7 +1,7 @@
-"""Precompute TF-IDF embedding + 2D layout (UMAP -> TSNE -> PCA fallback)
+"""Precompute TF-IDF embedding + 3D layout (UMAP -> TSNE -> PCA fallback)
 for the quantum ecosystem semantic map.
 
-Outputs: layout.json with [{id,name,vertical,x,y,nInvestors,categories,
+Outputs: layout.json with [{id,name,vertical,x,y,z,nInvestors,categories,
 description,country,city,cluster, neighbors:[5 ids by cosine on tfidf]}]
 plus meta { method, k, clusterTerms:{c->[term,...]} }.
 """
@@ -54,14 +54,15 @@ vec = TfidfVectorizer(
 X = vec.fit_transform(texts)
 print(f"tf-idf matrix: {X.shape}")
 
-# ---------- 2D projection (UMAP -> TSNE -> PCA) ----------
+# ---------- 3D projection (UMAP -> TSNE -> PCA) ----------
+N_DIMS = 3
 method = None
 coords = None
 try:
     import umap
     n_neighbors = min(12, max(2, len(companies) - 1))
     reducer = umap.UMAP(
-        n_components=2,
+        n_components=N_DIMS,
         n_neighbors=n_neighbors,
         min_dist=0.18,
         metric="cosine",
@@ -77,7 +78,7 @@ except Exception as e:
         n_comp = min(20, X.shape[1] - 1, X.shape[0] - 1)
         pca_pre = PCA(n_components=n_comp, random_state=42).fit_transform(X.toarray())
         tsne = TSNE(
-            n_components=2,
+            n_components=N_DIMS,
             perplexity=min(10, max(2, (len(companies) - 1) // 3)),
             metric="cosine",
             init="pca",
@@ -88,15 +89,14 @@ except Exception as e:
         method = "tsne"
     except Exception as e2:
         print("TSNE failed:", e2, "-- using PCA")
-        coords = PCA(n_components=2, random_state=42).fit_transform(X.toarray())
+        coords = PCA(n_components=N_DIMS, random_state=42).fit_transform(X.toarray())
         method = "pca"
 
-print(f"projection method: {method}")
+print(f"projection method: {method} (n_components={N_DIMS})")
 
-# normalize to roughly [-1,1] preserving aspect
-cx, cy = coords[:, 0].mean(), coords[:, 1].mean()
-coords[:, 0] -= cx
-coords[:, 1] -= cy
+# normalize to roughly [-1,1] preserving aspect (centered, isotropic scaling)
+for d in range(coords.shape[1]):
+    coords[:, d] -= coords[:, d].mean()
 scale = max(np.abs(coords).max(), 1e-9)
 coords /= scale
 
@@ -183,6 +183,7 @@ for i, c in enumerate(companies):
         "founded": c.get("founded"),
         "x": float(coords[i, 0]),
         "y": float(coords[i, 1]),
+        "z": float(coords[i, 2]),
         "cluster": int(cluster_ids[i]),
         "neighbors": neighbors[i],
         "nInvestors": len(c.get("investors") or []),
@@ -211,6 +212,7 @@ edges = edges[:120]
 out = {
     "meta": {
         "method": method,
+        "nDims": N_DIMS,
         "k": K,
         "clusterTerms": cluster_terms,
         "n": len(companies),

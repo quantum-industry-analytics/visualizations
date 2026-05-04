@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quantum Circuit — Capital Entanglement Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #04050b;
+    --bg-2: #07091a;
+    --fg: #e7ecf5;
+    --fg-dim: #8892a8;
+    --fg-faint: #4a5366;
+    --fg-ghost: #232a3c;
+    --steel: #6b8aa6;
+    --steel-bright: #aac3dc;
+    --gold: #d4af37;
+    --gold-bright: #f0c659;
+    --panel: rgba(8, 11, 22, 0.78);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --panel-border-strong: rgba(255, 255, 255, 0.18);
+    --grid: rgba(140, 170, 210, 0.045);
+    --grid-strong: rgba(140, 170, 210, 0.10);
+    /* vertical palette */
+    --v-qc:  #00e5ff;
+    --v-ai:  #b14aed;
+    --v-bio: #2ee6a6;
+    --v-mat: #ffb547;
+    --v-com: #ff6b6b;
+    --v-cyb: #4d8bff;
+    --v-oth: #6b7080;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: Inter, system-ui, sans-serif; height: 100%; overflow: hidden;
+    font-feature-settings: "tnum" 1, "ss01" 1; }
+  body {
+    background:
+      radial-gradient(1100px 700px at 18% 6%, rgba(0,229,255,0.05), transparent 60%),
+      radial-gradient(1300px 800px at 85% 95%, rgba(177,74,237,0.04), transparent 65%),
+      var(--bg);
+  }
+  #app { position: fixed; inset: 0; }
+  svg { display: block; width: 100%; height: 100%; }
+
+  /* ------------------- HEAD ------------------ */
+  .topbar {
+    position: absolute; left: 0; right: 0; top: 0; padding: 18px 26px 12px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none; z-index: 5;
+  }
+  .title-block { pointer-events: none; }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: 0.34em;
+    color: var(--fg-dim); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .eyebrow .dot { color: var(--v-qc); }
+  h1 {
+    margin: 0; font-family: "Space Grotesk", sans-serif; font-weight: 600;
+    font-size: 26px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  h1 .sep { color: var(--fg-faint); margin: 0 .5em; font-weight: 300; }
+  h1 .sub { color: var(--steel-bright); font-weight: 400; }
+  .equation {
+    margin-top: 8px; font-family: "JetBrains Mono", monospace;
+    font-size: 11px; letter-spacing: 0.05em; color: var(--fg-faint);
+    user-select: none;
+  }
+  .equation em { font-style: italic; color: var(--steel); }
+
+  /* ----------- TOP-RIGHT panels ----------- */
+  .panels {
+    display: flex; flex-direction: column; gap: 12px; align-items: flex-end;
+    pointer-events: auto; max-width: 540px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(10px) saturate(115%);
+    -webkit-backdrop-filter: blur(10px) saturate(115%);
+    border-radius: 6px; padding: 11px 14px;
+    color: var(--fg); font-size: 11px; line-height: 1.5;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+  }
+  .panel h3 {
+    margin: 0 0 8px; font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px; letter-spacing: 0.32em; color: var(--fg-dim);
+    text-transform: uppercase; font-weight: 600;
+  }
+  .stats {
+    display: grid; grid-template-columns: auto auto; gap: 4px 22px;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .stats .k { color: var(--fg-dim); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .stats .v { color: var(--fg); font-size: 14px; font-weight: 600; text-align: right;
+    font-variant-numeric: tabular-nums; }
+  .stats .v .unit { color: var(--fg-faint); font-size: 10px; margin-left: 4px; font-weight: 400; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 360px; justify-content: flex-end; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 9px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.02);
+    color: var(--fg-dim); font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer; user-select: none; transition: all .15s ease;
+  }
+  .chip .swatch { width: 8px; height: 8px; border-radius: 2px; box-shadow: 0 0 8px currentColor; }
+  .chip:hover { color: var(--fg); border-color: rgba(255,255,255,0.22); }
+  .chip.active { color: var(--fg); border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.05); }
+  .chip.dim { opacity: 0.32; }
+
+  /* ----------------- HOVER CARD ---------------- */
+  .info-card {
+    position: absolute; pointer-events: none; opacity: 0;
+    transition: opacity .12s ease;
+    background: var(--panel);
+    border: 1px solid var(--panel-border-strong);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    border-radius: 6px; padding: 12px 14px; max-width: 340px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 30; font-size: 11.5px; line-height: 1.45;
+  }
+  .info-card.show { opacity: 1; }
+  .info-card .ic-tag {
+    font-family: "JetBrains Mono", monospace; font-size: 9.5px;
+    letter-spacing: 0.28em; text-transform: uppercase; color: var(--fg-dim);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  }
+  .info-card .ic-tag .vsq { width: 8px; height: 8px; border-radius: 2px; box-shadow: 0 0 8px currentColor; }
+  .info-card .ic-title {
+    font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 16px;
+    letter-spacing: 0.02em; color: var(--fg); margin-bottom: 6px;
+  }
+  .info-card .ic-row {
+    display: flex; justify-content: space-between; gap: 14px;
+    color: var(--fg-dim); font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px; letter-spacing: 0.10em;
+  }
+  .info-card .ic-row .vv { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .info-card .ic-list {
+    margin-top: 8px; font-size: 11px; color: var(--fg-dim);
+  }
+  .info-card .ic-list .label {
+    font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--fg-faint); margin-bottom: 4px;
+  }
+  .info-card .ic-list .pill {
+    display: inline-block; margin: 2px 4px 0 0; padding: 2px 7px;
+    border-radius: 999px; border: 1px solid rgba(255,255,255,0.08);
+    color: var(--fg); background: rgba(255,255,255,0.03); font-size: 10px;
+  }
+
+  /* ----------------- LEGEND / FOOTER ---------------- */
+  .footer {
+    position: absolute; left: 22px; right: 22px; bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "JetBrains Mono", monospace; color: var(--fg-faint);
+    font-size: 9.5px; letter-spacing: 0.30em; text-transform: uppercase;
+    pointer-events: none; z-index: 4;
+  }
+  .footer b { color: var(--fg-dim); font-weight: 500; }
+  .footer .syn { color: var(--gold); }
+
+  /* SVG element classes */
+  .wire { stroke: var(--steel); stroke-opacity: 0.34; stroke-width: 1; }
+  .wire-tick { stroke: var(--steel); stroke-opacity: 0.18; stroke-width: 1; }
+  .wire-label {
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    fill: var(--fg-dim); letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .wire-label .bra { fill: var(--steel); }
+  .wire-label.gold { fill: var(--gold-bright); }
+  .wire-label.gold .bra { fill: var(--gold); }
+  .year-label {
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    fill: var(--fg-dim); letter-spacing: 0.18em; text-anchor: middle;
+  }
+  .year-grid { stroke: var(--grid); stroke-width: 1; }
+  .year-grid.major { stroke: var(--grid-strong); }
+  .pcb-grid line { stroke: rgba(120, 160, 200, 0.030); stroke-width: 1; }
+
+  .gate-rect { rx: 3; ry: 3; cursor: pointer; }
+  .gate-control { cursor: pointer; }
+  .ent-bar { stroke-width: 1.4; cursor: pointer; }
+  .ent-cap { stroke-width: 1.4; }
+
+  .tinybadge {
+    font-family: "JetBrains Mono", monospace; font-size: 8px;
+    letter-spacing: 0.18em; fill: var(--fg);
+  }
+  .gate-label-box-text {
+    font-family: "JetBrains Mono", monospace; font-size: 9.5px;
+    letter-spacing: 0.10em; fill: var(--fg);
+  }
+
+  .axis-bra-row {
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    fill: var(--fg-faint); letter-spacing: 0.14em; text-anchor: middle;
+  }
+
+  .pinned-banner {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: 38px; pointer-events: none; opacity: 0;
+    background: var(--panel); border: 1px solid var(--panel-border-strong);
+    padding: 6px 14px; border-radius: 999px;
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    letter-spacing: 0.24em; text-transform: uppercase; color: var(--fg-dim);
+    transition: opacity .15s ease;
+  }
+  .pinned-banner.show { opacity: 1; }
+  .pinned-banner .name { color: var(--fg); margin-left: 8px; }
+  .pinned-banner .hint { color: var(--fg-faint); margin-left: 10px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <svg id="circuit"></svg>
+
+  <div class="topbar">
+    <div class="title-block">
+      <div class="eyebrow"><span class="dot">●</span>&nbsp;&nbsp;Visualization 09 &nbsp;/&nbsp; Capital Quantum Mechanics</div>
+      <h1>Quantum Circuit<span class="sep">/</span><span class="sub">Capital Entanglement Diagram</span></h1>
+      <div class="equation">Ψ&nbsp;=&nbsp;Σ&nbsp;<em>α</em><sub>ij</sub>&nbsp;|&nbsp;investor<sub>i</sub>,&nbsp;company<sub>j</sub>&nbsp;⟩&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;⟨&nbsp;syndicate&nbsp;|&nbsp;Ψ&nbsp;⟩&nbsp;=&nbsp;capital</div>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <h3>State Counters</h3>
+        <div class="stats">
+          <div class="k">Wires</div><div class="v" id="stat-wires">0</div>
+          <div class="k">Gates</div><div class="v" id="stat-gates">0</div>
+          <div class="k">Multi-control</div><div class="v" id="stat-multi">0</div>
+          <div class="k">Time range</div><div class="v" id="stat-range">—</div>
+          <div class="k">Investments</div><div class="v" id="stat-invest">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Vertical Filter</h3>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card" id="card"></div>
+  <div class="pinned-banner" id="banner"></div>
+
+  <div class="footer">
+    <span><b>HOVER</b> · WIRE OR GATE&nbsp;&nbsp;·&nbsp;&nbsp;<b>CLICK</b> · PIN GATE&nbsp;&nbsp;·&nbsp;&nbsp;<b>WHEEL</b> · ZOOM TIME&nbsp;&nbsp;·&nbsp;&nbsp;<b>DRAG</b> · PAN</span>
+    <span><span class="syn">// SYN</span>&nbsp;&nbsp;FOUNDED &amp; INVESTMENT YEARS DETERMINISTICALLY SYNTHESIZED</span>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   QUANTUM CIRCUIT — CAPITAL ENTANGLEMENT DIAGRAM
+   Investor wires (qubits) running L→R. Gates = funding rounds.
+   Multi-control gates = co-investment syndicates.
+   ============================================================================ */
+
+const VERTICAL_COLORS = {
+  "Quantum Computing":          "#00e5ff",
+  "Quantum AI & ML":            "#b14aed",
+  "Quantum Bio & Medicine":     "#2ee6a6",
+  "Quantum Materials & NanoTech": "#ffb547",
+  "Communications":             "#ff6b6b",
+  "Cyber Security":             "#4d8bff",
+  "Other":                      "#6b7080"
+};
+const VERTICAL_SHORT = {
+  "Quantum Computing":            "QC",
+  "Quantum AI & ML":              "AI",
+  "Quantum Bio & Medicine":       "BIO",
+  "Quantum Materials & NanoTech": "MAT",
+  "Communications":               "COM",
+  "Cyber Security":               "CYB",
+  "Other":                        "OTH"
+};
+
+/* deterministic 32-bit hash → uint */
+function hash32(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+/* deterministic float in [0,1) from a string */
+function rand01(str) { return (hash32(str) % 1000000) / 1000000; }
+
+/* ============================================================================
+   LOAD + BUILD MODEL
+   ============================================================================ */
+
+d3.json("../data/quantum_ecosystem.json").then(raw => {
+
+  // ---------- companies index
+  const compById = new Map();
+  raw.companies.forEach(c => compById.set(c.id, c));
+
+  // ---------- per-company investor list (dedupe; from edges)
+  const compInvestors = new Map();   // companyId -> Set<investorName>
+  raw.investments.forEach(e => {
+    if (!compById.has(e.company)) return;
+    if (!compInvestors.has(e.company)) compInvestors.set(e.company, new Set());
+    compInvestors.get(e.company).add(e.investor);
+  });
+
+  // ---------- founded years (synthesize when null) // SYN
+  const YR_MIN = 2010, YR_MAX = 2025;
+  function synthFounded(c) {
+    if (c.founded && Number.isFinite(+c.founded)) return Math.max(YR_MIN, Math.min(YR_MAX, +c.founded));
+    // bell-ish skewed to 2017–2022
+    const r = rand01("founded::" + c.id);
+    const center = 2018.5, span = 5.0;
+    // triangular-ish: combine two uniforms
+    const u = (rand01("founded2::" + c.id) + rand01("founded3::" + c.id)) / 2;
+    let y = Math.round(center + (u - 0.5) * 2 * span);
+    if (y < 2010) y = 2010;
+    if (y > 2024) y = 2024;
+    return y;
+  }
+  raw.companies.forEach(c => { c._founded = synthFounded(c); });
+
+  // ---------- investment edges with synthesized year // SYN
+  // group edges by company, then assign each edge a year between max(founded,2010) and 2025
+  // For visual cleanliness, assign all edges of a company to the SAME year (a single round/event)
+  // to maximize the "entanglement bar" effect.
+  const events = []; // {company, year, vertical, investors:[], roundSize}
+  for (const [cid, invSet] of compInvestors.entries()) {
+    const c = compById.get(cid);
+    const lo = Math.max(c._founded, 2010), hi = 2025;
+    const span = Math.max(1, hi - lo);
+    const u = rand01("evtYear::" + cid);
+    // skew slightly later than founding (post-Series-A)
+    const offset = Math.floor(u * span * 0.85) + (span > 2 ? 1 : 0);
+    let y = lo + offset;
+    if (y < lo) y = lo; if (y > hi) y = hi;
+    // round size: synthesized
+    const rsBase = invSet.size * 8 + Math.floor(rand01("rs::" + cid) * 60);
+    const roundSize = rsBase * (1 + Math.floor(rand01("rs2::" + cid) * 3));
+    events.push({
+      company: cid,
+      vertical: c.vertical || "Other",
+      year: y,
+      investors: [...invSet],
+      roundSize
+    });
+  }
+
+  // ---------- investor stats from edges
+  const invInfo = new Map(); // name -> {name, country, type, count, companies:[], verticals:Counter}
+  for (const i of raw.investors) {
+    invInfo.set(i.name, {
+      name: i.name,
+      country: i.country || "—",
+      type: i.type || "—",
+      count: 0,
+      companies: [],
+      verticals: {}
+    });
+  }
+  for (const e of events) {
+    for (const inv of e.investors) {
+      let rec = invInfo.get(inv);
+      if (!rec) {
+        rec = { name: inv, country: "—", type: "—", count: 0, companies: [], verticals: {} };
+        invInfo.set(inv, rec);
+      }
+      rec.count += 1;
+      rec.companies.push({ company: e.company, year: e.year, vertical: e.vertical });
+      rec.verticals[e.vertical] = (rec.verticals[e.vertical] || 0) + 1;
+    }
+  }
+
+  // ---------- pick top wires:
+  //   - all investors with count >= 2 PLUS top fillers up to ~50 wires
+  const allActive = [...invInfo.values()].filter(v => v.count > 0);
+  allActive.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  const TARGET_WIRES = 50;
+  const wireSet = new Set();
+  for (const v of allActive) {
+    if (v.count >= 2) wireSet.add(v.name);
+  }
+  for (const v of allActive) {
+    if (wireSet.size >= TARGET_WIRES) break;
+    wireSet.add(v.name);
+  }
+  // Any investors that participate in the same gate as a chosen wire — keep gates;
+  // off-circuit investors get drawn as "phantom" small markers (collapsed into a +N bubble).
+  const wireList = allActive.filter(v => wireSet.has(v.name));
+
+  // sort wires: by gold-tier count (desc), then by dominant vertical, then alpha
+  function dominantVertical(rec) {
+    const ents = Object.entries(rec.verticals);
+    if (!ents.length) return "Other";
+    ents.sort((a, b) => b[1] - a[1]);
+    return ents[0][0];
+  }
+  const VERT_ORDER = ["Quantum Computing", "Quantum AI & ML", "Quantum Bio & Medicine",
+    "Quantum Materials & NanoTech", "Communications", "Cyber Security", "Other"];
+  wireList.forEach(w => {
+    w.dominantVertical = dominantVertical(w);
+  });
+  wireList.sort((a, b) => {
+    const da = VERT_ORDER.indexOf(a.dominantVertical);
+    const db = VERT_ORDER.indexOf(b.dominantVertical);
+    if (da !== db) return da - db;
+    if (b.count !== a.count) return b.count - a.count;
+    return a.name.localeCompare(b.name);
+  });
+
+  // index into wires
+  const wireIndex = new Map();
+  wireList.forEach((w, i) => wireIndex.set(w.name, i));
+
+  // ---------- gates per investor wire (only investors that are wires get gate visuals)
+  const gatesByEvent = events.map(e => {
+    const onWire = e.investors.filter(n => wireIndex.has(n));
+    const offWire = e.investors.filter(n => !wireIndex.has(n));
+    return { ...e, onWire, offWire };
+  });
+
+  // ---------- companies with NO investments — don't render as gates (no time anchor)
+  // (Already excluded since they have no events; that's fine.)
+
+  // ---------- expose
+  const model = {
+    wires: wireList,
+    events: gatesByEvent,
+    yearMin: YR_MIN, yearMax: YR_MAX,
+    invInfo
+  };
+  render(model);
+});
+
+/* ============================================================================
+   RENDER
+   ============================================================================ */
+
+function render(M) {
+  const svg = d3.select("#circuit");
+  const root = svg.append("g").attr("class", "root");
+  const layer = {
+    pcb:        root.append("g").attr("class", "L-pcb"),
+    grid:       root.append("g").attr("class", "L-grid"),
+    yearTop:    root.append("g").attr("class", "L-year"),
+    wires:      root.append("g").attr("class", "L-wires"),
+    wireLabels: root.append("g").attr("class", "L-wireLabels"),
+    gates:      root.append("g").attr("class", "L-gates"),
+    overlay:    root.append("g").attr("class", "L-overlay"),
+  };
+
+  // sticky hovers
+  const card = d3.select("#card");
+  const banner = d3.select("#banner");
+
+  // dimensions, recomputed on resize
+  let W, H;
+  let plotL, plotR, plotT, plotB;
+  let xScale; // year → px
+  let wireY;  // index → px
+  const WIRE_GAP_MIN = 12;
+  const WIRE_GAP_MAX = 22;
+
+  // pan/zoom along time axis
+  let xZoom = 1;
+  let xPan = 0;
+
+  // active vertical filter
+  const verticals = ["Quantum Computing", "Quantum AI & ML", "Quantum Bio & Medicine",
+    "Quantum Materials & NanoTech", "Communications", "Cyber Security", "Other"];
+  const activeVerticals = new Set(verticals);
+  let pinnedEvent = null;       // event object
+  let hoverEvent = null;
+  let hoverWire = null;
+  let yearFocus = null;
+
+  // ---- chips
+  const chipsHost = d3.select("#chips");
+  verticals.forEach(v => {
+    const chip = chipsHost.append("div").attr("class", "chip active").datum(v);
+    chip.append("span").attr("class", "swatch")
+      .style("background", VERTICAL_COLORS[v])
+      .style("color", VERTICAL_COLORS[v]);
+    chip.append("span").text(VERTICAL_SHORT[v] + " · " + v.replace(/^Quantum /, "").toUpperCase());
+    chip.on("click", function() {
+      if (activeVerticals.has(v) && activeVerticals.size === verticals.length) {
+        // first click: isolate
+        activeVerticals.clear();
+        activeVerticals.add(v);
+      } else if (activeVerticals.has(v) && activeVerticals.size === 1) {
+        // un-isolate: restore all
+        verticals.forEach(x => activeVerticals.add(x));
+      } else if (activeVerticals.has(v)) {
+        activeVerticals.delete(v);
+      } else {
+        activeVerticals.add(v);
+      }
+      if (activeVerticals.size === 0) verticals.forEach(x => activeVerticals.add(x));
+      updateChips(); updateAppearance();
+    });
+  });
+  function updateChips() {
+    chipsHost.selectAll(".chip").each(function(v) {
+      const sel = d3.select(this);
+      const allOn = activeVerticals.size === verticals.length;
+      sel.classed("active", activeVerticals.has(v));
+      sel.classed("dim", !allOn && !activeVerticals.has(v));
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   *  LAYOUT
+   * ------------------------------------------------------------------------ */
+  function computeLayout() {
+    W = window.innerWidth; H = window.innerHeight;
+    plotL = 240; plotR = W - 60;
+    plotT = 130; plotB = H - 60;
+
+    // wire spacing: fit all wires within plot area
+    const N = M.wires.length;
+    const usable = plotB - plotT - 30;   // small buffer
+    let gap = usable / Math.max(1, N - 1);
+    gap = Math.max(WIRE_GAP_MIN, Math.min(WIRE_GAP_MAX, gap));
+    const totalH = gap * (N - 1);
+    const top0 = plotT + (usable - totalH) / 2 + 18;
+    wireY = i => top0 + i * gap;
+
+    // X scale (with zoom/pan)
+    const baseW = plotR - plotL;
+    const w = baseW * xZoom;
+    const span = M.yearMax - M.yearMin;
+    const xLeft = plotL + xPan;
+    xScale = year => xLeft + (year - M.yearMin) / span * w;
+  }
+
+  /* --------------------------------------------------------------------------
+   *  STATIC LAYERS (PCB + grid + wires + labels + year axis)
+   * ------------------------------------------------------------------------ */
+  function drawPCB() {
+    layer.pcb.selectAll("*").remove();
+    // tiny "graph paper" lines, very faint
+    const STEP = 28;
+    const g = layer.pcb;
+    for (let x = 0; x <= W; x += STEP) {
+      g.append("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", H);
+    }
+    for (let y = 0; y <= H; y += STEP) {
+      g.append("line").attr("x1", 0).attr("x2", W).attr("y1", y).attr("y2", y);
+    }
+  }
+
+  function drawYearAxis() {
+    layer.grid.selectAll("*").remove();
+    layer.yearTop.selectAll("*").remove();
+
+    // vertical year lines spanning the wires
+    for (let y = M.yearMin; y <= M.yearMax; y++) {
+      const x = xScale(y);
+      const major = (y % 5 === 0);
+      layer.grid.append("line")
+        .attr("class", "year-grid" + (major ? " major" : ""))
+        .attr("x1", x).attr("x2", x)
+        .attr("y1", plotT - 10).attr("y2", plotB + 12);
+
+      // top labels
+      layer.yearTop.append("text")
+        .attr("class", "year-label")
+        .attr("x", x).attr("y", plotT - 16)
+        .text(y);
+      // small tick
+      layer.yearTop.append("line")
+        .attr("class", "year-grid major")
+        .attr("x1", x).attr("x2", x)
+        .attr("y1", plotT - 10).attr("y2", plotT - 4)
+        .attr("stroke", major ? "rgba(170,195,220,0.45)" : "rgba(170,195,220,0.2)");
+    }
+
+    // axis bracket at top-left "⟨t|"
+    layer.yearTop.append("text")
+      .attr("class", "axis-bra-row")
+      .attr("x", plotL - 16).attr("y", plotT - 16)
+      .attr("text-anchor", "end")
+      .text("⟨t|");
+    // year-cursor / clickable strip
+    layer.yearTop.selectAll(".year-hit")
+      .data(d3.range(M.yearMin, M.yearMax + 1)).enter()
+      .append("rect").attr("class", "year-hit")
+      .attr("x", y => xScale(y) - (xScale(M.yearMin + 1) - xScale(M.yearMin)) / 2)
+      .attr("y", plotT - 30)
+      .attr("width", y => (xScale(M.yearMin + 1) - xScale(M.yearMin)))
+      .attr("height", 22)
+      .attr("fill", "transparent")
+      .style("cursor", "pointer")
+      .on("click", (ev, y) => {
+        yearFocus = (yearFocus === y) ? null : y;
+        updateAppearance();
+      });
+  }
+
+  function drawWires() {
+    layer.wires.selectAll("*").remove();
+    layer.wireLabels.selectAll("*").remove();
+
+    M.wires.forEach((w, i) => {
+      const y = wireY(i);
+      const isGold = w.count >= 3;     // top-tier
+      const tint = VERTICAL_COLORS[w.dominantVertical] || "#6b8aa6";
+
+      // base wire
+      layer.wires.append("line")
+        .attr("class", "wire wire-" + i)
+        .attr("x1", plotL - 6).attr("x2", plotR + 6)
+        .attr("y1", y).attr("y2", y)
+        .attr("stroke", isGold ? "#d4af37" : "#6b8aa6")
+        .attr("stroke-opacity", isGold ? 0.55 : 0.32);
+
+      // small upper tick wire (the "double-rail" hint of a quantum register)
+      layer.wires.append("line")
+        .attr("class", "wire-tick wire-tick-" + i)
+        .attr("x1", plotL - 6).attr("x2", plotR + 6)
+        .attr("y1", y - 2).attr("y2", y - 2)
+        .attr("stroke", tint).attr("stroke-opacity", 0.10).attr("stroke-width", 1);
+
+      // left label "⟨name|"
+      const lbl = layer.wireLabels.append("text")
+        .attr("class", "wire-label" + (isGold ? " gold" : ""))
+        .attr("x", plotL - 14).attr("y", y + 3)
+        .attr("text-anchor", "end")
+        .attr("data-wire", i);
+      lbl.append("tspan").attr("class", "bra").text("⟨");
+      // truncate
+      const truncName = w.name.length > 22 ? w.name.slice(0, 21) + "…" : w.name;
+      lbl.append("tspan").text(truncName);
+      lbl.append("tspan").attr("class", "bra").text("|");
+
+      // tiny degree badge at right
+      layer.wireLabels.append("text")
+        .attr("font-family", "JetBrains Mono, monospace")
+        .attr("font-size", 9)
+        .attr("fill", "#4a5366")
+        .attr("x", plotR + 12).attr("y", y + 3)
+        .attr("text-anchor", "start")
+        .text("×" + w.count);
+
+      // hover hit rect for label
+      layer.wireLabels.append("rect")
+        .attr("class", "wire-hit")
+        .attr("x", 0).attr("y", y - 8)
+        .attr("width", plotL - 8).attr("height", 16)
+        .attr("fill", "transparent")
+        .style("cursor", "pointer")
+        .on("mouseenter", (ev) => { hoverWire = w; updateAppearance(); showWireCard(ev, w); })
+        .on("mousemove", (ev) => { showWireCard(ev, w); })
+        .on("mouseleave", () => { hoverWire = null; hideCard(); updateAppearance(); });
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   *  GATES
+   * ------------------------------------------------------------------------ */
+
+  function drawGates() {
+    layer.gates.selectAll("*").remove();
+
+    // sort events for visual layering: multi-control on top
+    const evs = M.events.slice().sort((a, b) => a.onWire.length - b.onWire.length);
+
+    // Smart label-row assignment: only stagger labels whose x-extents collide.
+    // Estimate label width per event, sweep left→right, place in the lowest free row.
+    const multiEvs = evs.filter(e => e.onWire.length > 1);
+    multiEvs.sort((a, b) => a.year - b.year);
+    const rowEnds = []; // rowIndex -> last x-end occupied
+    multiEvs.forEach(e => {
+      const txt = e.company.length > 18 ? e.company.slice(0, 17) + "…" : e.company;
+      const approxW = txt.length * 6.0 + 12 + 18;
+      const cx = xScale(e.year);
+      const xL = cx - approxW / 2 - 6, xR = cx + approxW / 2 + 6;
+      let row = 0;
+      while (row < 4 && rowEnds[row] !== undefined && rowEnds[row] > xL) row++;
+      e._labelRow = Math.min(row, 3);
+      rowEnds[e._labelRow] = xR;
+    });
+    evs.forEach(e => { if (e._labelRow == null) e._labelRow = 0; });
+
+    evs.forEach(ev => {
+      const x = xScale(ev.year);
+      const onIdx = ev.onWire.map(n => wireIndex(n)).filter(i => i != null);
+      const color = VERTICAL_COLORS[ev.vertical] || "#6b7080";
+      const isMulti = onIdx.length > 1;
+
+      const group = layer.gates.append("g")
+        .attr("class", "gate")
+        .attr("data-company", ev.company)
+        .attr("data-year", ev.year)
+        .attr("data-vert", ev.vertical);
+      ev._g = group;
+
+      if (onIdx.length === 0) return;  // nothing on-wire
+      const ys = onIdx.map(i => wireY(i)).sort((a, b) => a - b);
+      const yTop = ys[0], yBot = ys[ys.length - 1];
+
+      // -- entanglement bar (vertical line through participating wires)
+      if (isMulti) {
+        group.append("line")
+          .attr("class", "ent-bar")
+          .attr("x1", x).attr("x2", x)
+          .attr("y1", yTop).attr("y2", yBot)
+          .attr("stroke", color)
+          .attr("stroke-opacity", 0.85)
+          .attr("filter", "drop-shadow(0 0 4px " + hexAlpha(color, 0.55) + ")");
+        // small caps at each end (control/target hint)
+        group.append("circle")
+          .attr("class", "ent-cap")
+          .attr("cx", x).attr("cy", yTop)
+          .attr("r", 2.2).attr("fill", color);
+        group.append("circle")
+          .attr("class", "ent-cap")
+          .attr("cx", x).attr("cy", yBot)
+          .attr("r", 2.2).attr("fill", color);
+      }
+
+      // -- per-wire markers
+      onIdx.forEach((idx, k) => {
+        const yy = wireY(idx);
+        if (k === 0 && isMulti) {
+          // first wire: control dot
+          group.append("circle")
+            .attr("class", "gate-control")
+            .attr("cx", x).attr("cy", yy)
+            .attr("r", 4.2)
+            .attr("fill", color)
+            .attr("stroke", "#04050b")
+            .attr("stroke-width", 1.2);
+        } else {
+          // target gate box
+          group.append("rect")
+            .attr("class", "gate-rect")
+            .attr("x", x - 7).attr("y", yy - 7.5)
+            .attr("width", 14).attr("height", 15)
+            .attr("rx", 3).attr("ry", 3)
+            .attr("fill", hexAlpha(color, isMulti ? 0.32 : 0.55))
+            .attr("stroke", color)
+            .attr("stroke-width", 1.1);
+          // single-wire tiny label badge (a la X / H gate)
+          group.append("text")
+            .attr("class", "tinybadge")
+            .attr("x", x).attr("y", yy + 2.5)
+            .attr("text-anchor", "middle")
+            .attr("fill", color)
+            .text(VERTICAL_SHORT[ev.vertical] || "·");
+        }
+      });
+
+      // -- top label box (for multi-investor) above the bar
+      if (isMulti) {
+        // stagger label vertical position so neighbors in same year don't collide
+        const rowOffset = (ev._labelRow || 0) * 18;
+        // a small chip
+        const txt = ev.company.length > 18 ? ev.company.slice(0, 17) + "…" : ev.company;
+        const padX = 6, padY = 3, fs = 9.5;
+        const approxW = txt.length * 6.0 + padX * 2 + 18;
+        const labGroup = group.append("g")
+          .attr("transform", `translate(${x - approxW / 2}, ${yTop - 26 - rowOffset})`);
+        // small connector tick from the bar up to the label
+        if (rowOffset > 0) {
+          group.append("line")
+            .attr("x1", x).attr("x2", x)
+            .attr("y1", yTop - 26 - rowOffset + 16)
+            .attr("y2", yTop)
+            .attr("stroke", color).attr("stroke-opacity", 0.5).attr("stroke-width", 1);
+        }
+        labGroup.append("rect")
+          .attr("x", 0).attr("y", 0)
+          .attr("width", approxW).attr("height", 16)
+          .attr("rx", 3).attr("ry", 3)
+          .attr("fill", "rgba(8,11,22,0.92)")
+          .attr("stroke", color)
+          .attr("stroke-width", 1)
+          .attr("filter", "drop-shadow(0 2px 6px rgba(0,0,0,0.45))");
+        labGroup.append("rect")
+          .attr("x", 4).attr("y", 5).attr("width", 6).attr("height", 6).attr("rx", 1)
+          .attr("fill", color);
+        labGroup.append("text")
+          .attr("class", "gate-label-box-text")
+          .attr("x", 14).attr("y", 11)
+          .text(txt);
+      }
+
+      // -- offWire bubble: small "+N" annotation if extra investors exist
+      if (ev.offWire && ev.offWire.length > 0) {
+        const yMid = (yTop + yBot) / 2;
+        group.append("text")
+          .attr("font-family", "JetBrains Mono, monospace")
+          .attr("font-size", 8)
+          .attr("fill", "#8892a8")
+          .attr("text-anchor", "start")
+          .attr("x", x + 10).attr("y", yMid + 3)
+          .text("+" + ev.offWire.length);
+      }
+
+      // -- hit area
+      const hitTop = isMulti ? yTop - 30 : yTop - 12;
+      const hitBot = yBot + 12;
+      group.append("rect")
+        .attr("class", "gate-hit")
+        .attr("x", x - 14).attr("y", hitTop)
+        .attr("width", 28).attr("height", hitBot - hitTop)
+        .attr("fill", "transparent")
+        .style("cursor", "pointer")
+        .on("mouseenter", (e) => { hoverEvent = ev; updateAppearance(); showEventCard(e, ev); })
+        .on("mousemove", (e) => { showEventCard(e, ev); })
+        .on("mouseleave", () => { hoverEvent = null; hideCard(); updateAppearance(); })
+        .on("click", (e) => {
+          if (pinnedEvent && pinnedEvent.company === ev.company && pinnedEvent.year === ev.year) {
+            pinnedEvent = null;
+          } else {
+            pinnedEvent = ev;
+          }
+          updateBanner();
+          updateAppearance();
+          e.stopPropagation();
+        });
+    });
+  }
+
+  function wireIndexFn(name) {
+    // wireIndex is a Map declared in build phase. We need access here.
+    return _wireIndexMap.has(name) ? _wireIndexMap.get(name) : null;
+  }
+
+  /* --------------------------------------------------------------------------
+   *  APPEARANCE / FILTER / HOVER STATE
+   * ------------------------------------------------------------------------ */
+  function updateAppearance() {
+    const hasFilter = activeVerticals.size !== verticals.length;
+    const focusEvent = pinnedEvent || hoverEvent;
+
+    // gate visibility & emphasis
+    layer.gates.selectAll(".gate").each(function() {
+      const g = d3.select(this);
+      const v = g.attr("data-vert");
+      const c = g.attr("data-company");
+      const y = +g.attr("data-year");
+      const active = activeVerticals.has(v);
+      let opa = 1;
+      if (!active) opa = 0.05;
+      if (focusEvent) {
+        if (focusEvent.company === c && focusEvent.year === y) opa = 1;
+        else opa = Math.min(opa, 0.10);
+      }
+      if (yearFocus !== null && y !== yearFocus) opa = Math.min(opa, 0.12);
+
+      // hover wire fade
+      if (hoverWire) {
+        const onWires = (M.events.find(ev => ev.company === c && ev.year === y) || {}).onWire || [];
+        if (!onWires.includes(hoverWire.name)) opa = Math.min(opa, 0.10);
+        else opa = 1;
+      }
+
+      g.transition().duration(120).attr("opacity", opa);
+    });
+
+    // wire emphasis based on hover/pin/filter
+    M.wires.forEach((w, i) => {
+      let emph = 1;
+      // by default highlight wires that have any active-vertical gate
+      const hasActiveGate = w.companies.some(p => activeVerticals.has(p.vertical));
+      if (!hasActiveGate) emph = 0.18;
+
+      if (focusEvent) {
+        emph = focusEvent.onWire.includes(w.name) ? 1.0 : 0.10;
+      }
+      if (hoverWire && hoverWire.name !== w.name) emph = 0.10;
+      if (hoverWire && hoverWire.name === w.name) emph = 1.0;
+
+      layer.wires.select(".wire-" + i).transition().duration(120)
+        .attr("stroke-opacity", (w.count >= 3 ? 0.55 : 0.32) * emph + (emph < 0.4 ? 0.0 : 0));
+      layer.wires.select(".wire-tick-" + i).transition().duration(120)
+        .attr("stroke-opacity", 0.10 * emph);
+      layer.wireLabels.selectAll(`[data-wire="${i}"]`).transition().duration(120)
+        .attr("opacity", emph);
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   *  CARDS
+   * ------------------------------------------------------------------------ */
+  function showEventCard(ev, e) {
+    const color = VERTICAL_COLORS[e.vertical] || "#6b7080";
+    const investors = e.investors;
+    const inWire = e.onWire.length, outWire = e.offWire.length;
+    const html = `
+      <div class="ic-tag" style="color:${color}">
+        <span class="vsq" style="background:${color};color:${color}"></span>
+        ${escapeHTML(VERTICAL_SHORT[e.vertical] || "·")} · ${escapeHTML(e.vertical)}
+      </div>
+      <div class="ic-title">${escapeHTML(e.company)}</div>
+      <div class="ic-row"><span>YEAR</span> <span class="vv">${e.year} <span style="color:#d4af37">// SYN</span></span></div>
+      <div class="ic-row"><span>SYNDICATE</span> <span class="vv">${investors.length} INVESTORS</span></div>
+      <div class="ic-row"><span>ROUND</span> <span class="vv">~$${e.roundSize}M <span style="color:#d4af37">// SYN</span></span></div>
+      <div class="ic-list">
+        <div class="label">⟨ syndicate |</div>
+        ${investors.map(n =>
+          `<span class="pill" style="${e.onWire.includes(n) ? `border-color:${hexAlpha(color, 0.55)};color:#e7ecf5` : "color:#8892a8"}">${escapeHTML(n)}</span>`
+        ).join("")}
+      </div>
+    `;
+    showCardAt(ev, html);
+  }
+  function showWireCard(ev, w) {
+    const tint = VERTICAL_COLORS[w.dominantVertical] || "#6b8aa6";
+    const html = `
+      <div class="ic-tag" style="color:${tint}">
+        <span class="vsq" style="background:${tint};color:${tint}"></span>
+        ⟨ INVESTOR | · ${escapeHTML(w.country)}
+      </div>
+      <div class="ic-title">${escapeHTML(w.name)}</div>
+      <div class="ic-row"><span>TYPE</span> <span class="vv">${escapeHTML(w.type || "—")}</span></div>
+      <div class="ic-row"><span>GATES</span> <span class="vv">${w.count}</span></div>
+      <div class="ic-row"><span>DOMINANT</span> <span class="vv" style="color:${tint}">${VERTICAL_SHORT[w.dominantVertical]} · ${escapeHTML(w.dominantVertical)}</span></div>
+      <div class="ic-list">
+        <div class="label">⟨ portfolio |</div>
+        ${w.companies.map(p => {
+          const c = VERTICAL_COLORS[p.vertical] || "#6b7080";
+          return `<span class="pill" style="border-color:${hexAlpha(c, 0.45)};color:#e7ecf5">${escapeHTML(p.company)} <span style="color:${c}">·${p.year}</span></span>`;
+        }).join("")}
+      </div>
+    `;
+    showCardAt(ev, html);
+  }
+
+  function showCardAt(ev, html) {
+    card.html(html).classed("show", true);
+    const node = card.node();
+    const w = node.offsetWidth, h = node.offsetHeight;
+    let x = ev.clientX + 18, y = ev.clientY + 18;
+    if (x + w > window.innerWidth - 12) x = ev.clientX - w - 18;
+    if (y + h > window.innerHeight - 12) y = ev.clientY - h - 18;
+    if (y < 8) y = 8;
+    card.style("left", x + "px").style("top", y + "px");
+  }
+  function hideCard() { card.classed("show", false); }
+  function updateBanner() {
+    if (!pinnedEvent) { banner.classed("show", false); return; }
+    banner.html(`PINNED <span class="name">${escapeHTML(pinnedEvent.company)} · ${pinnedEvent.year}</span><span class="hint">CLICK BACKGROUND TO RELEASE</span>`);
+    banner.classed("show", true);
+  }
+
+  /* --------------------------------------------------------------------------
+   *  BUILD ONCE
+   * ------------------------------------------------------------------------ */
+  // wire index map (closure-side; we expose it so wireIndexFn works)
+  const _wireIndexMap = new Map();
+  M.wires.forEach((w, i) => _wireIndexMap.set(w.name, i));
+  function wireIndex(name) {
+    return _wireIndexMap.has(name) ? _wireIndexMap.get(name) : null;
+  }
+
+  function rebuild() {
+    computeLayout();
+    drawPCB();
+    drawYearAxis();
+    drawWires();
+    drawGates();
+    updateAppearance();
+    // stats
+    const totalEvents = M.events.length;
+    const multi = M.events.filter(e => e.onWire.length > 1).length;
+    const totalInvest = d3.sum(M.events, e => e.investors.length);
+    d3.select("#stat-wires").text(M.wires.length);
+    d3.select("#stat-gates").text(totalEvents);
+    d3.select("#stat-multi").text(multi);
+    d3.select("#stat-range").text(`${M.yearMin}–${M.yearMax}`);
+    d3.select("#stat-invest").text(totalInvest);
+  }
+
+  rebuild();
+
+  // re-render on resize (debounced)
+  let rT;
+  window.addEventListener("resize", () => {
+    clearTimeout(rT);
+    rT = setTimeout(() => rebuild(), 120);
+  });
+
+  /* --------------------------------------------------------------------------
+   *  ZOOM / PAN ON TIME AXIS
+   * ------------------------------------------------------------------------ */
+  svg.on("wheel", (e) => {
+    e.preventDefault();
+    const delta = -e.deltaY;
+    const factor = Math.exp(delta * 0.0015);
+    const newZoom = Math.max(1, Math.min(8, xZoom * factor));
+    // anchor at cursor x in plot space
+    const cx = e.clientX;
+    // current year at cursor
+    const span = M.yearMax - M.yearMin;
+    const baseW = plotR - plotL;
+    const beforeYear = (cx - (plotL + xPan)) / (baseW * xZoom) * span + M.yearMin;
+    xZoom = newZoom;
+    // adjust pan so cursor still maps to beforeYear
+    xPan = cx - plotL - (beforeYear - M.yearMin) / span * (baseW * xZoom);
+    // clamp pan
+    const maxPan = 0;
+    const minPan = -(baseW * xZoom - baseW);
+    xPan = Math.max(minPan, Math.min(maxPan, xPan));
+    redrawAxes();
+  }, { passive: false });
+
+  let dragging = false; let dragStartX = 0; let panStart = 0;
+  svg.on("mousedown", (e) => {
+    if (e.target.closest(".gate") || e.target.closest(".wire-hit") || e.target.closest(".year-hit")) return;
+    dragging = true; dragStartX = e.clientX; panStart = xPan;
+  });
+  window.addEventListener("mouseup", () => { dragging = false; });
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    xPan = panStart + (e.clientX - dragStartX);
+    const baseW = plotR - plotL;
+    const maxPan = 0;
+    const minPan = -(baseW * xZoom - baseW);
+    xPan = Math.max(minPan, Math.min(maxPan, xPan));
+    redrawAxes();
+  });
+
+  function redrawAxes() {
+    computeLayout();
+    drawYearAxis();
+    drawGates();    // gates are anchored to year, so re-place
+    drawWires();    // wires unchanged in y but stretch x
+    updateAppearance();
+  }
+
+  // click empty space → un-pin
+  svg.on("click", (e) => {
+    if (e.target.closest(".gate") || e.target.closest(".wire-hit")) return;
+    if (pinnedEvent) { pinnedEvent = null; updateBanner(); updateAppearance(); }
+    if (yearFocus !== null && !e.target.closest(".year-hit")) { yearFocus = null; updateAppearance(); }
+  });
+}
+
+/* ============================================================================
+   utils
+   ============================================================================ */
+function hexAlpha(hex, a) {
+  const m = hex.replace("#", "");
+  const r = parseInt(m.substring(0, 2), 16);
+  const g = parseInt(m.substring(2, 4), 16);
+  const b = parseInt(m.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+</script>
+</body>
+</html>

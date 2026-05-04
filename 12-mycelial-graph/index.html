@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mycelial — Capital Network as Living Tissue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #04050a;
+    --fg: #e7ecf5;
+    --fg-dim: #8892a8;
+    --fg-faint: #4a5366;
+    --panel: rgba(8, 10, 16, 0.55);
+    --panel-strong: rgba(10, 12, 20, 0.78);
+    --panel-border: rgba(255, 255, 255, 0.06);
+    --accent: #d4af37;
+
+    --c-qcomp: #00e5ff;
+    --c-aiml:  #b14aed;
+    --c-bio:   #2ee6a6;
+    --c-mat:   #ffb547;
+    --c-comm:  #ff6b6b;
+    --c-cyber: #4d8bff;
+    --c-other: #8a93a6;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: var(--bg); color: var(--fg);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #scene {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(20, 22, 38, 0.55) 0%, rgba(0,0,0,0) 60%),
+      var(--bg);
+  }
+  #stage { position: fixed; inset: 0; display: block; }
+
+  #vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: radial-gradient(ellipse at center,
+      rgba(0,0,0,0) 30%,
+      rgba(0,0,0,0.35) 75%,
+      rgba(0,0,0,0.85) 100%);
+    mix-blend-mode: multiply;
+  }
+  #grain {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+    mix-blend-mode: overlay;
+  }
+
+  /* Panels */
+  .panel {
+    position: fixed;
+    z-index: 20;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  /* Header */
+  #header {
+    top: 24px; left: 26px;
+    padding: 14px 20px 14px 20px;
+    min-width: 340px;
+    max-width: 420px;
+  }
+  #header .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #header .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: bpulse 2.6s ease-in-out infinite;
+  }
+  @keyframes bpulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.35); }
+  }
+  #header h1 {
+    margin: 0;
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  #header h1 .accent { color: var(--accent); font-weight: 600; }
+  #header h1 .sep {
+    color: var(--fg-faint); font-weight: 400; margin: 0 6px;
+  }
+  #header .subtitle {
+    margin-top: 9px;
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    line-height: 1.55;
+    max-width: 360px;
+    letter-spacing: 0.005em;
+  }
+  #header .subtitle em { color: var(--fg); font-style: normal; font-weight: 500; }
+
+  /* Legend */
+  #legend {
+    bottom: 24px; right: 26px;
+    padding: 14px 16px 12px 16px;
+    min-width: 200px;
+  }
+  #legend .lhdr {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 10px;
+  }
+  #legend .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 0;
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    letter-spacing: 0.01em;
+  }
+  #legend .row .sw {
+    width: 10px; height: 10px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  #legend .row.investor .sw {
+    width: 11px; height: 11px;
+    background: radial-gradient(circle at 35% 35%, #ffe89c, #d4af37 60%, #6b5314 100%);
+    box-shadow: 0 0 10px rgba(212,175,55,0.7);
+  }
+  #legend .row.investor { color: var(--fg); font-weight: 500; }
+  #legend .divider {
+    height: 1px; margin: 8px 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  }
+
+  /* Stats */
+  #stats {
+    bottom: 24px; left: 26px;
+    padding: 10px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    color: var(--fg-dim);
+    letter-spacing: 0.04em;
+    line-height: 1.55;
+    min-width: 170px;
+    font-variant-numeric: tabular-nums;
+  }
+  #stats .k { color: var(--fg-faint); }
+  #stats .v { color: var(--fg); }
+  #stats .row { display: flex; justify-content: space-between; gap: 12px; }
+
+  /* Info card */
+  #info-card {
+    top: 50%;
+    right: 26px;
+    transform: translateY(-50%);
+    width: 280px;
+    padding: 16px 18px 16px 18px;
+    opacity: 0;
+    transform: translateY(calc(-50% + 6px));
+    transition: opacity 240ms ease, transform 240ms ease;
+    pointer-events: none;
+  }
+  #info-card.shown {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  #info-card .ic-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #info-card .ic-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  #info-card .ic-name {
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  #info-card .ic-sub {
+    font-size: 11px;
+    color: var(--fg-dim);
+    margin-bottom: 12px;
+    letter-spacing: 0.01em;
+  }
+  #info-card .ic-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    margin: 10px 0;
+  }
+  #info-card .ic-row {
+    display: flex; justify-content: space-between; gap: 14px;
+    font-size: 11px;
+    padding: 3px 0;
+  }
+  #info-card .ic-row .k {
+    color: var(--fg-faint);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  #info-card .ic-row .v {
+    color: var(--fg);
+    font-weight: 500;
+    text-align: right;
+  }
+  #info-card .ic-list {
+    font-size: 11px;
+    color: var(--fg-dim);
+    line-height: 1.55;
+    margin-top: 8px;
+    max-height: 130px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent);
+            mask-image: linear-gradient(180deg, #000 78%, transparent);
+  }
+  #info-card .ic-list b { color: var(--fg); font-weight: 500; }
+  #info-card .pin-hint {
+    margin-top: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+  }
+  #info-card.pinned .pin-hint { color: var(--accent); }
+
+  /* Hint */
+  #hint {
+    top: 26px; right: 28px;
+    z-index: 25;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    padding: 9px 12px;
+    background: rgba(8,10,16,0.45);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    backdrop-filter: blur(12px);
+  }
+  #hint .k {
+    color: var(--fg);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 0 4px;
+    font-size: 9.5px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="scene">
+    <canvas id="stage"></canvas>
+  </div>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+
+  <div id="header" class="panel">
+    <div class="eyebrow"><span class="dot"></span><span>// 12 / mycelial &middot; canvas &middot; breathing</span></div>
+    <h1><span class="accent">Mycelial</span><span class="sep">—</span>Capital Network as Living Tissue</h1>
+    <div class="subtitle">An <em>organic</em> network of <em>investors</em> and <em>quantum-tech ventures</em>, rendered as pulsating bezier tendrils. The graph breathes; nutrients flow; the colony is alive.</div>
+  </div>
+
+  <div id="hint">hover&nbsp;<span class="k">node</span>&nbsp;to focus &middot; click to pin</div>
+
+  <div id="info-card" class="panel">
+    <div class="ic-eyebrow"><span class="ic-dot"></span><span class="ic-kind">node</span></div>
+    <div class="ic-name">—</div>
+    <div class="ic-sub">—</div>
+    <div class="ic-divider"></div>
+    <div class="ic-rows"></div>
+    <div class="ic-list"></div>
+    <div class="pin-hint">click to pin · esc to release</div>
+  </div>
+
+  <div id="legend" class="panel">
+    <div class="lhdr">// verticals</div>
+    <div id="legend-rows"></div>
+    <div class="divider"></div>
+    <div class="row investor"><span class="sw"></span>Investor &middot; gold halo</div>
+  </div>
+
+  <div id="stats" class="panel">
+    <div class="row"><span class="k">tendrils</span><span class="v" id="s-tendrils">—</span></div>
+    <div class="row"><span class="k">nodes</span><span class="v" id="s-nodes">—</span></div>
+    <div class="row"><span class="k">pulses/s</span><span class="v" id="s-pps">—</span></div>
+    <div class="row"><span class="k">fps</span><span class="v" id="s-fps">—</span></div>
+  </div>
+
+<script src="https://unpkg.com/d3-dispatch@3"></script>
+<script src="https://unpkg.com/d3-quadtree@3"></script>
+<script src="https://unpkg.com/d3-timer@3"></script>
+<script src="https://unpkg.com/d3-force@3"></script>
+<script>
+(() => {
+  // ---------- vertical color palette ----------
+  const VCOLOR = {
+    "Quantum Computing":            "#00e5ff",
+    "Quantum AI & ML":              "#b14aed",
+    "Quantum Bio & Medicine":       "#2ee6a6",
+    "Quantum Materials & NanoTech": "#ffb547",
+    "Communications":               "#ff6b6b",
+    "Cyber Security":               "#4d8bff",
+    "Other":                        "#b14aed", // map "Other" to AI/ML hue for visual variety
+  };
+  const VSHORT = {
+    "Quantum Computing":            "Quantum Computing",
+    "Quantum AI & ML":              "AI & ML",
+    "Quantum Bio & Medicine":       "Bio & Medicine",
+    "Quantum Materials & NanoTech": "Materials",
+    "Communications":               "Communications",
+    "Cyber Security":               "Cyber Security",
+    "Other":                        "Other / Adjacent",
+  };
+  const GOLD = "#d4af37";
+  const GOLD_HI = "#ffe89c";
+
+  // ---------- canvas ----------
+  const cvs = document.getElementById("stage");
+  const ctx = cvs.getContext("2d");
+  let W = 0, H = 0, CX = 0, CY = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    CX = W / 2; CY = H / 2;
+    cvs.width = Math.floor(W * DPR);
+    cvs.height = Math.floor(H * DPR);
+    cvs.style.width = W + "px";
+    cvs.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  resize();
+  window.addEventListener("resize", () => { resize(); kickLayout(); });
+
+  // ---------- helpers ----------
+  const TAU = Math.PI * 2;
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function hexToRgb(h) {
+    h = h.replace("#","");
+    if (h.length === 3) h = h.split("").map(c=>c+c).join("");
+    const n = parseInt(h, 16);
+    return { r: (n>>16)&255, g: (n>>8)&255, b: n&255 };
+  }
+  function rgba(hex, a) {
+    const c = hexToRgb(hex);
+    return `rgba(${c.r},${c.g},${c.b},${a})`;
+  }
+  function mixRgb(a, b, t) {
+    const A = hexToRgb(a), B = hexToRgb(b);
+    return {
+      r: Math.round(lerp(A.r, B.r, t)),
+      g: Math.round(lerp(A.g, B.g, t)),
+      b: Math.round(lerp(A.b, B.b, t)),
+    };
+  }
+  function rgbStr(c, a) { return `rgba(${c.r},${c.g},${c.b},${a})`; }
+
+  // tiny seeded random for deterministic per-edge phases
+  function mulberry32(seed) {
+    let a = seed | 0;
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ---------- load data ----------
+  let DATA = null;
+  let nodes = [], links = [];
+  let nodeById = new Map();
+  let companyByName = new Map();
+  let investorByName = new Map();
+
+  // expose to global for sim later
+  let sim = null;
+
+  fetch("../data/quantum_ecosystem.json")
+    .then(r => r.json())
+    .then(d => {
+      DATA = d;
+      buildGraph();
+      runLayout();
+      requestAnimationFrame(frame);
+      // gentle continued sim
+      sim.alphaTarget(0.035).restart();
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+  function buildGraph() {
+    const companies = DATA.companies || [];
+    const investments = DATA.investments || [];
+    const investorsArr = DATA.investors || [];
+
+    // count investor activity from edges
+    const invCount = new Map();
+    for (const e of investments) {
+      invCount.set(e.investor, (invCount.get(e.investor) || 0) + 1);
+    }
+
+    // include all 47 companies
+    nodes = [];
+    nodeById = new Map();
+    companyByName = new Map();
+    investorByName = new Map();
+
+    for (const c of companies) {
+      const n = {
+        id: "c::" + c.id,
+        kind: "company",
+        name: c.name,
+        vertical: c.vertical,
+        country: c.country,
+        city: c.city,
+        investors: c.investors || [],
+        founders: c.founders || [],
+        description: c.description || "",
+        // small visual radius based on number of known investors
+        baseR: clamp(4 + ((c.investors||[]).length * 0.4), 4, 8),
+        phase: Math.random() * TAU,
+        period: 3.0 + Math.random() * 2.0,
+      };
+      nodes.push(n);
+      companyByName.set(c.name, n);
+    }
+
+    // pick top investors by edge count, then alphabetical fallback. Limit ~80.
+    const wantedInvestors = Array.from(invCount.entries())
+      .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 80);
+
+    const meta = new Map(investorsArr.map(x => [x.name, x]));
+
+    for (const [iname, cnt] of wantedInvestors) {
+      const m = meta.get(iname) || {};
+      const n = {
+        id: "i::" + iname,
+        kind: "investor",
+        name: iname,
+        country: m.country || null,
+        city: m.city || null,
+        activity: cnt,
+        baseR: clamp(6 + Math.sqrt(cnt) * 3, 6, 12),
+        phase: Math.random() * TAU,
+        period: 3.6 + Math.random() * 2.4,
+      };
+      nodes.push(n);
+      investorByName.set(iname, n);
+    }
+
+    for (const n of nodes) nodeById.set(n.id, n);
+
+    // links
+    links = [];
+    let lid = 0;
+    for (const e of investments) {
+      const inv = investorByName.get(e.investor);
+      const co  = companyByName.get(e.company);
+      if (!inv || !co) continue;
+      const seed = (lid * 2654435761) >>> 0;
+      const rnd = mulberry32(seed);
+      links.push({
+        id: lid++,
+        source: inv.id,
+        target: co.id,
+        // organic params per edge
+        seed,
+        bulgeSign: rnd() < 0.5 ? -1 : 1,
+        bulgeMag: 0.18 + rnd() * 0.22, // 0.18..0.4
+        // drift frequencies (slow)
+        f1: 0.10 + rnd() * 0.10,
+        f2: 0.05 + rnd() * 0.07,
+        ph1: rnd() * TAU,
+        ph2: rnd() * TAU,
+        // pulse cadence
+        pulseInterval: 1.6 + rnd() * 3.4,
+        pulseOffset: rnd() * 4.0,
+        nextPulseT: rnd() * 4.0,
+        // sub branches: every ~7th edge
+        hasBranch: ((lid * 73) % 7) === 0,
+      });
+    }
+
+    // density debug
+    document.getElementById("s-tendrils").textContent = links.length;
+    document.getElementById("s-nodes").textContent = nodes.length;
+
+    // Build legend dynamically from actual data
+    const counts = new Map();
+    for (const n of nodes) if (n.kind === "company") counts.set(n.vertical, (counts.get(n.vertical)||0)+1);
+    const ORDER_LEG = [
+      "Quantum Computing", "Quantum AI & ML", "Quantum Bio & Medicine",
+      "Quantum Materials & NanoTech", "Communications", "Cyber Security", "Other",
+    ];
+    const legendRows = document.getElementById("legend-rows");
+    legendRows.innerHTML = "";
+    for (const v of ORDER_LEG) {
+      const c = counts.get(v);
+      if (!c) continue;
+      const col = VCOLOR[v] || "#8a93a6";
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<span class="sw" style="background:${col};color:${col}"></span><span style="flex:1">${VSHORT[v] || v}</span><span style="color:var(--fg-faint);font-family:'JetBrains Mono',monospace;font-size:10px">${c}</span>`;
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.gap = "10px";
+      legendRows.appendChild(row);
+    }
+  }
+
+  // ---------- layout ----------
+  function runLayout() {
+    // map vertical to a sector around the circle for clustering
+    const verticals = Array.from(new Set(nodes.filter(n => n.kind === "company").map(n => n.vertical)));
+    // canonical ordering for stable layout
+    const ORDER = [
+      "Quantum Computing",
+      "Quantum AI & ML",
+      "Quantum Bio & Medicine",
+      "Quantum Materials & NanoTech",
+      "Communications",
+      "Cyber Security",
+      "Other",
+    ];
+    verticals.sort((a, b) => {
+      const ia = ORDER.indexOf(a); const ib = ORDER.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+    // sector size proportional to count
+    const byVertical = new Map();
+    for (const v of verticals) byVertical.set(v, []);
+    for (const n of nodes) if (n.kind === "company") byVertical.get(n.vertical).push(n);
+
+    // sector size weighted by sqrt(count) — keeps small sectors visible
+    const weights = verticals.map(v => Math.sqrt(byVertical.get(v).length));
+    const sumW = weights.reduce((a,b) => a+b, 0);
+    const GAP = 0.07; // small gap between sectors (rad)
+    const totalGap = GAP * verticals.length;
+    let cursor = -Math.PI / 2; // start at top
+    const sectorRange = new Map();
+    verticals.forEach((v, i) => {
+      const span = (TAU - totalGap) * (weights[i] / sumW);
+      const start = cursor;
+      const center = start + span / 2;
+      sectorRange.set(v, { start, span, center });
+      cursor += span + GAP;
+    });
+
+    const radius = Math.min(W, H) * 0.42;
+
+    for (const [v, list] of byVertical.entries()) {
+      const sr = sectorRange.get(v);
+      list.forEach((n, i) => {
+        const innerSpan = sr.span * 0.82;
+        const off = list.length > 1
+          ? ((i / (list.length - 1)) - 0.5) * innerSpan
+          : 0;
+        const ang = sr.center + off + (Math.random() - 0.5) * 0.04;
+        const rr = radius * (0.82 + Math.random() * 0.14);
+        n.x = CX + Math.cos(ang) * rr;
+        n.y = CY + Math.sin(ang) * rr;
+        // store the per-node target angle, not just sector center
+        n.sectorAng = ang;
+      });
+    }
+
+    // investors: place near average position of their portfolio companies
+    for (const n of nodes) {
+      if (n.kind !== "investor") continue;
+      const portCos = links
+        .filter(l => l.source === n.id || l.target === n.id)
+        .map(l => {
+          const otherId = l.source === n.id ? l.target : l.source;
+          return nodeById.get(otherId);
+        })
+        .filter(x => x && x.kind === "company");
+      if (portCos.length) {
+        let mx = 0, my = 0;
+        for (const c of portCos) { mx += c.x; my += c.y; }
+        mx /= portCos.length; my /= portCos.length;
+        // push slightly toward center (so investors sit interior to companies)
+        const dx = mx - CX, dy = my - CY;
+        const f = 0.55;
+        n.x = CX + dx * f + (Math.random() - 0.5) * 24;
+        n.y = CY + dy * f + (Math.random() - 0.5) * 24;
+      } else {
+        const ang = Math.random() * TAU;
+        n.x = CX + Math.cos(ang) * radius * 0.3;
+        n.y = CY + Math.sin(ang) * radius * 0.3;
+      }
+    }
+
+    // Strong sector force: pulls companies toward their per-node ring target angle
+    function sectorForce(alpha) {
+      for (const n of nodes) {
+        if (n.kind !== "company" || n.sectorAng == null) continue;
+        const ringR = radius * 0.85;
+        const tx = CX + Math.cos(n.sectorAng) * ringR;
+        const ty = CY + Math.sin(n.sectorAng) * ringR;
+        // pull toward ring point — strong enough to hold the ring shape
+        n.vx += (tx - n.x) * 0.060 * alpha;
+        n.vy += (ty - n.y) * 0.060 * alpha;
+      }
+    }
+    // Investors: pull gently toward centroid of their portfolio
+    function investorCentroidForce(alpha) {
+      for (const n of nodes) {
+        if (n.kind !== "investor") continue;
+        if (!n._portfolio) {
+          n._portfolio = links
+            .filter(l => {
+              const sId = typeof l.source === "object" ? l.source.id : l.source;
+              const tId = typeof l.target === "object" ? l.target.id : l.target;
+              return sId === n.id || tId === n.id;
+            })
+            .map(l => {
+              const sId = typeof l.source === "object" ? l.source.id : l.source;
+              const tId = typeof l.target === "object" ? l.target.id : l.target;
+              return nodeById.get(sId === n.id ? tId : sId);
+            })
+            .filter(x => x && x.kind === "company");
+        }
+        if (!n._portfolio.length) continue;
+        let mx = 0, my = 0;
+        for (const c of n._portfolio) { mx += c.x; my += c.y; }
+        mx /= n._portfolio.length; my /= n._portfolio.length;
+        // pull toward an interior point: 60% of the way from center to centroid
+        const tx = CX + (mx - CX) * 0.55;
+        const ty = CY + (my - CY) * 0.55;
+        n.vx += (tx - n.x) * 0.025 * alpha;
+        n.vy += (ty - n.y) * 0.025 * alpha;
+      }
+    }
+    // boundary force: keep nodes inside a generous disk
+    function boundary(alpha) {
+      const maxR = Math.min(W, H) * 0.47;
+      for (const n of nodes) {
+        const dx = n.x - CX, dy = n.y - CY;
+        const r = Math.sqrt(dx*dx + dy*dy);
+        if (r > maxR) {
+          const k = (r - maxR) / r;
+          n.vx -= dx * k * 0.08 * alpha;
+          n.vy -= dy * k * 0.08 * alpha;
+        }
+      }
+    }
+
+    sim = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(70).strength(0.08))
+      .force("charge", d3.forceManyBody().strength(d => d.kind === "investor" ? -120 : -200).distanceMax(360))
+      .force("collide", d3.forceCollide().radius(d => d.baseR + 9).strength(0.9))
+      .force("sector", sectorForce)
+      .force("investor", investorCentroidForce)
+      .force("boundary", boundary)
+      .alpha(1.0)
+      .alphaDecay(0.012);
+
+    // pre-relax
+    for (let i = 0; i < 360; i++) sim.tick();
+  }
+
+  function kickLayout() {
+    if (!sim) return;
+    sim.alpha(0.4).restart();
+  }
+
+  // ---------- interaction ----------
+  let hovered = null;
+  let pinned = null;
+  let mouseX = -9999, mouseY = -9999;
+  let lastInteractTs = 0;
+
+  cvs.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    lastInteractTs = performance.now();
+    const n = pickNode(mouseX, mouseY);
+    if (n !== hovered) {
+      hovered = n;
+      if (!pinned) updateInfoCard(hovered);
+      if (hovered) burstPulses(hovered);
+      cvs.style.cursor = hovered ? "pointer" : "default";
+    }
+  });
+  cvs.addEventListener("mouseleave", () => {
+    mouseX = -9999; mouseY = -9999;
+    if (hovered) {
+      hovered = null;
+      if (!pinned) updateInfoCard(null);
+    }
+  });
+  cvs.addEventListener("click", (e) => {
+    const n = pickNode(e.clientX, e.clientY);
+    if (n) {
+      if (pinned && pinned.id === n.id) {
+        pinned = null;
+      } else {
+        pinned = n;
+        burstPulses(n);
+      }
+      updateInfoCard(pinned || hovered);
+    } else {
+      pinned = null;
+      updateInfoCard(hovered);
+    }
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      pinned = null;
+      updateInfoCard(hovered);
+    }
+  });
+
+  function pickNode(mx, my) {
+    if (!nodes.length) return null;
+    // account for current rotation
+    const a = -globalRot;
+    const dx = mx - CX, dy = my - CY;
+    const lx = CX + dx * Math.cos(a) - dy * Math.sin(a);
+    const ly = CY + dx * Math.sin(a) + dy * Math.cos(a);
+    let best = null, bestD = 1e9;
+    for (const n of nodes) {
+      const ddx = n.x - lx, ddy = n.y - ly;
+      const d2 = ddx*ddx + ddy*ddy;
+      const r = (n.baseR + 8); // hit radius padded
+      if (d2 < r*r && d2 < bestD) { bestD = d2; best = n; }
+    }
+    return best;
+  }
+
+  // ---------- pulses ----------
+  // a pulse travels along a link from t=0 to t=1 over `dur` seconds
+  const pulses = []; // {linkIdx, start, dur, intensity}
+  function spawnPulse(link, dur=1.3, intensity=1.0) {
+    pulses.push({ link, start: performance.now()/1000, dur, intensity });
+  }
+  function burstPulses(node) {
+    // immediate pulse along all incident edges
+    for (const l of links) {
+      if (l.source.id === node.id || l.target.id === node.id) {
+        spawnPulse(l, 1.1, 1.4);
+      }
+    }
+  }
+  function autoPulses(t) {
+    for (const l of links) {
+      if (t >= l.nextPulseT) {
+        spawnPulse(l, 1.3 + Math.random()*0.5, 0.9 + Math.random()*0.4);
+        l.nextPulseT = t + l.pulseInterval * (0.7 + Math.random() * 0.6);
+      }
+    }
+  }
+  // pulses-per-second tracker
+  let pulseCounter = 0;
+  let pulseWindowStart = 0;
+  let pulsesPerSec = 0;
+
+  // ---------- info card ----------
+  const infoCard = document.getElementById("info-card");
+  const icDot = infoCard.querySelector(".ic-dot");
+  const icKind = infoCard.querySelector(".ic-kind");
+  const icName = infoCard.querySelector(".ic-name");
+  const icSub  = infoCard.querySelector(".ic-sub");
+  const icRows = infoCard.querySelector(".ic-rows");
+  const icList = infoCard.querySelector(".ic-list");
+
+  function updateInfoCard(n) {
+    if (!n) { infoCard.classList.remove("shown"); infoCard.classList.remove("pinned"); return; }
+    if (n.kind === "company") {
+      const c = VCOLOR[n.vertical] || "#8a93a6";
+      icDot.style.color = c;
+      icDot.style.background = c;
+      icKind.textContent = "Venture";
+      icName.style.color = "#fff";
+      icName.textContent = n.name;
+      icSub.textContent = (VSHORT[n.vertical] || n.vertical || "") + (n.country ? "  ·  " + n.country : "");
+      icRows.innerHTML = "";
+      const rows = [
+        ["Vertical", VSHORT[n.vertical] || n.vertical || "—"],
+        ["Country",  n.country || "—"],
+        ["City",     n.city || "—"],
+        ["Investors", String((n.investors||[]).length)],
+        ["Founders", String((n.founders||[]).length)],
+      ];
+      for (const [k,v] of rows) {
+        const r = document.createElement("div");
+        r.className = "ic-row";
+        r.innerHTML = `<span class="k">${k}</span><span class="v">${v}</span>`;
+        icRows.appendChild(r);
+      }
+      const invs = (n.investors||[]).map(i => `<b>${i}</b>`).join(" · ");
+      const founds = (n.founders||[]).join(" · ");
+      icList.innerHTML =
+        (invs ? `<div style="margin-bottom:6px">${invs}</div>` : "") +
+        (founds ? `<div style="color:var(--fg-faint)">founders &mdash; ${founds}</div>` : "");
+    } else {
+      icDot.style.color = GOLD;
+      icDot.style.background = GOLD;
+      icKind.textContent = "Investor";
+      icName.style.color = GOLD_HI;
+      icName.textContent = n.name;
+      icSub.textContent = (n.country || "") + (n.city ? "  ·  " + n.city : "");
+      icRows.innerHTML = "";
+      // collect portfolio
+      const portfolio = links
+        .filter(l => l.source.id === n.id || l.target.id === n.id)
+        .map(l => l.source.id === n.id ? l.target : l.source)
+        .filter(x => x.kind === "company");
+      const rows = [
+        ["Portfolio", String(portfolio.length)],
+        ["Country", n.country || "—"],
+        ["City", n.city || "—"],
+      ];
+      for (const [k,v] of rows) {
+        const r = document.createElement("div");
+        r.className = "ic-row";
+        r.innerHTML = `<span class="k">${k}</span><span class="v">${v}</span>`;
+        icRows.appendChild(r);
+      }
+      const list = portfolio.slice(0, 24).map(c => {
+        const col = VCOLOR[c.vertical] || "#8a93a6";
+        return `<span style="color:${col}">●</span> <b>${c.name}</b>`;
+      }).join(" &nbsp; ");
+      icList.innerHTML = list;
+    }
+    infoCard.classList.add("shown");
+    infoCard.classList.toggle("pinned", n === pinned);
+  }
+
+  // ---------- background drift / global rotation ----------
+  let globalRot = 0;
+  // rotation pause mechanic: if user interacted recently, slow / pause global rotation
+  function rotationSpeed() {
+    const now = performance.now();
+    const since = (now - lastInteractTs) / 1000;
+    if (since < 1.5) return 0; // hold
+    const ramp = clamp((since - 1.5) / 3.0, 0, 1);
+    return TAU / 120.0 * ramp; // 120s per rev when fully active
+  }
+
+  // ---------- drawing primitives ----------
+  function nodeColor(n) {
+    if (n.kind === "investor") return GOLD;
+    return VCOLOR[n.vertical] || "#8a93a6";
+  }
+
+  function drawNode(n, time, dimFactor) {
+    const pulse = 1 + 0.10 * Math.sin(time * (TAU / n.period) + n.phase);
+    const r = n.baseR * pulse;
+    const isInvestor = n.kind === "investor";
+    const col = nodeColor(n);
+    const focused = (hovered && hovered.id === n.id) || (pinned && pinned.id === n.id);
+
+    const alphaMul = focused ? 1.25 : (1 - dimFactor * 0.78);
+
+    // outer halo
+    const haloR = r * (isInvestor ? 4.2 : 3.4);
+    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, haloR);
+    g.addColorStop(0,   rgba(col, 0.55 * alphaMul));
+    g.addColorStop(0.4, rgba(col, 0.18 * alphaMul));
+    g.addColorStop(1,   rgba(col, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(n.x, n.y, haloR, 0, TAU); ctx.fill();
+
+    // mid glow
+    const midR = r * 1.9;
+    const g2 = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, midR);
+    g2.addColorStop(0,   rgba(isInvestor ? GOLD_HI : "#ffffff", 0.95 * alphaMul));
+    g2.addColorStop(0.35, rgba(col, 0.85 * alphaMul));
+    g2.addColorStop(1,   rgba(col, 0));
+    ctx.fillStyle = g2;
+    ctx.beginPath(); ctx.arc(n.x, n.y, midR, 0, TAU); ctx.fill();
+
+    // hard core
+    ctx.fillStyle = rgba("#ffffff", 0.95 * alphaMul);
+    ctx.beginPath(); ctx.arc(n.x, n.y, r * 0.55, 0, TAU); ctx.fill();
+
+    // focused ring
+    if (focused) {
+      ctx.strokeStyle = rgba(isInvestor ? GOLD_HI : "#ffffff", 0.9);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(n.x, n.y, r * 2.2 + 4 + 1.5*Math.sin(time*4), 0, TAU); ctx.stroke();
+    }
+  }
+
+  // bezier sampling helper
+  function bezPoint(p0, c1, c2, p1, t) {
+    const u = 1 - t;
+    const w0 = u*u*u, w1 = 3*u*u*t, w2 = 3*u*t*t, w3 = t*t*t;
+    return {
+      x: w0*p0.x + w1*c1.x + w2*c2.x + w3*p1.x,
+      y: w0*p0.y + w1*c1.y + w2*c2.y + w3*p1.y,
+    };
+  }
+
+  function drawTendril(l, time, dimFactor) {
+    const s = l.source, t = l.target;
+    const inv = s.kind === "investor" ? s : t;
+    const co  = s.kind === "company"  ? s : t;
+    const sx = inv.x, sy = inv.y;
+    const tx = co.x,  ty = co.y;
+
+    const dx = tx - sx, dy = ty - sy;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    // unit normal (perpendicular)
+    const nx = -dy / dist, ny = dx / dist;
+
+    // primary bulge offset perpendicular to the line
+    const bulge = dist * l.bulgeMag * l.bulgeSign;
+
+    // organic drift — sum of slow sines (cheap noise)
+    const driftA = Math.cos(time * l.f1 + l.ph1) * (dist * 0.05);
+    const driftB = Math.cos(time * l.f2 + l.ph2 + 1.13) * (dist * 0.04);
+    const driftC = Math.sin(time * 0.13 + l.ph1 * 1.7) * 5.0;
+
+    // control points: one near each endpoint, biased toward straight tangent + perpendicular bulge + drift
+    const c1 = {
+      x: sx + dx * 0.30 + nx * (bulge * 0.60 + driftA),
+      y: sy + dy * 0.30 + ny * (bulge * 0.60 + driftA),
+    };
+    const c2 = {
+      x: sx + dx * 0.70 + nx * (bulge * 0.60 + driftB),
+      y: sy + dy * 0.70 + ny * (bulge * 0.60 + driftB),
+    };
+    // small extra wobble at the midpoint for organic feel
+    c1.x += nx * driftC * 0.4; c1.y += ny * driftC * 0.4;
+    c2.x -= nx * driftC * 0.4; c2.y -= ny * driftC * 0.4;
+
+    // cache geometry on the link for pulse rendering
+    l._geom = { sx, sy, tx, ty, c1, c2 };
+
+    const investorCol = GOLD;
+    const companyCol  = VCOLOR[co.vertical] || "#8a93a6";
+
+    const focused = (hovered && (hovered.id === inv.id || hovered.id === co.id))
+                 || (pinned && (pinned.id === inv.id || pinned.id === co.id));
+    const dim = clamp(dimFactor * (focused ? 0.0 : 1.0), 0, 1);
+    const baseAlpha = focused ? 1.0 : (1 - dim * 0.85);
+
+    // Layered strokes:
+    // 1) outer halo: thick, low alpha, gradient gold->vertical
+    const grad = ctx.createLinearGradient(sx, sy, tx, ty);
+    grad.addColorStop(0, rgba(investorCol, 0.22 * baseAlpha));
+    grad.addColorStop(1, rgba(companyCol,  0.22 * baseAlpha));
+
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, tx, ty);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = focused ? 11 : 8;
+    ctx.stroke();
+
+    // 2) mid glow
+    const grad2 = ctx.createLinearGradient(sx, sy, tx, ty);
+    grad2.addColorStop(0, rgba(investorCol, 0.52 * baseAlpha));
+    grad2.addColorStop(1, rgba(companyCol,  0.52 * baseAlpha));
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, tx, ty);
+    ctx.strokeStyle = grad2;
+    ctx.lineWidth = focused ? 4.0 : 2.6;
+    ctx.stroke();
+
+    // 3) core line
+    const grad3 = ctx.createLinearGradient(sx, sy, tx, ty);
+    grad3.addColorStop(0, rgba(GOLD_HI, 0.88 * baseAlpha));
+    grad3.addColorStop(1, rgba(companyCol, 0.95 * baseAlpha));
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, tx, ty);
+    ctx.strokeStyle = grad3;
+    ctx.lineWidth = focused ? 1.3 : 0.9;
+    ctx.stroke();
+
+    // sub-branches: spawned off the curve at ~t=0.55, fading away
+    if (l.hasBranch) {
+      const t1 = 0.55;
+      const p = bezPoint({x:sx,y:sy}, c1, c2, {x:tx,y:ty}, t1);
+      const tan = bezPoint({x:sx,y:sy}, c1, c2, {x:tx,y:ty}, t1 + 0.01);
+      const tdx = tan.x - p.x, tdy = tan.y - p.y;
+      const tlen = Math.sqrt(tdx*tdx + tdy*tdy) || 1;
+      const ux = tdx / tlen, uy = tdy / tlen;
+      // perpendicular off-shoot
+      const sideSign = (l.id % 2 === 0) ? 1 : -1;
+      const bx = -uy * sideSign, by = ux * sideSign;
+      const branchLen = dist * 0.18 * (0.8 + 0.4 * Math.sin(time * 0.5 + l.ph1));
+      const bc1 = { x: p.x + ux * branchLen * 0.3 + bx * branchLen * 0.4,
+                    y: p.y + uy * branchLen * 0.3 + by * branchLen * 0.4 };
+      const bend = { x: p.x + ux * branchLen * 0.7 + bx * branchLen * 1.2 + Math.cos(time*0.4+l.ph2)*4,
+                     y: p.y + uy * branchLen * 0.7 + by * branchLen * 1.2 + Math.sin(time*0.4+l.ph2)*4 };
+
+      const bgrad = ctx.createLinearGradient(p.x, p.y, bend.x, bend.y);
+      bgrad.addColorStop(0, rgba(companyCol, 0.45 * baseAlpha));
+      bgrad.addColorStop(1, rgba(companyCol, 0));
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.quadraticCurveTo(bc1.x, bc1.y, bend.x, bend.y);
+      ctx.strokeStyle = bgrad;
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+    }
+  }
+
+  function drawPulses(time) {
+    // additive blending for the pulse heads
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i];
+      const t = (time - p.start) / p.dur;
+      if (t >= 1) { pulses.splice(i, 1); continue; }
+      const l = p.link;
+      const g = l._geom;
+      if (!g) continue;
+      const inv = l.source.kind === "investor" ? l.source : l.target;
+      const co  = l.source.kind === "company"  ? l.source : l.target;
+      const companyCol = VCOLOR[co.vertical] || "#8a93a6";
+
+      // ease the parameter slightly so it accelerates / decelerates
+      const tt = t * t * (3 - 2 * t);
+      const head = bezPoint({x:g.sx,y:g.sy}, g.c1, g.c2, {x:g.tx,y:g.ty}, tt);
+
+      // small glowing trail: render a few segments behind the head along the curve
+      const N = 7;
+      for (let k = 0; k < N; k++) {
+        const tk = clamp(tt - k * 0.025, 0, 1);
+        const pt = bezPoint({x:g.sx,y:g.sy}, g.c1, g.c2, {x:g.tx,y:g.ty}, tk);
+        const a = (1 - k / N) * (1 - t * 0.6) * p.intensity;
+        // mix gold->vertical along the trail
+        const c = mixRgb(GOLD_HI, companyCol, tk);
+        const r = 7.5 - k * 0.7;
+        const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 1.6);
+        grd.addColorStop(0, rgbStr(c, 0.85 * a));
+        grd.addColorStop(0.5, rgbStr(c, 0.30 * a));
+        grd.addColorStop(1, rgbStr(c, 0));
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r * 1.6, 0, TAU); ctx.fill();
+      }
+      // hot spot
+      const hot = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 9);
+      hot.addColorStop(0, rgba("#ffffff", 0.95 * (1 - t * 0.5)));
+      hot.addColorStop(0.4, rgba(GOLD_HI, 0.6 * (1 - t * 0.5)));
+      hot.addColorStop(1, rgba(companyCol, 0));
+      ctx.fillStyle = hot;
+      ctx.beginPath(); ctx.arc(head.x, head.y, 9, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ---------- main loop ----------
+  let prevT = 0;
+  let fpsAvg = 60;
+  let lastFpsUpdate = 0;
+  let frameCount = 0;
+  let pulseCountInWindow = 0;
+  let pulseWindowAt = 0;
+
+  function frame(now) {
+    const time = now / 1000;
+    const dt = prevT ? Math.min((now - prevT) / 1000, 0.05) : 0.016;
+    prevT = now;
+
+    if (sim) sim.tick();
+
+    // global rotation
+    globalRot += rotationSpeed() * dt;
+
+    // motion-trail clear: low-alpha black overlay
+    ctx.save();
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "rgba(4,5,10,0.20)";
+    ctx.fillRect(0, 0, W, H);
+
+    // Apply global rotation around center (subtle)
+    ctx.translate(CX, CY);
+    ctx.rotate(globalRot);
+    ctx.translate(-CX, -CY);
+
+    // dim factor for non-focused when something is active
+    const focusActive = !!(hovered || pinned);
+    const dimFactor = focusActive ? 1.0 : 0.0;
+
+    // auto pulses
+    autoPulses(time);
+    const beforePulses = pulses.length;
+
+    // draw tendrils
+    for (const l of links) {
+      drawTendril(l, time, dimFactor);
+    }
+    // draw pulses
+    drawPulses(time);
+
+    // draw nodes (on top)
+    // additive for nodes
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (const n of nodes) drawNode(n, time, dimFactor);
+    ctx.restore();
+
+    ctx.restore();
+
+    // fps
+    frameCount++;
+    if (now - lastFpsUpdate > 500) {
+      const fps = frameCount / ((now - lastFpsUpdate) / 1000);
+      fpsAvg = fpsAvg * 0.7 + fps * 0.3;
+      document.getElementById("s-fps").textContent = fpsAvg.toFixed(0);
+      lastFpsUpdate = now;
+      frameCount = 0;
+    }
+    // pulses-per-second tracker
+    pulseCountInWindow += Math.max(0, beforePulses - 0); // approximate
+    if (now - pulseWindowAt > 1000) {
+      pulsesPerSec = pulses.length;
+      document.getElementById("s-pps").textContent = pulses.length.toFixed(0);
+      pulseWindowAt = now;
+    }
+
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>

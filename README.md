@@ -14,6 +14,10 @@ Five interactive prototypes for visualizing the quantum-tech ecosystem — compa
 | 06 | Semantic Map — TF-IDF + UMAP scatter | python · canvas · umap | [open](https://quantum-industry-analytics.github.io/visualizations/06-semantic-map/) |
 | 07 | Money → Talent Sankey — four-stage flow | d3-sankey · svg | [open](https://quantum-industry-analytics.github.io/visualizations/07-sankey-money-talent/) |
 | 08 | Temporal Arc Diagram — VC genealogy timeline | d3 · svg · timeline | [open](https://quantum-industry-analytics.github.io/visualizations/08-temporal-arc/) |
+| 09 | Quantum Circuit Schema — Qiskit-style entanglement | d3 · svg | [open](https://quantum-industry-analytics.github.io/visualizations/09-quantum-circuit-schema/) |
+| 10 | Voronoi Territory Map — tessellation + contours | d3-delaunay · canvas | [open](https://quantum-industry-analytics.github.io/visualizations/10-voronoi-territory/) |
+| 11 | Volumetric Heat Cloud — 3D particle clouds | three.js · particles | [open](https://quantum-industry-analytics.github.io/visualizations/11-volumetric-heat-cloud/) |
+| 12 | Mycelial Living Graph — breathing tendrils | canvas · d3-force | [open](https://quantum-industry-analytics.github.io/visualizations/12-mycelial-graph/) |
 
 ## Repo layout
 

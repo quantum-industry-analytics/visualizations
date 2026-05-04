@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VOLUMETRIC HEAT CLOUDS — Geo · Year · Vertical Density</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #02030a;
+    --bg-2: #050918;
+    --panel: rgba(8, 14, 26, 0.72);
+    --panel-strong: rgba(10, 18, 32, 0.92);
+    --panel-border: rgba(120, 180, 255, 0.14);
+    --ink: #e9f1ff;
+    --ink-dim: #8aa0c2;
+    --ink-faint: #5a708f;
+    --accent: #00e5ff;
+    --grid-cyan: #003a4a;
+    --c-quantum: #00e5ff;
+    --c-ai: #b14aed;
+    --c-bio: #2ee6a6;
+    --c-mat: #ffb547;
+    --c-comm: #ff6b6b;
+    --c-cyber: #4d8bff;
+    --c-other: #6f7d96;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 50% 60%, #060c1c 0%, #02030a 65%, #010108 100%);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  #app { position: fixed; inset: 0; }
+  #scene { position: absolute; inset: 0; z-index: 1; }
+
+  /* ---- Title ---- */
+  .title-block {
+    position: absolute;
+    top: 22px; left: 26px;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    max-width: 540px;
+  }
+  .title-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+  }
+  .title-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    margin-right: 10px;
+    border-radius: 50%;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent); }
+    50% { opacity: 0.4; box-shadow: 0 0 4px var(--accent); }
+  }
+
+  .title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 27px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.04;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .title .accent { color: var(--accent); }
+  .title .dim { color: var(--ink-dim); font-weight: 400; }
+
+  .subtitle {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.12em;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+  }
+  .subtitle .v { color: var(--ink); font-weight: 600; }
+  .subtitle .sep { color: var(--ink-faint); }
+
+  .tagline {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    max-width: 460px;
+    font-style: italic;
+  }
+
+  /* ---- Vertical filter chips ---- */
+  .filters {
+    position: absolute;
+    top: 22px; right: 26px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .filters .filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 460px;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 11px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 99px;
+    color: var(--ink-dim);
+    cursor: pointer;
+    user-select: none;
+    transition: all .18s ease;
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .chip:hover { color: var(--ink); border-color: rgba(120, 200, 255, 0.36); }
+  .chip.active {
+    color: #02030a;
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .chip .swatch {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px currentColor;
+  }
+  .chip[data-vertical="all"].active { background: rgba(255,255,255,0.86); color: #02030a; }
+
+  /* ---- Legend ---- */
+  .legend {
+    position: absolute;
+    bottom: 110px;
+    right: 26px;
+    z-index: 10;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 14px 16px 13px;
+    backdrop-filter: blur(10px);
+    min-width: 220px;
+    pointer-events: none;
+  }
+  .legend h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--ink-dim);
+  }
+  .legend-row .swatch {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .legend .annotation {
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--panel-border);
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .legend .annotation b { color: var(--accent); font-weight: 500; }
+
+  /* ---- Time slider ---- */
+  .time-bar {
+    position: absolute;
+    bottom: 22px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: min(820px, calc(100% - 60px));
+    background: var(--panel-strong);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 14px 18px 12px;
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .time-bar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .time-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .time-display {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .time-display .all-tag {
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    margin-left: 9px;
+  }
+  .time-slider-wrap {
+    position: relative;
+    height: 38px;
+    display: flex;
+    align-items: center;
+  }
+  #time-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.10), rgba(0, 229, 255, 0.45));
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  #time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent), 0 0 4px #fff inset;
+    cursor: pointer;
+    border: 2px solid #02030a;
+  }
+  #time-slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent);
+    cursor: pointer;
+    border: 2px solid #02030a;
+  }
+  .time-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+  }
+  .time-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid rgba(0, 229, 255, 0.4);
+    border-radius: 99px;
+    color: var(--accent);
+    cursor: pointer;
+    user-select: none;
+    transition: all .15s;
+  }
+  .time-btn:hover { background: rgba(0, 229, 255, 0.24); }
+  .time-btn.active { background: var(--accent); color: #02030a; }
+
+  /* ---- Hover info card ---- */
+  .info-card {
+    position: absolute;
+    z-index: 11;
+    background: var(--panel-strong);
+    border: 1px solid rgba(0, 229, 255, 0.32);
+    border-radius: 12px;
+    padding: 14px 16px 13px;
+    backdrop-filter: blur(14px);
+    min-width: 240px;
+    max-width: 320px;
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 1.5;
+    pointer-events: none;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 22px rgba(0, 229, 255, 0.18);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .info-card.visible { opacity: 1; transform: translateY(0); }
+  .info-card .city {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 1px;
+  }
+  .info-card .country {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 11px;
+  }
+  .info-card .row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin: 8px 0 4px;
+  }
+  .info-card .ic-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .info-card .ic-stat {
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    padding: 7px 8px;
+  }
+  .info-card .ic-stat .num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .info-card .ic-stat .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .info-card .timeline {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 38px;
+    margin-bottom: 2px;
+  }
+  .info-card .tl-bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 1px;
+    min-height: 2px;
+    opacity: 0.35;
+    position: relative;
+  }
+  .info-card .tl-bar.has { opacity: 1; box-shadow: 0 0 6px var(--accent); }
+  .info-card .tl-years {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .info-card .verts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .info-card .v-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.05);
+    color: var(--ink-dim);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .info-card .v-pill .vsw {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px currentColor;
+  }
+  .info-card .companies {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.02em;
+    line-height: 1.55;
+  }
+  .info-card .companies b { color: var(--ink); font-weight: 500; }
+
+  /* ---- Status bar ---- */
+  .status {
+    position: absolute;
+    bottom: 22px;
+    left: 26px;
+    z-index: 10;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .status .live { color: var(--accent); }
+  .status .live::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 7px;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.6s ease-in-out infinite;
+    transform: translateY(-1px);
+  }
+
+  /* loading */
+  #loading {
+    position: absolute; inset: 0; z-index: 20;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.6s;
+  }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  #loading .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  #loading .lab::after {
+    content: '';
+    display: inline-block;
+    width: 22px; margin-left: 8px;
+    border-bottom: 1px solid var(--accent);
+    animation: load 1.6s ease-in-out infinite;
+    transform: translateY(-3px);
+  }
+  @keyframes load {
+    0%, 100% { width: 4px; opacity: 0.3; }
+    50% { width: 36px; opacity: 1; }
+  }
+
+  canvas { display: block; }
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="app">
+  <div id="loading"><div class="lab">Compiling volumetric field</div></div>
+  <div id="scene"></div>
+
+  <div class="title-block">
+    <div class="title-eyebrow">Volumetric simulation · 11/n</div>
+    <div class="title">Volumetric Heat <span class="accent">Clouds</span><br/><span class="dim">Geo · Year · Vertical Density</span></div>
+    <div class="subtitle">
+      <span><span class="v" id="s-cities">—</span> cities</span>
+      <span class="sep">/</span>
+      <span><span class="v" id="s-companies">—</span> companies</span>
+      <span class="sep">/</span>
+      <span><span class="v" id="s-investments">—</span> investments</span>
+      <span class="sep">/</span>
+      <span><span class="v" id="s-particles">—</span> particles</span>
+    </div>
+    <div class="tagline">Each translucent cloud is one (city × year × vertical) aggregate of investment activity. Altitude encodes year — recent years rise. Drift the camera and the spatial story stratifies.</div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-label">Isolate vertical</div>
+    <div class="chips" id="vert-chips"></div>
+  </div>
+
+  <div class="legend">
+    <h4>Verticals</h4>
+    <div id="legend-rows"></div>
+    <div class="annotation"><b>Altitude</b> ↑ = year (2010 → 2025). Cloud size = number of investments. Translucent layers stack into a "history of capital, in 3D."</div>
+  </div>
+
+  <div class="time-bar">
+    <div class="time-bar-top">
+      <span class="time-bar-label">Year filter</span>
+      <span class="time-display"><span id="time-year">2010 – 2025</span> <span class="all-tag" id="time-all-tag">ALL</span></span>
+      <button class="time-btn active" id="time-all">All Years</button>
+    </div>
+    <div class="time-slider-wrap">
+      <input type="range" id="time-slider" min="2010" max="2025" step="1" value="2017" />
+    </div>
+    <div class="time-ticks">
+      <span>2010</span><span>2013</span><span>2016</span><span>2019</span><span>2022</span><span>2025</span>
+    </div>
+  </div>
+
+  <div class="info-card" id="info-card">
+    <div class="city" id="ic-city">—</div>
+    <div class="country" id="ic-country">—</div>
+    <div class="ic-stats">
+      <div class="ic-stat"><div class="num" id="ic-companies">0</div><div class="lab">Companies</div></div>
+      <div class="ic-stat"><div class="num" id="ic-investments">0</div><div class="lab">Investments</div></div>
+      <div class="ic-stat"><div class="num" id="ic-investors">0</div><div class="lab">Investors</div></div>
+    </div>
+    <div class="row-label">Activity by year</div>
+    <div class="timeline" id="ic-timeline"></div>
+    <div class="tl-years"><span>2010</span><span>2025</span></div>
+    <div class="row-label">Top verticals</div>
+    <div class="verts" id="ic-verts"></div>
+    <div class="row-label">Companies</div>
+    <div class="companies" id="ic-companies-list">—</div>
+  </div>
+
+  <div class="status">
+    <span class="live">Volumetric field active</span>
+    <span><span id="status-cam">Auto-orbit</span> · <span id="status-fps">— FPS</span></span>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// =============================================================
+// CITY → (lat, lng) MAP (cities in `geo` + major investor HQs)
+// =============================================================
+const CITY_COORDS = {
+  // North America
+  "Palo Alto": [37.4419, -122.1430],
+  "San Francisco": [37.7749, -122.4194],
+  "Mountain View": [37.3861, -122.0839],
+  "Menlo Park": [37.4530, -122.1817],
+  "San Jose": [37.3382, -121.8863],
+  "San Mateo": [37.5630, -122.3255],
+  "Santa Clara": [37.3541, -121.9552],
+  "Berkeley": [37.8716, -122.2727],
+  "Burlingame": [37.5841, -122.3661],
+  "Cupertino": [37.3230, -122.0322],
+  "Irvine": [33.6846, -117.8265],
+  "Long Beach": [33.7701, -118.1937],
+  "San Diego": [32.7157, -117.1611],
+  "Thousand Oaks": [34.1706, -118.8376],
+  "Sandy": [40.5649, -111.8389],
+  "Boulder": [40.0150, -105.2705],
+  "Broomfield": [39.9205, -105.0867],
+  "Louisville": [39.9778, -105.1319],
+  "Seattle": [47.6062, -122.3321],
+  "Redmond": [47.6740, -122.1215],
+  "Austin": [30.2672, -97.7431],
+  "Dallas": [32.7767, -96.7970],
+  "Houston": [29.7604, -95.3698],
+  "Chicago": [41.8781, -87.6298],
+  "Milwaukee": [43.0389, -87.9065],
+  "St Louis": [38.6270, -90.1994],
+  "Omaha": [41.2565, -95.9345],
+  "Pittsburgh": [40.4406, -79.9959],
+  "Atlanta": [33.7490, -84.3880],
+  "Charlotte": [35.2271, -80.8431],
+  "Chapel Hill": [35.9132, -79.0558],
+  "Lititz": [40.1573, -76.3074],
+  "Bala Cynwyd": [40.0040, -75.2349],
+  "Baltimore": [39.2904, -76.6122],
+  "Washington": [38.9072, -77.0369],
+  "Bethesda": [38.9847, -77.0947],
+  "Alexandria": [38.8048, -77.0469],
+  "Arlington": [38.8816, -77.0910],
+  "Armonk": [41.1265, -73.7140],
+  "New York": [40.7128, -74.0060],
+  "Hoboken": [40.7440, -74.0324],
+  "Teaneck": [40.8976, -74.0160],
+  "Stamford": [41.0534, -73.5387],
+  "Greenwich": [41.0262, -73.6282],
+  "Whitehouse Station": [40.6195, -74.7672],
+  "Boston": [42.3601, -71.0589],
+  "Cambridge": [42.3736, -71.1097],
+  "Burlington": [42.5048, -71.1956],
+  "Manchester": [42.9956, -71.4548],
+  "Jackson": [43.4799, -110.7624],
+  "College Park": [38.9897, -76.9378],
+  "Roanoke": [37.2710, -79.9414],
+  "Augusta": [33.4735, -82.0105],
+  "Miami": [25.7617, -80.1918],
+  // Canada
+  "Toronto": [43.6532, -79.3832],
+  "Vancouver": [49.2827, -123.1207],
+  "Montréal": [45.5017, -73.5673],
+  "Calgary": [51.0447, -114.0719],
+  "Sherbrooke": [45.4000, -71.8990],
+  // Europe
+  "London": [51.5074, -0.1278],
+  "Cambridge_UK": [52.2053, 0.1218],
+  "Oxford": [51.7520, -1.2577],
+  "Newbury": [51.4012, -1.3236],
+  "Sheffield": [53.3811, -1.4701],
+  "Swindon": [51.5685, -1.7722],
+  "Paris": [48.8566, 2.3522],
+  "Palaiseau": [48.7144, 2.2459],
+  "Maisons-alfort": [48.8025, 2.4392],
+  "Berlin": [52.5200, 13.4050],
+  "Stuttgart": [48.7758, 9.1829],
+  "Landshut": [48.5377, 12.1517],
+  "Ludwigshafen": [49.4774, 8.4452],
+  "Neckarsulm": [49.1867, 9.2245],
+  "Munich": [48.1351, 11.5820],
+  "Madrid": [40.4168, -3.7038],
+  "San Sebastian": [43.3183, -1.9812],
+  "Donostia-san Sebastián": [43.3183, -1.9812],
+  "Rome": [41.9028, 12.4964],
+  "Amsterdam": [52.3676, 4.9041],
+  "Brussels": [50.8503, 4.3517],
+  "Geneva": [46.2044, 6.1432],
+  "Cointrin": [46.2381, 6.1080],
+  "Zürich": [47.3769, 8.5417],
+  "Zug": [47.1662, 8.5155],
+  "Helsinki": [60.1699, 24.9384],
+  "Espoo": [60.2055, 24.6559],
+  "Turku": [60.4518, 22.2666],
+  "Copenhagen": [55.6761, 12.5683],
+  "Hellerup": [55.7297, 12.5786],
+  "Oslo": [59.9139, 10.7522],
+  "Reykjavík": [64.1466, -21.9426],
+  "Luxembourg": [49.6116, 6.1319],
+  "Esch-sur-alzette": [49.4960, 5.9806],
+  // Middle East / Africa
+  "Dubai": [25.2048, 55.2708],
+  "Jerusalem": [31.7683, 35.2137],
+  "Herzliya": [32.1640, 34.8443],
+  "Port Louis": [-20.1609, 57.5012],
+  // Asia
+  "Tokyo": [35.6762, 139.6503],
+  "Minato": [35.6581, 139.7515],
+  "Seoul": [37.5665, 126.9780],
+  "Hong Kong": [22.3193, 114.1694],
+  "Central": [22.2820, 114.1588],
+  "Shanghai": [31.2304, 121.4737],
+  "Xuhui": [31.1880, 121.4365],
+  "Shenzhen": [22.5431, 114.0579],
+  "Singapore": [1.3521, 103.8198],
+  "Mumbai": [19.0760, 72.8777],
+  "Delhi": [28.7041, 77.1025],
+  "Noida": [28.5355, 77.3910],
+  "Jakarta": [-6.2088, 106.8456],
+  "Hsinchu": [24.8138, 120.9675],
+  "Taipei": [25.0330, 121.5654],
+  "Taoyüan": [24.9936, 121.3010],
+  "Taichung": [24.1477, 120.6736],
+  // Oceania
+  "Sydney": [-33.8688, 151.2093],
+  "Melbourne": [-37.8136, 144.9631],
+  "Canberra": [-35.2809, 149.1300],
+};
+
+// Disambiguate Cambridge UK vs US — data uses "Cambridge" for both with country distinction.
+function cityKey(city, country) {
+  if (city === "Cambridge" && country === "United Kingdom") return "Cambridge_UK";
+  return city;
+}
+
+// =============================================================
+// Vertical color palette
+// =============================================================
+const VERT_COLORS = {
+  "Quantum Computing": new THREE.Color("#00e5ff"),
+  "AI/ML":             new THREE.Color("#b14aed"),
+  "Bio/Med":           new THREE.Color("#2ee6a6"),
+  "Materials/NanoTech":new THREE.Color("#ffb547"),
+  "Communications":    new THREE.Color("#ff6b6b"),
+  "Cyber Security":    new THREE.Color("#4d8bff"),
+  "Other":             new THREE.Color("#6f7d96"),
+};
+const VERT_HEX = {
+  "Quantum Computing": "#00e5ff",
+  "AI/ML":             "#b14aed",
+  "Bio/Med":           "#2ee6a6",
+  "Materials/NanoTech":"#ffb547",
+  "Communications":    "#ff6b6b",
+  "Cyber Security":    "#4d8bff",
+  "Other":             "#6f7d96",
+};
+
+// =============================================================
+// Deterministic PRNG
+// =============================================================
+function hash(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+}
+function mulberry32(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// =============================================================
+// Bootstrapping data
+// =============================================================
+const YEAR_MIN = 2010, YEAR_MAX = 2025;
+const Y_MIN = 20, Y_MAX = 180;
+
+// Year → vertical altitude. Altitude grows with year.
+function yearToY(y) {
+  const t = (y - YEAR_MIN) / (YEAR_MAX - YEAR_MIN);
+  return Y_MIN + t * (Y_MAX - Y_MIN);
+}
+
+// Synthesize/augment data
+async function loadData() {
+  const res = await fetch("../data/quantum_ecosystem.json");
+  const d = await res.json();
+
+  // Build investor city lookup
+  const investorMap = new Map();
+  for (const inv of d.investors) investorMap.set(inv.id, inv);
+
+  // For each company without `founded`, deterministically synthesize a year. // SYN
+  for (const c of d.companies) {
+    if (c.founded == null) {
+      const r = mulberry32(hash("founded:" + c.id))();
+      // Most quantum-tech companies were founded between 2012-2022
+      // Bias the distribution toward middle years.
+      const tt = Math.pow(r, 1.0); // uniform tweak
+      c.founded = Math.floor(2010 + tt * (2023 - 2010 + 1)); // SYN
+    }
+  }
+
+  // For each investment, synthesize a year (>= founded + small offset). // SYN
+  // And a deterministic amount (USD millions).
+  const companyMap = new Map();
+  for (const c of d.companies) companyMap.set(c.id, c);
+  for (let i = 0; i < d.investments.length; i++) {
+    const inv = d.investments[i];
+    const co = companyMap.get(inv.company);
+    const seed = hash("inv:" + inv.investor + "->" + inv.company + ":" + i);
+    const r1 = mulberry32(seed)();
+    const r2 = mulberry32(seed + 1)();
+    const r3 = mulberry32(seed + 2)();
+    const founded = co ? co.founded : 2015;
+    // Investment year between max(founded, 2010) and 2025
+    const lo = Math.max(founded, YEAR_MIN);
+    inv.year = Math.min(YEAR_MAX, lo + Math.floor(r1 * (YEAR_MAX - lo + 1))); // SYN
+    // Amount $1M..$120M, log-distributed
+    inv.amount_musd = Math.round(Math.exp(Math.log(1) + r2 * (Math.log(120) - Math.log(1))) * 10) / 10; // SYN
+    // Round letter
+    const rounds = ["Pre-Seed", "Seed", "Series A", "Series B", "Series C", "Growth"];
+    inv.round = rounds[Math.floor(r3 * rounds.length)]; // SYN
+  }
+
+  return d;
+}
+
+// =============================================================
+// Aggregation: (city × year × vertical) → count, amount, comps
+// =============================================================
+function aggregate(data) {
+  const companyMap = new Map();
+  for (const c of data.companies) companyMap.set(c.id, c);
+
+  // Build city node objects from `geo`.
+  const cityNodes = {};
+  for (const g of data.geo) {
+    const key = cityKey(g.city, g.country);
+    if (!CITY_COORDS[key]) continue;
+    cityNodes[key] = {
+      key, city: g.city, country: g.country,
+      lat: CITY_COORDS[key][0], lng: CITY_COORDS[key][1],
+      companies: g.companies.slice(),
+      company_count: g.company_count,
+      verticals: { ...g.verticals },
+      investments: 0,
+      investors: new Set(),
+      yearCounts: new Map(),    // yearCounts -> {year -> count}
+      yearVertCounts: new Map(),// "year|vert" -> count
+      isInvestorOnly: false,
+    };
+  }
+
+  // Walk investments → tally by company city.
+  for (const inv of data.investments) {
+    const co = companyMap.get(inv.company);
+    if (!co) continue;
+    const key = cityKey(co.city, co.country);
+    const node = cityNodes[key];
+    if (!node) continue;
+    node.investments++;
+    node.investors.add(inv.investor);
+    node.yearCounts.set(inv.year, (node.yearCounts.get(inv.year) || 0) + 1);
+    const vk = `${inv.year}|${co.vertical || "Other"}`;
+    node.yearVertCounts.set(vk, (node.yearVertCounts.get(vk) || 0) + 1);
+  }
+
+  // Add investor-only cities (markers, no clouds).
+  const investorOnly = {};
+  for (const inv of data.investors) {
+    if (!inv.city) continue;
+    const key = cityKey(inv.city, inv.country);
+    if (cityNodes[key]) continue;
+    if (!CITY_COORDS[key]) continue;
+    if (!investorOnly[key]) {
+      investorOnly[key] = {
+        key, city: inv.city, country: inv.country,
+        lat: CITY_COORDS[key][0], lng: CITY_COORDS[key][1],
+        investorCount: 0,
+        isInvestorOnly: true,
+      };
+    }
+    investorOnly[key].investorCount++;
+  }
+
+  return {
+    cityNodes,
+    investorOnly,
+  };
+}
+
+// =============================================================
+// Equirectangular projection
+// =============================================================
+const MAP_W = 600, MAP_D = 320;  // width (lng) x depth (lat)
+function project(lat, lng) {
+  // Center at (0,0,0). x = lng/180 * (MAP_W/2). z = -lat/90 * (MAP_D/2).
+  const x = (lng / 180) * (MAP_W / 2);
+  const z = -(lat / 90) * (MAP_D / 2);
+  return { x, z };
+}
+
+// =============================================================
+// THREE.js setup
+// =============================================================
+const sceneEl = document.getElementById("scene");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x02030a, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+sceneEl.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x02030a, 0.0018);
+
+const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.5, 2400);
+camera.position.set(310, 110, 270);
+camera.lookAt(0, 60, 0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 80;
+controls.maxDistance = 700;
+controls.maxPolarAngle = Math.PI * 0.495; // never go below ground
+controls.target.set(0, 70, 0);
+controls.autoRotate = true;
+controls.autoRotateSpeed = (2 * Math.PI / 70) * (60 / (2 * Math.PI)); // ~70s/rev
+// OrbitControls autoRotateSpeed unit: 30 = 60s/rev, so:
+controls.autoRotateSpeed = 30 * (60 / 70); // ≈25.7
+
+let lastInteract = -Infinity;
+controls.addEventListener("start", () => {
+  controls.autoRotate = false;
+  lastInteract = performance.now();
+  document.getElementById("status-cam").textContent = "Manual orbit";
+});
+controls.addEventListener("end", () => {
+  lastInteract = performance.now();
+});
+
+// =============================================================
+// Starfield (subtle parallax)
+// =============================================================
+function makeStars() {
+  const N = 1800;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  const size = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    // Spherical distribution far away
+    const r = 1100 + Math.random() * 700;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = Math.abs(r * Math.cos(phi)) * 0.5 + 80;
+    pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+    const t = Math.random();
+    const c = new THREE.Color().setHSL(0.58 + (t-0.5) * 0.05, 0.4, 0.5 + Math.random() * 0.4);
+    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+    size[i] = 0.5 + Math.random() * 1.5;
+  }
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+  const mat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      attribute float aSize;
+      varying vec3 vCol;
+      uniform float uTime;
+      void main() {
+        vCol = color;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = aSize * (300.0 / -mv.z) * (0.85 + 0.15*sin(uTime*0.7 + position.x*0.01));
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vCol;
+      void main() {
+        vec2 uv = gl_PointCoord - 0.5;
+        float d = length(uv);
+        float a = smoothstep(0.5, 0.0, d);
+        gl_FragColor = vec4(vCol * a * 0.7, a * 0.7);
+      }
+    `,
+    vertexColors: true,
+  });
+  return new THREE.Points(geo, mat);
+}
+const stars = makeStars();
+scene.add(stars);
+
+// =============================================================
+// Ground plane: hex-grid, faint cyan, bordered map
+// =============================================================
+function makeGround() {
+  const grp = new THREE.Group();
+
+  // Solid plane for occlusion
+  const baseGeo = new THREE.PlaneGeometry(MAP_W, MAP_D, 1, 1);
+  baseGeo.rotateX(-Math.PI / 2);
+  const baseMat = new THREE.MeshBasicMaterial({
+    color: 0x040810, transparent: true, opacity: 0.85, depthWrite: true,
+    side: THREE.DoubleSide,
+  });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = -0.05;
+  grp.add(base);
+
+  // Hex grid (lines)
+  const hexR = 14;
+  const dx = hexR * Math.sqrt(3);
+  const dz = hexR * 1.5;
+  const positions = [];
+  for (let row = -Math.ceil(MAP_D / dz / 2) - 1; row <= Math.ceil(MAP_D / dz / 2) + 1; row++) {
+    for (let col = -Math.ceil(MAP_W / dx / 2) - 1; col <= Math.ceil(MAP_W / dx / 2) + 1; col++) {
+      const cx = col * dx + (row & 1 ? dx / 2 : 0);
+      const cz = row * dz;
+      if (Math.abs(cx) > MAP_W/2 + dx || Math.abs(cz) > MAP_D/2 + dz) continue;
+      // 6 vertices
+      const pts = [];
+      for (let k = 0; k < 6; k++) {
+        const ang = Math.PI/2 + k * Math.PI/3;
+        pts.push([cx + Math.cos(ang) * hexR, cz + Math.sin(ang) * hexR]);
+      }
+      // 3 lines per hex (skip 3 to avoid double draw): [0-1], [1-2], [2-3]
+      for (let k = 0; k < 3; k++) {
+        const a = pts[k], b = pts[k+1];
+        positions.push(a[0], 0, a[1], b[0], 0, b[1]);
+      }
+    }
+  }
+  const hexGeo = new THREE.BufferGeometry();
+  hexGeo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const hexMat = new THREE.LineBasicMaterial({
+    color: 0x003a4a, transparent: true, opacity: 0.50, depthWrite: false,
+  });
+  const hexLines = new THREE.LineSegments(hexGeo, hexMat);
+  grp.add(hexLines);
+
+  // Border lines around continents — simulated via lat-bands (equator, tropics, polar)
+  const bandGeo = new THREE.BufferGeometry();
+  const bandPts = [];
+  const lats = [-60, -30, 0, 30, 60];
+  for (const lat of lats) {
+    const z = -(lat / 90) * (MAP_D / 2);
+    bandPts.push(-MAP_W/2, 0.05, z, MAP_W/2, 0.05, z);
+  }
+  // Longitude meridians
+  for (let lng = -180; lng <= 180; lng += 30) {
+    const x = (lng / 180) * (MAP_W / 2);
+    bandPts.push(x, 0.05, -MAP_D/2, x, 0.05, MAP_D/2);
+  }
+  bandGeo.setAttribute("position", new THREE.Float32BufferAttribute(bandPts, 3));
+  const bandMat = new THREE.LineBasicMaterial({
+    color: 0x0a2a3a, transparent: true, opacity: 0.45, depthWrite: false,
+  });
+  const bandLines = new THREE.LineSegments(bandGeo, bandMat);
+  grp.add(bandLines);
+
+  // Equator emphasis
+  const eqGeo = new THREE.BufferGeometry();
+  eqGeo.setAttribute("position", new THREE.Float32BufferAttribute(
+    [-MAP_W/2, 0.1, 0, MAP_W/2, 0.1, 0], 3));
+  const eqMat = new THREE.LineBasicMaterial({ color: 0x00a2c2, transparent: true, opacity: 0.35, depthWrite: false });
+  grp.add(new THREE.Line(eqGeo, eqMat));
+
+  // Outer border
+  const borderGeo = new THREE.BufferGeometry();
+  borderGeo.setAttribute("position", new THREE.Float32BufferAttribute([
+    -MAP_W/2, 0.1, -MAP_D/2,  MAP_W/2, 0.1, -MAP_D/2,
+     MAP_W/2, 0.1, -MAP_D/2,  MAP_W/2, 0.1,  MAP_D/2,
+     MAP_W/2, 0.1,  MAP_D/2, -MAP_W/2, 0.1,  MAP_D/2,
+    -MAP_W/2, 0.1,  MAP_D/2, -MAP_W/2, 0.1, -MAP_D/2,
+  ], 3));
+  const borderMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.35, depthWrite: false });
+  grp.add(new THREE.LineSegments(borderGeo, borderMat));
+
+  return grp;
+}
+scene.add(makeGround());
+
+// =============================================================
+// Continent silhouettes (procedural blob — proxy for low-poly geojson)
+// We use latitude bands of dotted hexagons to evoke landmasses without
+// requiring an external geojson fetch.
+// =============================================================
+function makeContinents() {
+  const grp = new THREE.Group();
+  // Major continent bounding boxes (approximate, in lat/lng)
+  const conts = [
+    // [name, [latMin,latMax,lngMin,lngMax], density]
+    ["NorthAmerica", [25, 60, -130, -65], 1.0],
+    ["SouthAmerica", [-50, 12, -80, -35], 0.8],
+    ["Europe",       [36, 65, -10, 35], 1.0],
+    ["Africa",       [-32, 30, -16, 50], 0.85],
+    ["Asia",         [10, 55, 60, 145], 0.9],
+    ["Oceania",      [-43, -12, 113, 153], 0.7],
+  ];
+  const dotsGeo = new THREE.BufferGeometry();
+  const dotsPos = [];
+  const dotsCol = [];
+  for (const [name, bbox, dens] of conts) {
+    const [latMin, latMax, lngMin, lngMax] = bbox;
+    const area = (latMax - latMin) * (lngMax - lngMin);
+    const N = Math.floor(area * 0.55 * dens);
+    for (let i = 0; i < N; i++) {
+      const lat = latMin + Math.random() * (latMax - latMin);
+      const lng = lngMin + Math.random() * (lngMax - lngMin);
+      const p = project(lat, lng);
+      dotsPos.push(p.x, 0.15, p.z);
+      const t = Math.random();
+      dotsCol.push(0.05 + t*0.04, 0.18 + t*0.08, 0.30 + t*0.10);
+    }
+  }
+  dotsGeo.setAttribute("position", new THREE.Float32BufferAttribute(dotsPos, 3));
+  dotsGeo.setAttribute("color", new THREE.Float32BufferAttribute(dotsCol, 3));
+  const dotsMat = new THREE.PointsMaterial({
+    size: 1.6, sizeAttenuation: true, vertexColors: true,
+    transparent: true, opacity: 0.7, depthWrite: false,
+  });
+  grp.add(new THREE.Points(dotsGeo, dotsMat));
+  return grp;
+}
+scene.add(makeContinents());
+
+// =============================================================
+// Year stratification: thin glowing ring(s) at each year altitude
+// =============================================================
+function makeYearRings() {
+  const grp = new THREE.Group();
+  const positions = [];
+  const dashLen = 4, gapLen = 4;
+  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
+    const ay = yearToY(y);
+    // Bounding rectangle perimeter, dashed
+    const segs = [
+      [-MAP_W/2, ay, -MAP_D/2,  MAP_W/2, ay, -MAP_D/2],
+      [ MAP_W/2, ay, -MAP_D/2,  MAP_W/2, ay,  MAP_D/2],
+      [ MAP_W/2, ay,  MAP_D/2, -MAP_W/2, ay,  MAP_D/2],
+      [-MAP_W/2, ay,  MAP_D/2, -MAP_W/2, ay, -MAP_D/2],
+    ];
+    for (const [x1,y1,z1,x2,y2,z2] of segs) {
+      const dx = x2-x1, dz = z2-z1;
+      const L = Math.hypot(dx, dz);
+      const nx = dx/L, nz = dz/L;
+      let t = 0;
+      while (t < L) {
+        const t2 = Math.min(t + dashLen, L);
+        positions.push(x1 + nx*t,  ay, z1 + nz*t,
+                       x1 + nx*t2, ay, z1 + nz*t2);
+        t = t2 + gapLen;
+      }
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const mat = new THREE.LineBasicMaterial({
+    color: 0x00e5ff, transparent: true, opacity: 0.10, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  grp.add(new THREE.LineSegments(geo, mat));
+  return grp;
+}
+scene.add(makeYearRings());
+
+// =============================================================
+// Year labels (sprites floating right of scene)
+// =============================================================
+function makeTextSprite(text, color="#8aa0c2", fs=22, w=140, h=44) {
+  const cv = document.createElement("canvas");
+  cv.width = w * 2; cv.height = h * 2;
+  const ctx = cv.getContext("2d");
+  ctx.scale(2, 2);
+  ctx.clearRect(0,0,w,h);
+  ctx.font = `500 ${fs}px 'JetBrains Mono', monospace`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  ctx.shadowBlur = 8;
+  ctx.shadowColor = color;
+  ctx.fillText(text, 4, h/2);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  const mat = new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const sp = new THREE.Sprite(mat);
+  sp.scale.set(w * 0.18, h * 0.18, 1);
+  return sp;
+}
+function makeYearLabels() {
+  const grp = new THREE.Group();
+  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
+    if (y % 1 !== 0) continue;
+    const sp = makeTextSprite(`${y}`, "#5a708f", 24, 90, 36);
+    sp.position.set(MAP_W/2 + 22, yearToY(y), -MAP_D/2 + 8);
+    sp.userData.year = y;
+    grp.add(sp);
+  }
+  return grp;
+}
+const yearLabels = makeYearLabels();
+scene.add(yearLabels);
+
+// =============================================================
+// City markers (ground glow dots)
+// =============================================================
+function makeCircleTexture(color = "#fff", soft = 0.45) {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = 128;
+  const ctx = cv.getContext("2d");
+  const g = ctx.createRadialGradient(64,64,0, 64,64,64);
+  g.addColorStop(0.0, "rgba(255,255,255,1)");
+  g.addColorStop(soft, "rgba(255,255,255,0.6)");
+  g.addColorStop(1.0, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,128,128);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+const SOFT_DOT_TEX = makeCircleTexture();
+const HARD_DOT_TEX = makeCircleTexture("#fff", 0.10);
+
+// =============================================================
+// MAIN BUILD
+// =============================================================
+let DATA, AGG;
+let cityGroup = null;
+let cloudInstancedMesh = null;
+let cloudParticles = []; // metadata array
+let cityHoverTargets = []; // for raycasting
+let coreSampleLine = null;
+let activeFilter = { vertical: "all", year: "all", yearValue: 2017 };
+
+function dominantVertical(node) {
+  let best = null, bestN = -1;
+  for (const [v, n] of Object.entries(node.verticals || {})) {
+    if (n > bestN) { bestN = n; best = v; }
+  }
+  return best;
+}
+
+function build(data) {
+  DATA = data;
+  AGG = aggregate(data);
+
+  // ===== City markers =====
+  const cityGrp = new THREE.Group();
+  cityHoverTargets = [];
+  const cities = Object.values(AGG.cityNodes);
+  const investorCities = Object.values(AGG.investorOnly);
+
+  // Investor-only cities (small gray dots)
+  for (const node of investorCities) {
+    const p = project(node.lat, node.lng);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: SOFT_DOT_TEX, color: 0x6f7d96, transparent: true, opacity: 0.55,
+      depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    const sz = 2.0 + Math.min(node.investorCount, 18) * 0.18;
+    sp.scale.set(sz, sz, 1);
+    sp.position.set(p.x, 0.4, p.z);
+    sp.userData.node = node;
+    sp.userData.kind = "investor";
+    cityGrp.add(sp);
+  }
+
+  // Active cities (colored by dominant vertical, larger size by investments)
+  for (const node of cities) {
+    const p = project(node.lat, node.lng);
+    node.x = p.x; node.z = p.z;
+    const domV = dominantVertical(node) || "Other";
+    const col = VERT_COLORS[domV] || VERT_COLORS.Other;
+
+    // Outer halo
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: SOFT_DOT_TEX, color: col, transparent: true, opacity: 0.55,
+      depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    const halSz = 4.5 + Math.log(1 + node.investments) * 2.4 + node.company_count * 0.6;
+    halo.scale.set(halSz, halSz, 1);
+    halo.position.set(p.x, 0.55, p.z);
+    halo.userData.node = node;
+    halo.userData.kind = "city";
+    halo.userData.basicScale = halSz;
+    cityGrp.add(halo);
+
+    // Bright core
+    const core = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: HARD_DOT_TEX, color: 0xffffff, transparent: true, opacity: 0.95,
+      depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    const coreSz = 1.4 + Math.log(1 + node.investments) * 0.7;
+    core.scale.set(coreSz, coreSz, 1);
+    core.position.set(p.x, 0.65, p.z);
+    cityGrp.add(core);
+
+    cityHoverTargets.push(halo);
+
+    // City name label (sprite)
+    if (node.investments >= 4 || node.company_count >= 2) {
+      const lbl = makeTextSprite(node.city.toUpperCase(), VERT_HEX[domV] || "#9aa", 20, 130, 28);
+      lbl.position.set(p.x, 4.5, p.z);
+      lbl.material.opacity = 0.7;
+      cityGrp.add(lbl);
+    }
+  }
+  scene.add(cityGrp);
+  cityGroup = cityGrp;
+
+  // ===== Volumetric clouds =====
+  // For each (city, year, vertical) aggregate, sample N particles in a 3D Gaussian.
+  const allParticles = [];
+  for (const node of cities) {
+    for (const [vk, count] of node.yearVertCounts.entries()) {
+      const [yearStr, vert] = vk.split("|");
+      const year = +yearStr;
+      const cy = yearToY(year);
+      const cx = node.x, cz = node.z;
+      const N = Math.max(8, Math.floor(30 * Math.log(1 + count * 1.4) + 12));
+      const sigmaH = 11 + Math.min(count, 8) * 0.8;
+      const sigmaV = 3.2 + Math.min(count, 6) * 0.25;
+      const seed = hash(`${node.key}|${year}|${vert}`);
+      const rnd = mulberry32(seed);
+      for (let i = 0; i < N; i++) {
+        // Box–Muller
+        const u1 = Math.max(1e-6, rnd()), u2 = rnd();
+        const r = Math.sqrt(-2 * Math.log(u1));
+        const a = 2 * Math.PI * u2;
+        const gx = r * Math.cos(a);
+        const gy = r * Math.sin(a);
+        const u3 = Math.max(1e-6, rnd()), u4 = rnd();
+        const r2 = Math.sqrt(-2 * Math.log(u3));
+        const a2 = 2 * Math.PI * u4;
+        const gz = r2 * Math.cos(a2);
+        const gv = r2 * Math.sin(a2) * 0.5;
+
+        const px = cx + gx * sigmaH * 0.7 + gz * sigmaH * 0.4;
+        const pz = cz + gz * sigmaH * 0.7 + gx * sigmaH * 0.4;
+        const py = cy + gv * sigmaV + gy * sigmaV * 0.5;
+
+        // Gaussian-falloff intensity (proximity to center)
+        const dx = px - cx, dy = (py - cy) / sigmaV * sigmaH, dz = pz - cz;
+        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) / sigmaH;
+        const intensity = Math.exp(-0.5 * dist * dist);
+
+        allParticles.push({
+          x: px, y: py, z: pz,
+          vert, year,
+          city: node.key,
+          intensity,
+          count,
+          phase: rnd() * Math.PI * 2,
+        });
+      }
+    }
+  }
+
+  // Build instanced sprites (additive billboards) using THREE.Points for perf.
+  const N = allParticles.length;
+  const posArr = new Float32Array(N * 3);
+  const colArr = new Float32Array(N * 3);
+  const sizeArr = new Float32Array(N);
+  const alphaArr = new Float32Array(N);
+  const yearArr = new Float32Array(N);
+  const vertIdxArr = new Float32Array(N);
+  const phaseArr = new Float32Array(N);
+
+  const VERT_LIST = ["Quantum Computing", "AI/ML", "Bio/Med", "Materials/NanoTech", "Communications", "Cyber Security", "Other"];
+  for (let i = 0; i < N; i++) {
+    const p = allParticles[i];
+    posArr[i*3] = p.x; posArr[i*3+1] = p.y; posArr[i*3+2] = p.z;
+    const c = VERT_COLORS[p.vert] || VERT_COLORS.Other;
+    // Boost brightness by intensity
+    const boost = 0.55 + p.intensity * 0.55;
+    colArr[i*3]   = c.r * boost;
+    colArr[i*3+1] = c.g * boost;
+    colArr[i*3+2] = c.b * boost;
+    sizeArr[i] = 8.0 + p.intensity * 8.0 + Math.log(1 + p.count) * 0.6;
+    alphaArr[i] = 0.18 + p.intensity * 0.55;
+    yearArr[i] = p.year;
+    const vi = VERT_LIST.indexOf(p.vert);
+    vertIdxArr[i] = vi < 0 ? 6 : vi;
+    phaseArr[i] = p.phase;
+  }
+  cloudParticles = allParticles;
+
+  const cloudGeo = new THREE.BufferGeometry();
+  cloudGeo.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+  cloudGeo.setAttribute("color", new THREE.BufferAttribute(colArr, 3));
+  cloudGeo.setAttribute("aSize", new THREE.BufferAttribute(sizeArr, 1));
+  cloudGeo.setAttribute("aAlpha", new THREE.BufferAttribute(alphaArr, 1));
+  cloudGeo.setAttribute("aYear", new THREE.BufferAttribute(yearArr, 1));
+  cloudGeo.setAttribute("aVert", new THREE.BufferAttribute(vertIdxArr, 1));
+  cloudGeo.setAttribute("aPhase", new THREE.BufferAttribute(phaseArr, 1));
+
+  const cloudMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uYearFilter: { value: -1 }, // -1 = all
+      uVertFilter: { value: -1 }, // -1 = all
+      uHoverCity: { value: new THREE.Vector3(9999, 9999, 9999) },
+      uHoverActive: { value: 0 },
+    },
+    vertexShader: `
+      attribute float aSize;
+      attribute float aAlpha;
+      attribute float aYear;
+      attribute float aVert;
+      attribute float aPhase;
+      varying vec3 vCol;
+      varying float vAlpha;
+      uniform float uTime;
+      uniform float uYearFilter;
+      uniform float uVertFilter;
+      uniform vec3 uHoverCity;
+      uniform float uHoverActive;
+      void main() {
+        vCol = color;
+        float yf = (uYearFilter < 0.0) ? 1.0 : (abs(aYear - uYearFilter) < 0.5 ? 1.0 : 0.10);
+        float vf = (uVertFilter < 0.0) ? 1.0 : (abs(aVert - uVertFilter) < 0.5 ? 1.0 : 0.06);
+        float fade = yf * vf;
+
+        // Slight horizontal drift
+        float driftX = sin(uTime * 0.18 + aPhase) * 0.45;
+        float driftZ = cos(uTime * 0.15 + aPhase * 1.7) * 0.45;
+        float driftY = sin(uTime * 0.25 + aPhase * 0.9) * 0.30;
+
+        vec3 pos = position + vec3(driftX, driftY, driftZ);
+
+        // Hover boost: particles near hovered city brighten
+        float hb = 1.0;
+        if (uHoverActive > 0.5) {
+          float d = length(pos.xz - uHoverCity.xz);
+          hb = 1.0 + (1.0 - smoothstep(0.0, 28.0, d)) * 1.6;
+        }
+        vAlpha = aAlpha * fade * hb;
+        vCol = color * (0.85 + (hb - 1.0) * 0.6);
+
+        vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = aSize * (260.0 / -mv.z) * (0.85 + 0.15 * sin(uTime + aPhase));
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vCol;
+      varying float vAlpha;
+      void main() {
+        vec2 uv = gl_PointCoord - 0.5;
+        float d = length(uv);
+        if (d > 0.5) discard;
+        // Soft inverse-square falloff
+        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 2.0);
+        vec3 col = vCol * (0.7 + 0.5 * a);
+        gl_FragColor = vec4(col * a * vAlpha, a * vAlpha);
+      }
+    `,
+    vertexColors: true,
+  });
+  const cloud = new THREE.Points(cloudGeo, cloudMat);
+  cloudInstancedMesh = cloud;
+  scene.add(cloud);
+
+  // Stats
+  document.getElementById("s-cities").textContent = cities.length;
+  document.getElementById("s-companies").textContent = data.companies.length;
+  document.getElementById("s-investments").textContent = data.investments.length;
+  document.getElementById("s-particles").textContent = N.toLocaleString();
+}
+
+// =============================================================
+// Postprocessing
+// =============================================================
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.6, 0.7, 0.0
+);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// =============================================================
+// Hover (raycast against city halos)
+// =============================================================
+const raycaster = new THREE.Raycaster();
+raycaster.params.Sprite = { threshold: 0 };
+const mouse = new THREE.Vector2(-9, -9);
+let hoveredCity = null;
+
+renderer.domElement.addEventListener("pointermove", (e) => {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+});
+renderer.domElement.addEventListener("pointerleave", () => {
+  mouse.x = mouse.y = -9;
+});
+
+function updateHover() {
+  if (!cityHoverTargets.length) return;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(cityHoverTargets, false);
+  let next = null;
+  if (hits.length) next = hits[0].object.userData.node;
+  if (next !== hoveredCity) {
+    hoveredCity = next;
+    showCityCard(next);
+    showCoreSample(next);
+  }
+}
+
+function showCityCard(node) {
+  const card = document.getElementById("info-card");
+  if (!node) {
+    card.classList.remove("visible");
+    cloudInstancedMesh.material.uniforms.uHoverActive.value = 0;
+    return;
+  }
+  card.classList.add("visible");
+  document.getElementById("ic-city").textContent = node.city;
+  document.getElementById("ic-country").textContent = node.country;
+  document.getElementById("ic-companies").textContent = node.company_count;
+  document.getElementById("ic-investments").textContent = node.investments;
+  document.getElementById("ic-investors").textContent = node.investors.size;
+
+  // Timeline (year activity)
+  const tl = document.getElementById("ic-timeline");
+  tl.innerHTML = "";
+  let maxY = 0;
+  for (const v of node.yearCounts.values()) maxY = Math.max(maxY, v);
+  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
+    const v = node.yearCounts.get(y) || 0;
+    const bar = document.createElement("div");
+    bar.className = "tl-bar" + (v > 0 ? " has" : "");
+    bar.style.height = (4 + (maxY ? (v / maxY) * 30 : 0)) + "px";
+    bar.title = `${y}: ${v} investments`;
+    tl.appendChild(bar);
+  }
+
+  // Top verticals
+  const vWrap = document.getElementById("ic-verts");
+  vWrap.innerHTML = "";
+  const verts = Object.entries(node.verticals).sort((a,b) => b[1]-a[1]).slice(0, 4);
+  for (const [v, n] of verts) {
+    const pill = document.createElement("span");
+    pill.className = "v-pill";
+    const sw = document.createElement("span");
+    sw.className = "vsw";
+    sw.style.color = VERT_HEX[v] || VERT_HEX.Other;
+    sw.style.background = VERT_HEX[v] || VERT_HEX.Other;
+    pill.appendChild(sw);
+    pill.appendChild(document.createTextNode(`${v} · ${n}`));
+    vWrap.appendChild(pill);
+  }
+
+  // Companies
+  document.getElementById("ic-companies-list").innerHTML =
+    node.companies.map(c => `<b>${c}</b>`).join(" · ");
+
+  // Position card to right of cursor (within window bounds)
+  const rect = renderer.domElement.getBoundingClientRect();
+  const sx = ((mouse.x + 1) / 2) * rect.width + rect.left;
+  const sy = ((-mouse.y + 1) / 2) * rect.height + rect.top;
+  const W = 320, H = 360;
+  let left = sx + 22, top = sy - 50;
+  if (left + W > window.innerWidth - 12) left = sx - W - 22;
+  if (top + H > window.innerHeight - 12) top = window.innerHeight - H - 12;
+  if (top < 12) top = 12;
+  card.style.left = left + "px";
+  card.style.top = top + "px";
+
+  // Update cloud uniforms
+  cloudInstancedMesh.material.uniforms.uHoverCity.value.set(node.x, 100, node.z);
+  cloudInstancedMesh.material.uniforms.uHoverActive.value = 1;
+}
+
+function showCoreSample(node) {
+  if (coreSampleLine) {
+    scene.remove(coreSampleLine);
+    coreSampleLine.geometry.dispose();
+    coreSampleLine.material.dispose();
+    coreSampleLine = null;
+  }
+  if (!node) return;
+
+  // Vertical line going up through the city, colored by year activity
+  const positions = [];
+  const colors = [];
+  const NSEG = 200;
+  for (let i = 0; i < NSEG; i++) {
+    const t1 = i / NSEG, t2 = (i+1)/NSEG;
+    const y1 = Y_MIN - 5 + t1 * (Y_MAX - Y_MIN + 10);
+    const y2 = Y_MIN - 5 + t2 * (Y_MAX - Y_MIN + 10);
+    positions.push(node.x, y1, node.z, node.x, y2, node.z);
+    // Color by closest year activity
+    const yr = Math.round(YEAR_MIN + t1 * (YEAR_MAX - YEAR_MIN));
+    const cnt = node.yearCounts.get(yr) || 0;
+    const intensity = Math.min(1, cnt / 6);
+    const c1 = 0.0 + intensity * 0.9;
+    const c2 = 0.4 + intensity * 0.6;
+    const c3 = 0.6 + intensity * 0.4;
+    colors.push(c1, c2, c3, c1, c2, c3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  const mat = new THREE.LineBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0.8,
+    depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  coreSampleLine = new THREE.LineSegments(geo, mat);
+  scene.add(coreSampleLine);
+}
+
+// =============================================================
+// UI: vertical chips, year slider
+// =============================================================
+function setupChips() {
+  const chips = document.getElementById("vert-chips");
+  const items = [
+    ["all", "All"],
+    ["Quantum Computing", "Quantum Computing"],
+    ["AI/ML", "AI/ML"],
+    ["Bio/Med", "Bio/Med"],
+    ["Materials/NanoTech", "Materials"],
+    ["Communications", "Comms"],
+    ["Cyber Security", "Cyber"],
+    ["Other", "Other"],
+  ];
+  for (const [v, label] of items) {
+    const c = document.createElement("div");
+    c.className = "chip" + (v === "all" ? " active" : "");
+    c.dataset.vertical = v;
+    if (v !== "all") {
+      const sw = document.createElement("span");
+      sw.className = "swatch";
+      sw.style.color = VERT_HEX[v] || VERT_HEX.Other;
+      sw.style.background = VERT_HEX[v] || VERT_HEX.Other;
+      c.appendChild(sw);
+    }
+    c.appendChild(document.createTextNode(label));
+    c.addEventListener("click", () => {
+      activeFilter.vertical = v;
+      [...chips.children].forEach(ch => ch.classList.toggle("active", ch.dataset.vertical === v));
+      applyFilters();
+    });
+    chips.appendChild(c);
+  }
+}
+
+function setupLegend() {
+  const rows = document.getElementById("legend-rows");
+  for (const [v, hex] of Object.entries(VERT_HEX)) {
+    if (v === "Other") continue;
+    const r = document.createElement("div");
+    r.className = "legend-row";
+    const sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.style.color = hex;
+    sw.style.background = hex;
+    r.appendChild(sw);
+    r.appendChild(document.createTextNode(v));
+    rows.appendChild(r);
+  }
+}
+
+function setupTime() {
+  const slider = document.getElementById("time-slider");
+  const allBtn = document.getElementById("time-all");
+  const allTag = document.getElementById("time-all-tag");
+  const display = document.getElementById("time-year");
+  function setAll() {
+    activeFilter.year = "all";
+    allBtn.classList.add("active");
+    allTag.style.display = "inline";
+    display.textContent = "2010 – 2025";
+    applyFilters();
+  }
+  function setYear(y) {
+    activeFilter.year = "single";
+    activeFilter.yearValue = y;
+    allBtn.classList.remove("active");
+    allTag.style.display = "none";
+    display.textContent = String(y);
+    applyFilters();
+  }
+  slider.addEventListener("input", (e) => setYear(+e.target.value));
+  allBtn.addEventListener("click", setAll);
+  setAll();
+}
+
+const VERT_LIST = ["Quantum Computing", "AI/ML", "Bio/Med", "Materials/NanoTech", "Communications", "Cyber Security", "Other"];
+function applyFilters() {
+  if (!cloudInstancedMesh) return;
+  const u = cloudInstancedMesh.material.uniforms;
+  u.uYearFilter.value = activeFilter.year === "all" ? -1 : activeFilter.yearValue;
+  u.uVertFilter.value = activeFilter.vertical === "all" ? -1 : VERT_LIST.indexOf(activeFilter.vertical);
+
+  // Highlight year labels at the active year
+  const targetY = activeFilter.year === "all" ? -1 : activeFilter.yearValue;
+  yearLabels.children.forEach(sp => {
+    const isActive = (targetY >= 0 && sp.userData.year === targetY);
+    sp.material.opacity = isActive ? 1.0 : (targetY < 0 ? 0.65 : 0.30);
+  });
+}
+
+// =============================================================
+// Animate
+// =============================================================
+let frame = 0, t0 = performance.now(), fpsT0 = performance.now(), fpsCount = 0;
+function tick() {
+  requestAnimationFrame(tick);
+  const now = performance.now();
+  const elapsed = (now - t0) / 1000;
+
+  // Resume auto-rotate
+  if (!controls.autoRotate && now - lastInteract > 5000) {
+    controls.autoRotate = true;
+    document.getElementById("status-cam").textContent = "Auto-orbit";
+  }
+
+  // Animate uniforms
+  if (cloudInstancedMesh) {
+    cloudInstancedMesh.material.uniforms.uTime.value = elapsed;
+  }
+  stars.material.uniforms.uTime.value = elapsed;
+
+  // City pulse
+  if (cityGroup) {
+    cityGroup.children.forEach(ch => {
+      if (ch.userData.basicScale) {
+        const p = 1.0 + 0.08 * Math.sin(elapsed * 1.6 + (ch.position.x + ch.position.z) * 0.05);
+        ch.scale.set(ch.userData.basicScale * p, ch.userData.basicScale * p, 1);
+      }
+    });
+  }
+
+  controls.update();
+  updateHover();
+  composer.render();
+
+  // FPS
+  fpsCount++;
+  if (now - fpsT0 > 800) {
+    const fps = Math.round((fpsCount * 1000) / (now - fpsT0));
+    document.getElementById("status-fps").textContent = fps + " FPS";
+    fpsT0 = now; fpsCount = 0;
+  }
+}
+
+// =============================================================
+// Resize
+// =============================================================
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  bloom.setSize(window.innerWidth, window.innerHeight);
+});
+
+// =============================================================
+// Boot
+// =============================================================
+(async function main() {
+  setupChips();
+  setupLegend();
+  try {
+    const data = await loadData();
+    build(data);
+    setupTime();
+    document.getElementById("loading").classList.add("hidden");
+    tick();
+  } catch (err) {
+    console.error("Failed to load data:", err);
+    document.querySelector("#loading .lab").textContent = "Load failed: " + err.message;
+  }
+})();
+</script>
+</body>
+</html>

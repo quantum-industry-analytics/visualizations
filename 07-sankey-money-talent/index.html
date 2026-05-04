@@ -194,8 +194,15 @@
 
   .ribbon{
     fill:none;
-    transition:opacity .25s ease;
+    transition:opacity .12s ease;
     mix-blend-mode:screen;
+    pointer-events:none;
+  }
+  .ribbon-hit{
+    fill:none;
+    stroke:transparent;
+    pointer-events:stroke;
+    cursor:pointer;
   }
 
   /* corner brackets */
@@ -529,12 +536,18 @@ d3.json("../data/quantum_ecosystem.json").then(raw => {
 
   // ─── Layout ─────────────────────────────────
   const W = innerWidth, H = innerHeight;
-  // Sankey area margins. Right margin reserves room for school labels AND
-  // the floating info card / legend (both anchored to right edge).
-  const M = {top: 130, right: 340, bottom: 70, left: 36};
+  // Sankey area margins. Left margin reserves room for first-column
+  // (Country) labels which anchor `end` to the LEFT of the leftmost node.
+  // Right margin reserves room for school labels AND the floating info
+  // card / legend (both anchored to right edge).
+  // labelPadL = 100 covers "United Kingdom"/"Switzerland"; labelPadR keeps
+  // school labels clear of the info card on the right.
+  const labelPadL = 110;
+  const labelPadR = 320;     // info card 268w + 24 right + ~28 gap
+  const M = {top: 130, right: labelPadR, bottom: 70, left: labelPadL};
   // sankey area
-  const sw = W - M.left - M.right;
-  const sh = H - M.top - M.bottom;
+  const sw = Math.max(400, W - M.left - M.right);
+  const sh = Math.max(300, H - M.top - M.bottom);
 
   const svg = d3.select("#sankey")
     .attr("viewBox", `0 0 ${W} ${H}`)
@@ -633,18 +646,39 @@ d3.json("../data/quantum_ecosystem.json").then(raw => {
   });
 
   // ─── Ribbons ─────────────────────────────────
-  const linkSel = g.append("g")
-    .attr("class","ribbons")
-    .attr("fill","none")
+  // Visible ribbons get the glow filter; hit-area ribbons are an invisible
+  // companion layer below them with no filter (the glow halo would otherwise
+  // capture pointer events). pointer-events: stroke on hit, none on visual.
+  const ribbonGroup = g.append("g").attr("class","ribbons").attr("fill","none");
+  const linkPath = d3.sankeyLinkHorizontal();
+
+  // Sub-group for visible ribbons (with glow). Filter applied to the group
+  // so blur boxes don't enlarge each path's individual pointer-events area.
+  const visibleGroup = ribbonGroup.append("g")
+    .attr("class","ribbons-visible")
+    .attr("filter","url(#ribbon-glow)");
+
+  const linkSel = visibleGroup
     .selectAll("path")
     .data(graph.links)
     .join("path")
     .attr("class","ribbon")
-    .attr("d", d3.sankeyLinkHorizontal())
+    .attr("d", linkPath)
     .attr("stroke", d => `url(#${d._gradId})`)
     .attr("stroke-width", d => Math.max(1, d.width))
-    .attr("opacity", 0.55)
-    .attr("filter","url(#ribbon-glow)");
+    .attr("opacity", 0.55);
+
+  // Hit-test ribbons: transparent, fat enough to catch the cursor reliably.
+  // Rendered ABOVE the visible ribbons so they own pointer events; visible
+  // ribbons have pointer-events:none so they never interfere.
+  const hitGroup = ribbonGroup.append("g").attr("class","ribbons-hit");
+  const hitSel = hitGroup
+    .selectAll("path")
+    .data(graph.links)
+    .join("path")
+    .attr("class","ribbon-hit")
+    .attr("d", linkPath)
+    .attr("stroke-width", d => Math.max(8, d.width + 4));
 
   // ─── Nodes ─────────────────────────────────
   const nodeG = g.append("g").attr("class","nodes");
@@ -790,14 +824,18 @@ d3.json("../data/quantum_ecosystem.json").then(raw => {
       .classed("dim",   d => !nodeSet.has(d));
   }
 
-  nodeSel
+  // Attach handlers to the node-rect specifically (not the whole <g>) so the
+  // hit area is exactly the colored bar, not its label/value text bounding box.
+  nodeSel.selectAll(".node-rect")
     .on("mouseenter", (e,d) => { focus(chainFromNode(d)); setInfo(d); })
     .on("mouseleave", () => { focus(null); setInfo(null); });
 
-  linkSel
+  // Hover handlers live on the transparent hit-paths, never on the visible
+  // ribbons (those have pointer-events:none). This keeps the hit area equal
+  // to the visual stroke width without the glow halo confusing things.
+  hitSel
     .on("mouseenter", (e,l) => {
       focus(chainFromLink(l));
-      // briefly show link source as info node
       setInfo(l.source);
     })
     .on("mouseleave", () => { focus(null); setInfo(null); });
