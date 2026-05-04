@@ -517,11 +517,11 @@ d3.json("../data/quantum_ecosystem.json").then(raw => {
 
   // Sankey nodes/links arrays
   const nodes = [...nodeMap.values()];
-  // Sankey expects link.source/target as indices or node objects
-  const idx = new Map(nodes.map((n,i)=>[n.id, i]));
+  // Sankey is configured with .nodeId(d => d.id), so link.source/target must
+  // be the string node ids (not array indices).
   const sankeyLinks = links.map(l => ({
-    source: idx.get(l.source),
-    target: idx.get(l.target),
+    source: l.source,
+    target: l.target,
     value:  l.value,
     sourceColor: l.sourceColor,
     targetColor: l.targetColor,

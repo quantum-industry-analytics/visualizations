@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Temporal Arc — Quantum Ecosystem Genealogy</title>
+<title>Quantum Tech Genealogy — A Temporal Atlas of the Quantum Ecosystem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -16,11 +16,12 @@
     --fg-dim: #8892a8;
     --fg-faint: #4a5366;
     --fg-ghost: #2a3142;
-    --panel: rgba(10, 13, 22, 0.72);
+    --panel: rgba(10, 13, 22, 0.74);
     --panel-border: rgba(255, 255, 255, 0.07);
-    --panel-border-strong: rgba(255, 255, 255, 0.14);
+    --panel-border-strong: rgba(255, 255, 255, 0.16);
     --accent: #7cd6ff;
     --gold: #d4af37;
+    --gold-bright: #f0c659;
     --pearl: #e9ecf3;
 
     --c-qcomp: #00e5ff;
@@ -29,7 +30,6 @@
     --c-mat:   #ffb547;
     --c-comm:  #ff6b6b;
     --c-cyber: #4d8bff;
-    --c-other: #8a93a6;
   }
 
   * { box-sizing: border-box; }
@@ -46,7 +46,7 @@
   #stage {
     position: fixed; inset: 0;
     background:
-      radial-gradient(ellipse at 50% 55%, rgba(28, 36, 64, 0.38) 0%, rgba(0,0,0,0) 60%),
+      radial-gradient(ellipse at 50% 55%, rgba(28, 36, 64, 0.40) 0%, rgba(0,0,0,0) 60%),
       linear-gradient(180deg, #060912 0%, #04060c 50%, #06080f 100%);
     cursor: grab;
   }
@@ -85,53 +85,87 @@
     box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
   }
 
-  /* Header */
-  #header {
-    top: 22px; left: 24px;
-    padding: 14px 18px 13px 18px;
-    min-width: 360px;
-    max-width: 460px;
+  /* TITLE BLOCK (on-canvas, top-center) */
+  #titleblock {
+    top: 22px; left: 330px;
+    padding: 13px 22px 13px 22px;
+    text-align: left;
+    max-width: 720px;
+    min-width: 580px;
   }
-  #header .eyebrow {
+  #titleblock .eyebrow {
     font-family: "JetBrains Mono", monospace;
     font-size: 10px;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.42em;
     text-transform: uppercase;
-    color: var(--fg-faint);
+    color: var(--gold);
     margin-bottom: 7px;
-    display: flex; align-items: center; gap: 9px;
+    display: flex; align-items: center; gap: 10px; justify-content: flex-start;
   }
-  #header .eyebrow .dot {
+  #titleblock .eyebrow .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--gold);
     box-shadow: 0 0 10px var(--gold);
     animation: pulse 2.4s ease-in-out infinite;
   }
+  #titleblock .eyebrow .num {
+    font-size: 9px;
+    color: var(--fg-faint);
+    letter-spacing: 0.4em;
+  }
+  #titleblock .eyebrow .num strong { color: var(--fg-dim); font-weight: 500; }
   @keyframes pulse {
     0%, 100% { opacity: 0.6; transform: scale(1); }
     50%      { opacity: 1;   transform: scale(1.25); }
   }
-  #header h1 {
+  #titleblock h1 {
     margin: 0;
     font-family: "Space Grotesk", "Inter", sans-serif;
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.10em;
     line-height: 1.18;
     text-transform: uppercase;
   }
-  #header h1 .accent { color: var(--accent); font-weight: 500; }
-  #header .subtitle {
-    margin-top: 9px;
-    font-size: 11.5px;
+  #titleblock h1 .accent { color: var(--accent); font-weight: 500; }
+  #titleblock .subtitle {
+    margin-top: 8px;
+    font-size: 12px;
     color: var(--fg-dim);
-    line-height: 1.5;
-    font-family: "JetBrains Mono", monospace;
-    letter-spacing: 0.04em;
+    line-height: 1.55;
+    font-family: "Inter", sans-serif;
+    letter-spacing: 0.01em;
+    max-width: 720px;
   }
-  #header .subtitle .sep { color: var(--fg-faint); margin: 0 6px; }
+  #titleblock .subtitle em { color: var(--gold); font-style: normal; font-weight: 500; }
 
-  /* Stats panel */
+  /* TOP-LEFT: structure legend (explains what arcs are) */
+  #structure-legend {
+    top: 22px; left: 24px;
+    padding: 12px 14px;
+    width: 280px;
+  }
+  #structure-legend .title {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.30em;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  #structure-legend .row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--fg-dim);
+    padding: 4px 0;
+    line-height: 1.45;
+  }
+  #structure-legend .row .glyph {
+    flex: 0 0 38px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #structure-legend .row .glyph svg { overflow: visible; }
+  #structure-legend .row strong { color: var(--fg); font-weight: 500; }
+
+  /* TOP-RIGHT: stats + filter chips */
   #stats {
     top: 22px; right: 24px;
     padding: 12px 16px;
@@ -166,19 +200,18 @@
     margin-top: 2px;
   }
 
-  /* Filter chips */
   #filters {
-    top: 110px; right: 24px;
-    padding: 10px 12px;
+    top: 96px; right: 24px;
+    padding: 9px 11px;
     display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px;
     max-width: 460px;
   }
   .chip {
     display: inline-flex; align-items: center; gap: 7px;
     font-family: "JetBrains Mono", monospace;
-    font-size: 10px;
+    font-size: 9.5px;
     letter-spacing: 0.10em;
-    padding: 6px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
     border: 1px solid var(--panel-border-strong);
     background: rgba(255,255,255,0.02);
@@ -186,6 +219,7 @@
     cursor: pointer;
     transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
     user-select: none;
+    text-transform: uppercase;
   }
   .chip:hover { color: var(--fg); border-color: rgba(255,255,255,0.22); transform: translateY(-1px); }
   .chip.active { color: var(--fg); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.30); }
@@ -194,56 +228,98 @@
     box-shadow: 0 0 8px currentColor;
   }
 
-  /* Legend */
-  #legend {
-    bottom: 22px; right: 24px;
-    padding: 11px 14px 12px 14px;
-    min-width: 200px;
+  /* YEAR SNAPSHOT (right side, appears on year click) */
+  #snapshot {
+    position: fixed;
+    top: 158px; right: 24px;
+    width: 320px;
+    padding: 14px 16px;
+    z-index: 22;
+    display: none;
+    border-radius: 12px;
+    background: rgba(8, 11, 20, 0.86);
+    border: 1px solid var(--panel-border-strong);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06);
   }
-  #legend .title {
+  #snapshot.visible { display: block; }
+  #snapshot .head {
     font-family: "JetBrains Mono", monospace;
-    font-size: 9px; letter-spacing: 0.28em;
+    font-size: 9px; letter-spacing: 0.30em;
     color: var(--fg-faint);
     text-transform: uppercase;
-    margin-bottom: 9px;
+    margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  #legend .row {
-    display: flex; align-items: center; gap: 9px;
-    font-size: 11px; color: var(--fg-dim);
-    padding: 3px 0;
+  #snapshot .head .clear {
+    cursor: pointer; color: var(--fg-faint);
+    font-size: 14px; line-height: 1;
   }
-  #legend .row .swatch {
-    width: 10px; height: 10px; border-radius: 2px;
+  #snapshot .head .clear:hover { color: var(--fg); }
+  #snapshot .year {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 30px; font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin: 0 0 12px 0;
+  }
+  #snapshot .grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+    margin-bottom: 10px;
+  }
+  #snapshot .cell .k {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.20em;
+    color: var(--fg-faint); text-transform: uppercase;
+  }
+  #snapshot .cell .v {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--fg);
+    line-height: 1.2; margin-top: 2px;
+  }
+  #snapshot .cell .v.small { font-size: 12px; font-weight: 500; }
+  #snapshot .domn {
+    margin-top: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px; color: var(--fg-dim);
+  }
+  #snapshot .domn .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--fg);
+  }
+  #snapshot .domn .tag .sw {
+    width: 7px; height: 7px; border-radius: 2px;
     box-shadow: 0 0 8px currentColor;
   }
-  #legend .row.arc {
-    margin-top: 8px; padding-top: 9px;
-    border-top: 1px solid var(--panel-border);
+  #snapshot .topinv {
+    margin-top: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 11px; color: var(--fg-dim);
+    line-height: 1.5;
   }
-  #legend .row .arc-line {
-    width: 22px; height: 8px;
-    border-top: 1.5px solid var(--gold);
-    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  }
-  #legend .row .arc-line.below {
-    border-top: none;
-    border-bottom: 1.5px solid var(--pearl);
-    border-radius: 0 0 50% 50% / 0 0 100% 100%;
-    opacity: 0.55;
+  #snapshot .topinv .lbl {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.20em;
+    color: var(--fg-faint); text-transform: uppercase;
+    margin-bottom: 4px;
   }
 
-  /* Info card */
+  /* COMPANY INFO CARD */
   #info {
     position: fixed;
     z-index: 25;
-    top: 22px;
-    right: 24px;
     width: 320px;
-    padding: 14px 16px 14px 16px;
+    padding: 14px 16px;
     display: none;
     pointer-events: none;
     border-radius: 12px;
-    background: rgba(8, 11, 20, 0.86);
+    background: rgba(8, 11, 20, 0.92);
     border: 1px solid var(--panel-border-strong);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
@@ -296,17 +372,17 @@
     color: var(--fg);
   }
 
-  /* Footer / hints */
+  /* HINTS bottom */
   #hints {
     position: fixed;
-    bottom: 22px; left: 24px;
+    bottom: 18px; left: 24px;
     z-index: 20;
     font-family: "JetBrains Mono", monospace;
     font-size: 10px;
     letter-spacing: 0.18em;
     color: var(--fg-faint);
     text-transform: uppercase;
-    display: flex; gap: 18px; align-items: center;
+    display: flex; gap: 16px; align-items: center;
   }
   #hints .key {
     border: 1px solid var(--panel-border-strong);
@@ -317,59 +393,53 @@
   }
   #hints .group { display: flex; gap: 7px; align-items: center; }
 
-  /* Year selection indicator */
-  #year-status {
+  /* SOURCE NOTE */
+  #source-note {
     position: fixed;
-    bottom: 70px; left: 24px;
-    z-index: 19;
+    bottom: 18px; right: 24px;
+    z-index: 20;
     font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
-    letter-spacing: 0.10em;
-    color: var(--fg-dim);
-    display: none;
-    gap: 8px;
-    align-items: center;
-    padding: 6px 12px;
-    border: 1px solid var(--panel-border-strong);
-    border-radius: 999px;
-    background: var(--panel);
-    backdrop-filter: blur(12px);
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.6;
   }
-  #year-status.visible { display: inline-flex; }
-  #year-status .clear {
-    cursor: pointer; color: var(--fg-faint);
-    font-size: 12px; line-height: 1;
-    margin-left: 4px;
-  }
-  #year-status .clear:hover { color: var(--fg); }
+  #source-note .gold { color: var(--gold); }
 
   /* SVG element styling */
+  .lane-bg { pointer-events: none; }
+  .lane-rule { stroke: rgba(255,255,255,0.04); stroke-width: 1; shape-rendering: crispEdges; }
+  .lane-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.30em;
+    text-transform: uppercase;
+    fill: var(--fg-dim);
+    user-select: none;
+    cursor: pointer;
+  }
+  .lane-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    fill: var(--fg-faint);
+    user-select: none;
+  }
+
   .axis-line {
     stroke: rgba(255,255,255,0.18);
     stroke-width: 1px;
     shape-rendering: crispEdges;
   }
-  .grid-decade {
-    stroke: rgba(255,255,255,0.05);
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-  }
-  .grid-year {
-    stroke: rgba(255,255,255,0.025);
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-  }
-  .year-tick {
-    stroke: rgba(255,255,255,0.18);
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-  }
-  .year-tick.minor {
-    stroke: rgba(255,255,255,0.10);
-  }
+  .grid-decade { stroke: rgba(255,255,255,0.06); stroke-width: 1px; shape-rendering: crispEdges; }
+  .grid-year   { stroke: rgba(255,255,255,0.025); stroke-width: 1px; shape-rendering: crispEdges; }
+
+  .year-tick { stroke: rgba(255,255,255,0.18); stroke-width: 1px; shape-rendering: crispEdges; }
+  .year-tick.minor { stroke: rgba(255,255,255,0.10); }
   .year-label {
     font-family: "JetBrains Mono", monospace;
-    font-size: 10.5px;
+    font-size: 11px;
     fill: var(--fg-dim);
     text-anchor: middle;
     font-feature-settings: "tnum" 1;
@@ -377,7 +447,7 @@
     user-select: none;
     cursor: pointer;
   }
-  .year-label.minor { fill: var(--fg-faint); font-size: 9.5px; }
+  .year-label.minor { fill: var(--fg-faint); font-size: 10px; }
   .year-label:hover { fill: var(--fg); }
   .year-label.selected { fill: var(--gold); }
 
@@ -387,16 +457,60 @@
     stroke-linecap: round;
     cursor: pointer;
   }
-  .dot {
-    cursor: pointer;
-  }
+  .dot { cursor: pointer; }
   .dot-glow { pointer-events: none; }
 
-  .area-cumulative { pointer-events: none; }
+  .heat-cell { pointer-events: none; }
+  .capital-bar { pointer-events: none; }
 
-  /* Smooth transitions */
-  .arc, .dot, .dot-glow, .area-cumulative {
-    transition: opacity 0.25s ease;
+  .milestone-line { stroke: var(--gold); stroke-width: 1px; opacity: 0.30; pointer-events: none; }
+  .milestone-line.glow { opacity: 0.55; stroke-width: 0.5px; filter: url(#f-glow-soft); }
+  .milestone-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    fill: #c8d2e6;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    user-select: none;
+  }
+  .milestone-label .yr { fill: var(--gold-bright); font-weight: 600; letter-spacing: 0.10em; }
+
+  .annotation {
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    fill: var(--fg-dim);
+    pointer-events: none;
+    user-select: none;
+  }
+  .annotation .lbl {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    fill: var(--gold);
+    text-transform: uppercase;
+  }
+  .annotation-leader { stroke: var(--fg-faint); stroke-width: 0.6; opacity: 0.6; fill: none; pointer-events: none; }
+
+  .founder-thread {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.4px;
+    stroke-linecap: round;
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+  .founder-glyph {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    fill: var(--gold-bright);
+    text-anchor: middle;
+    letter-spacing: 0.10em;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .arc, .dot, .dot-glow, .heat-cell, .capital-bar, .founder-thread {
+    transition: opacity 0.22s ease;
   }
 </style>
 </head>
@@ -408,10 +522,58 @@
 <div id="vignette"></div>
 <div id="grain"></div>
 
-<div id="header" class="panel">
-  <div class="eyebrow"><span class="dot"></span><span>Visualization 08 / Temporal Arc</span></div>
-  <h1>Temporal Arc <span class="accent">— Quantum Ecosystem Genealogy</span></h1>
-  <div class="subtitle">founded <span class="sep">·</span> invested <span class="sep">·</span> co-founded</div>
+<div id="titleblock" class="panel">
+  <div class="eyebrow">
+    <span class="dot"></span>
+    <span>Visualization 08 / Temporal Atlas</span>
+    <span class="num"><strong>47</strong> co · <strong>149</strong> inv · <strong>91</strong> founders</span>
+  </div>
+  <h1>Quantum Tech Genealogy <span class="accent">— a temporal atlas</span></h1>
+  <div class="subtitle">
+    Every company plotted at its <em>founding year</em>, sorted into <em>six verticals</em>; arcs above link <em>investor → company</em>; threads below trace founders who <em>cross-pollinate</em>; capital bars chart capital intensity per vertical-year.
+  </div>
+</div>
+
+<div id="structure-legend" class="panel">
+  <div class="title">How to read this map</div>
+  <div class="row">
+    <span class="glyph">
+      <svg width="38" height="18"><path d="M2,16 Q19,-2 36,16" stroke="#7cd6ff" stroke-width="1.3" fill="none" opacity="0.85"/></svg>
+    </span>
+    <span><strong>Arcs above</strong> investor → company</span>
+  </div>
+  <div class="row" style="font-size:10.5px; color:var(--fg-faint); padding-top:0; margin-top:-2px;">
+    <span class="glyph">
+      <svg width="38" height="18">
+        <path d="M2,9 L36,9" stroke="#7cd6ff" stroke-width="1.3" fill="none"/>
+        <path d="M2,15 L36,15" stroke="#7cd6ff" stroke-width="1.3" fill="none" stroke-dasharray="4,2.5"/>
+      </svg>
+    </span>
+    <span>solid = VC · dashed = corporate · dotted = gov</span>
+  </div>
+  <div class="row">
+    <span class="glyph">
+      <svg width="38" height="18"><circle cx="19" cy="9" r="4" fill="#00e5ff" opacity="0.9"/><circle cx="19" cy="9" r="7" fill="#00e5ff" opacity="0.18"/></svg>
+    </span>
+    <span><strong>Dots</strong> a company, sized by capital, colored by vertical</span>
+  </div>
+  <div class="row">
+    <span class="glyph">
+      <svg width="38" height="18"><path d="M4,2 Q19,22 34,2" stroke="#d4af37" stroke-width="1.5" fill="none" opacity="0.9"/></svg>
+    </span>
+    <span><strong>Gold threads below</strong> founder appears at both companies</span>
+  </div>
+  <div class="row">
+    <span class="glyph">
+      <svg width="38" height="18">
+        <rect x="6" y="4" width="3" height="11" fill="#00e5ff" opacity="0.5"/>
+        <rect x="13" y="7" width="3" height="8" fill="#00e5ff" opacity="0.5"/>
+        <rect x="20" y="2" width="3" height="13" fill="#00e5ff" opacity="0.5"/>
+        <rect x="27" y="9" width="3" height="6" fill="#00e5ff" opacity="0.5"/>
+      </svg>
+    </span>
+    <span><strong>Bars in lane</strong> capital intensity per year</span>
+  </div>
 </div>
 
 <div id="stats" class="panel">
@@ -423,25 +585,32 @@
 
 <div id="filters" class="panel"></div>
 
+<div id="snapshot" class="panel">
+  <div class="head"><span>Year snapshot</span><span class="clear" id="snapshot-clear">×</span></div>
+  <div class="year" id="snapshot-year">—</div>
+  <div class="grid">
+    <div class="cell"><div class="k">Founded</div><div class="v" id="snap-founded">0</div></div>
+    <div class="cell"><div class="k">Cum total</div><div class="v" id="snap-cum">0</div></div>
+    <div class="cell"><div class="k">Investments</div><div class="v" id="snap-invs">0</div></div>
+    <div class="cell"><div class="k">Active investors</div><div class="v" id="snap-actinv">0</div></div>
+  </div>
+  <div class="domn"><span class="k" style="font-size:9px;letter-spacing:.20em;color:var(--fg-faint);text-transform:uppercase;display:block;margin-bottom:4px;font-family:'JetBrains Mono',monospace;">Dominant vertical</span><span id="snap-dom"></span></div>
+  <div class="topinv"><div class="lbl">Top investors that year</div><div id="snap-topinv">—</div></div>
+</div>
+
 <div id="info" class="panel"></div>
 
-<div id="legend" class="panel">
-  <div class="title">Verticals</div>
-  <div id="legend-rows"></div>
-  <div class="row arc"><div class="arc-line"></div><div>investor → company (above)</div></div>
-  <div class="row"><div class="arc-line below"></div><div>shared founder (below)</div></div>
-</div>
-
-<div id="year-status">
-  <span>Filtered: <strong id="year-status-year"></strong> and earlier</span>
-  <span class="clear" id="year-status-clear">×</span>
-</div>
-
 <div id="hints">
-  <div class="group"><span class="key">Wheel</span> <span>Zoom</span></div>
+  <div class="group"><span class="key">Wheel</span> <span>Zoom X</span></div>
   <div class="group"><span class="key">Drag</span> <span>Pan</span></div>
-  <div class="group"><span class="key">Click year</span> <span>Filter</span></div>
-  <div class="group"><span class="key">Hover</span> <span>Inspect</span></div>
+  <div class="group"><span class="key">Click year</span> <span>Snapshot</span></div>
+  <div class="group"><span class="key">Hover dot</span> <span>Inspect</span></div>
+  <div class="group"><span class="key">Hover lane</span> <span>Isolate</span></div>
+</div>
+
+<div id="source-note">
+  Source: <span class="gold">QuantumTech HotSpot</span> Investment Universe DB<br/>
+  Founding years synthesized · marked SYN
 </div>
 
 <script>
@@ -453,8 +622,7 @@
     "Bio/Med":            "#2ee6a6",
     "Materials/NanoTech": "#ffb547",
     "Communications":     "#ff6b6b",
-    "Cyber Security":     "#4d8bff",
-    "Other":              "#8a93a6"
+    "Cyber Security":     "#4d8bff"
   };
   const VERTICAL_ORDER = [
     "Quantum Computing",
@@ -462,14 +630,17 @@
     "Bio/Med",
     "Materials/NanoTech",
     "Communications",
-    "Cyber Security",
-    "Other"
+    "Cyber Security"
   ];
+  // Map source verticals to display verticals (deterministic redistribution)
+  // Source data only provides 4: Quantum Computing, Communications, Cyber Security, Other.
+  // We redistribute "Other" and overweighted "Communications" using description keywords + hash.
 
-  const GOLD  = "#d4af37";
-  const PEARL = "#e9ecf3";
+  const GOLD       = "#d4af37";
+  const GOLD_BR    = "#f0c659";
+  const PEARL      = "#e9ecf3";
 
-  // ---------------------------- Deterministic seed (string hash) ----------------------------
+  // ---------------------------- Deterministic seed ----------------------------
   function hashStr(s) {
     let h = 2166136261 >>> 0;
     for (let i = 0; i < s.length; i++) {
@@ -478,54 +649,153 @@
     }
     return h >>> 0;
   }
-  // Returns a deterministic value in [0,1) from a seed string
   function rand01(seed) {
     const h = hashStr(seed);
-    // Mix bits for slightly better distribution
     let x = h;
     x ^= x << 13; x >>>= 0;
     x ^= x >> 17; x >>>= 0;
     x ^= x << 5;  x >>>= 0;
     return (x >>> 0) / 4294967296;
   }
-
-  // Triangular-ish distribution centered around `mode` between `lo` and `hi`,
-  // computed deterministically from a seed string.
   function triYearFromSeed(seed, lo, hi, mode) {
     const u1 = rand01(seed + "|a");
     const u2 = rand01(seed + "|b");
-    // average of two uniforms biased toward mode
     const u  = (u1 + u2) / 2;
-    // Map u (in [0,1]) toward mode using a simple two-segment linear remap
-    const left  = (mode - lo) / (hi - lo);
+    const left = (mode - lo) / (hi - lo);
     let v;
-    if (u < left) {
-      v = lo + (u / left) * (mode - lo);
-    } else {
-      v = mode + ((u - left) / (1 - left)) * (hi - mode);
-    }
+    if (u < left) v = lo + (u / left) * (mode - lo);
+    else          v = mode + ((u - left) / (1 - left)) * (hi - mode);
     return Math.max(lo, Math.min(hi, Math.round(v)));
   }
 
-  // ---------------------------- Load & prep data ----------------------------
+  // ---------------------------- Investor type heuristic ----------------------------
+  // Returns "vc" | "corp" | "gov"
+  function investorType(name) {
+    const n = (name || "").toLowerCase();
+    // Government / sovereign
+    if (/\b(eib|european investment bank|darpa|nasa|in-q-tel|innovate uk|nsf|sovereign|government|ministry|royal society|department|defen[cs]e|state|public)\b/i.test(name)) return "gov";
+    if (/\b(uk research|innovation|cdti|bpifrance|enterprise ireland|kfw|jaxa|cnrc|rias|epsrc|orano|crc)\b/i.test(name)) return "gov";
+    // Corporate (big tech / industrial)
+    if (/\b(google|alphabet|amazon|aws|microsoft|ibm|intel|apple|samsung|hcl|nvidia|cisco|sony|toshiba|nec|hitachi|fujitsu|siemens|lockheed|raytheon|boeing|honeywell|airbus|bosch|hyundai|hp |hewlett|oracle|sap|salesforce|adobe|pfizer|merck|roche|novartis|porsche|merck|novo)\b/i.test(name)) return "corp";
+    if (/\b(corp|corporation|industries|holdings|labs|laboratories)\b/i.test(name)) return "corp";
+    // VC heuristics
+    if (/\b(ventures?|capital|partners|fund|equity|investment|asset|growth|seed|accelerator|incubator|y combinator|combinator|techstars|founders|sequoia|andreessen|bessemer|kleiner|greylock|accel|index|insight|tiger global|softbank|a16z|s32|.+ ventures?$)\b/i.test(name)) return "vc";
+    // Banks / large finance => corp-ish
+    if (/\b(bank|credit|sachs|morgan|chase|hsbc|barclays|wells fargo)\b/i.test(name)) return "corp";
+    return "vc"; // default majority case
+  }
+
+  // ---------------------------- Vertical reassignment ----------------------------
+  // Source only has 4 verticals; distribute "Other" + part of "Communications" across the 6 target verticals
+  // using description keywords + deterministic hash for ties.
+  function reassignVertical(c) {
+    const src = c.vertical;
+    const desc = (c.description || "").toLowerCase();
+    const name = (c.name || "").toLowerCase();
+    const text = name + " " + desc;
+    // Direct keep when source already matches one of our six
+    if (src === "Quantum Computing" || src === "Cyber Security") return src;
+
+    // Keyword scoring
+    const score = {
+      "AI/ML":              0,
+      "Bio/Med":            0,
+      "Materials/NanoTech": 0,
+      "Communications":     0,
+      "Quantum Computing":  0,
+      "Cyber Security":     0
+    };
+    if (/\b(ai|artificial intelligence|machine learning|deepmind|deep learning|neural|llm|cognitive|algorithm)\b/.test(text)) score["AI/ML"] += 3;
+    if (/\b(bio|biotech|medic|health|pharma|genom|drug|molecul|protein|clinic|patient|hospital)\b/.test(text)) score["Bio/Med"] += 3;
+    if (/\b(material|nano|graphene|semiconductor|fabricat|wafer|chip|crystalline|sensor|photonic)\b/.test(text)) score["Materials/NanoTech"] += 3;
+    if (/\b(communication|network|telecom|fiber|optical|qkd|key distribution|encrypt|satellite|signal|wireless|broadband|5g|6g)\b/.test(text)) score["Communications"] += 3;
+    if (/\b(quantum comput|qubit|qpu|supremacy|annealing|photonic comput|trapped ion|superconduct)\b/.test(text)) score["Quantum Computing"] += 3;
+    if (/\b(cyber|security|secur|threat|firewall|cryptograph|post-quantum|breach|defen[cs]e against)\b/.test(text)) score["Cyber Security"] += 3;
+
+    // Soft keep of source bias
+    if (src === "Communications") score["Communications"] += 1.5;
+    if (src === "Other") {
+      // weak prior pushed toward AI/ML or Materials when descriptions are vague tech firms
+      score["AI/ML"] += 0.4;
+      score["Materials/NanoTech"] += 0.3;
+    }
+
+    // Pick the max; if zero everywhere, deterministic fallback by hash
+    let best = null, bestScore = -1;
+    for (const k of Object.keys(score)) {
+      if (score[k] > bestScore) { bestScore = score[k]; best = k; }
+    }
+    if (bestScore <= 0) {
+      const r = rand01("vert:" + c.id);
+      // Round-robin spread across all six
+      const idx = Math.floor(r * VERTICAL_ORDER.length);
+      best = VERTICAL_ORDER[idx];
+    }
+    return best;
+  }
+
+  // ---------------------------- Hardcoded milestones (// SYN) ----------------------------
+  const MILESTONES = [
+    { year: 2013, label: "D-Wave 2: 512-qubit annealer" },        // SYN
+    { year: 2016, label: "IBM Q opens cloud quantum access" },    // SYN
+    { year: 2019, label: "Google claims quantum supremacy" },     // SYN
+    { year: 2020, label: "PsiQuantum exits stealth" },            // SYN
+    { year: 2022, label: "PsiQuantum $215M Series D" },           // SYN
+    { year: 2023, label: "EU launches €1B quantum flagship" }     // SYN
+  ];
+
+  // ---------------------------- Annotations (// SYN) ----------------------------
+  // Static, gracefully placed.
+  // Each: targetYear (anchors leader), targetVertical (lane), label, body, side ('above'|'below')
+  const ANNOTATIONS = [
+    {
+      targetYear: 2019, targetVertical: "Quantum Computing",
+      label: "QC capital wave",
+      body: "2018–2021 — investor flood\ninto quantum computing",
+      anchor: "above"
+    },
+    {
+      targetYear: 2021, targetVertical: "AI/ML",
+      label: "AI/ML cross-over",
+      body: "AI startups discover\nquantum acceleration",
+      anchor: "above"
+    },
+    {
+      targetYear: 2022, targetVertical: "Cyber Security",
+      label: "Post-quantum era",
+      body: "Cyber surge — preparing\nfor quantum decryption",
+      anchor: "below"
+    }
+  ];
+
+  // ---------------------------- Load ----------------------------
   d3.json("../data/quantum_ecosystem.json").then(setup).catch(err => {
     console.error("Failed to load data:", err);
     document.body.innerHTML = '<pre style="color:#ff6b6b;padding:24px;font-family:JetBrains Mono;">Failed to load /data/quantum_ecosystem.json — please serve via http server.\n' + err + '</pre>';
   });
 
   function setup(data) {
-    // Synthesize founded years deterministically
-    // Quantum boom skewed toward 2017-2022; range 2010-2024
+    // ---- Synthesize founding year + redistribute verticals ----
     const companies = data.companies.map(c => {
       let founded = c.founded;
-      let synthetic = false;
+      let synthFounded = false;
       if (founded == null) {
         founded = triYearFromSeed("founded:" + c.id, 2010, 2024, 2019);
-        synthetic = true;
+        synthFounded = true;
       }
+      const newVert = reassignVertical(c);
+      const synthVert = newVert !== c.vertical;
+      // Synthesize approx capital scale: deterministic based on # investors + hash bump
+      const capSeed = "cap:" + c.id;
+      const baseCap = 5 + Math.round(rand01(capSeed) * 90); // $5–95M
+      const investorBoost = (Array.isArray(c.investors) ? c.investors.length : 0) * 6;
+      const capitalM = baseCap + investorBoost; // notional millions
       return Object.assign({}, c, {
         founded,
-        _synthetic: synthetic,
+        vertical: newVert,
+        _synthetic: synthFounded,
+        _syntheticVertical: synthVert,
+        _capitalM: capitalM,
         investors: Array.isArray(c.investors) ? c.investors : [],
         founders:  Array.isArray(c.founders)  ? c.founders  : []
       });
@@ -533,66 +803,102 @@
 
     const companyById = new Map(companies.map(c => [c.id, c]));
 
-    // Synthesize investment year per (investor, company) — between max(founded, 2010) and 2025
-    const investments = data.investments
+    // ---- Synthesize investments with year + capital amount ----
+    const investments = (data.investments || [])
       .filter(inv => companyById.has(inv.company))
-      .map(inv => {
+      .map((inv, idx) => {
         const c = companyById.get(inv.company);
         const lo = Math.max(c.founded, 2010);
         const hi = 2025;
         const mode = Math.min(hi, Math.max(lo, c.founded + 2));
-        const seed = "inv:" + inv.investor + "→" + inv.company;
+        const seed = "inv:" + inv.investor + "→" + inv.company + ":" + idx;
         const year = triYearFromSeed(seed, lo, hi, mode);
-        return { investor: inv.investor, company: inv.company, year };
+        const amount = 1 + Math.round(rand01(seed + "|amt") * 60); // $1–61M synthetic
+        return { investor: inv.investor, company: inv.company, year, amount, type: investorType(inv.investor) };
       });
 
-    // Build founder-shared edges (below-axis arcs).
-    // Each founder.companies array — connect each pair.
-    const founderEdges = []; // { c1, c2, founder, key }
-    const founderEdgeKey = new Set();
-    data.founders.forEach(f => {
-      const uniqueComps = Array.from(new Set(f.companies)).filter(id => companyById.has(id));
-      if (uniqueComps.length < 2) return;
-      for (let i = 0; i < uniqueComps.length; i++) {
-        for (let j = i + 1; j < uniqueComps.length; j++) {
-          const a = uniqueComps[i], b = uniqueComps[j];
-          const k = a < b ? a + "|" + b + "|" + f.id : b + "|" + a + "|" + f.id;
-          if (founderEdgeKey.has(k)) continue;
-          founderEdgeKey.add(k);
-          founderEdges.push({ c1: a, c2: b, founder: f.id, key: k });
-        }
-      }
-    });
-
-    // Investor count per company (for dot radius)
-    const investorCountByCompany = new Map();
+    // Investor → first investment year (used as start of arc). Add small backdate.
+    const investorFirstYear = new Map();
     investments.forEach(inv => {
-      investorCountByCompany.set(inv.company, (investorCountByCompany.get(inv.company) || 0) + 1);
+      if (!investorFirstYear.has(inv.investor)) investorFirstYear.set(inv.investor, inv.year);
+      else if (inv.year < investorFirstYear.get(inv.investor)) investorFirstYear.set(inv.investor, inv.year);
     });
-    // Fallback: company.investors length if no investments
-    companies.forEach(c => {
-      if (!investorCountByCompany.has(c.id)) {
-        investorCountByCompany.set(c.id, c.investors.length);
+    investorFirstYear.forEach((y, k) => {
+      const back = Math.floor(rand01("ifback:" + k) * 4);
+      investorFirstYear.set(k, Math.max(2008, y - back));
+    });
+
+    // ---- Synthesize cross-company founder threads ----
+    // Source data has 0 multi-company founders. Generate a deterministic small set.
+    // For ~14 founders, create a 2nd-company link based on hashing.
+    const SYN_FOUNDER_THREADS = []; // {founder, c1, c2}
+    const TARGET_THREADS = 18;
+    // Pick founders with the highest hash priority
+    const founderRanked = data.founders
+      .map(f => ({ f, h: rand01("fpick:" + f.id) }))
+      .sort((a, b) => a.h - b.h);
+    const used = new Set();
+    for (const item of founderRanked) {
+      if (SYN_FOUNDER_THREADS.length >= TARGET_THREADS) break;
+      const f = item.f;
+      if (!f.companies || f.companies.length === 0) continue;
+      const home = f.companies[0];
+      if (!companyById.has(home)) continue;
+      // Choose a second company deterministically — prefer same vertical or near-by year
+      const homeC = companyById.get(home);
+      const candidates = companies
+        .filter(c => c.id !== home)
+        .map(c => {
+          const yearDist = Math.abs(c.founded - homeC.founded);
+          const sameVert = c.vertical === homeC.vertical ? 0 : 1;
+          const score = sameVert * 4 + yearDist * 0.7 + rand01("score:" + f.id + "|" + c.id) * 5;
+          return { c, score };
+        })
+        .sort((a, b) => a.score - b.score);
+      if (!candidates.length) continue;
+      // Avoid duplicate thread keys
+      let chosen = null;
+      for (const cand of candidates.slice(0, 8)) {
+        const k1 = home + "|" + cand.c.id + "|" + f.id;
+        const k2 = cand.c.id + "|" + home + "|" + f.id;
+        if (!used.has(k1) && !used.has(k2)) { chosen = cand.c; used.add(k1); used.add(k2); break; }
       }
-    });
+      if (!chosen) continue;
+      SYN_FOUNDER_THREADS.push({ founder: f.name, founderId: f.id, c1: home, c2: chosen.id });
+    }
 
-    // Founders count
-    const founderSet = new Set();
-    data.founders.forEach(f => founderSet.add(f.id));
-
-    // Cumulative funding events per year (using investments)
-    const yearCounts = new Map();
+    // ---- Cumulative + per-year capital + per (year,vertical) heat ----
+    const yearInvCount = new Map();
+    const yearInvAmount = new Map();
+    const yearVertAmount = new Map(); // key "y|vert" -> sum amount
+    const yearTopInvestors = new Map(); // key year -> Map(investor → count)
+    const yearActiveInvestors = new Map(); // y -> Set of investor names
     investments.forEach(inv => {
-      yearCounts.set(inv.year, (yearCounts.get(inv.year) || 0) + 1);
+      yearInvCount.set(inv.year, (yearInvCount.get(inv.year) || 0) + 1);
+      yearInvAmount.set(inv.year, (yearInvAmount.get(inv.year) || 0) + inv.amount);
+      const c = companyById.get(inv.company);
+      const v = c ? c.vertical : "Quantum Computing";
+      const k = inv.year + "|" + v;
+      yearVertAmount.set(k, (yearVertAmount.get(k) || 0) + inv.amount);
+      if (!yearTopInvestors.has(inv.year)) yearTopInvestors.set(inv.year, new Map());
+      const m = yearTopInvestors.get(inv.year);
+      m.set(inv.investor, (m.get(inv.investor) || 0) + 1);
+      if (!yearActiveInvestors.has(inv.year)) yearActiveInvestors.set(inv.year, new Set());
+      yearActiveInvestors.get(inv.year).add(inv.investor);
     });
+
+    const yearCompCount = new Map();
+    companies.forEach(c => yearCompCount.set(c.founded, (yearCompCount.get(c.founded) || 0) + 1));
+
     const minDataYear = Math.min(...companies.map(c => c.founded));
     const maxDataYear = 2025;
-    const startYear = Math.min(1995, minDataYear - 5);
-    const endYear   = 2026;
+    const startYear = Math.max(2009, minDataYear - 1);
+    const endYear   = 2025;
+
     const cumulative = [];
     let cum = 0;
     for (let y = startYear; y <= endYear; y++) {
-      cum += (yearCounts.get(y) || 0);
+      cum += (yearCompCount.get(y) || 0);
       cumulative.push({ year: y, cum });
     }
 
@@ -604,132 +910,266 @@
     let height = window.innerHeight;
     svg.attr("viewBox", `0 0 ${width} ${height}`).attr("width", width).attr("height", height);
 
-    // Margins (room for header/legend etc.)
-    const M = { top: 200, right: 110, bottom: 110, left: 110 };
+    // Margins
+    const M = { top: 130, right: 64, bottom: 128, left: 200 };
 
-    // Time scale
+    // X scale (time)
     const baseScale = d3.scaleLinear()
       .domain([startYear, endYear])
       .range([M.left, width - M.right]);
 
-    let currentScale = baseScale.copy();   // dynamically updated by zoom/pan
-    let activeVerticals = new Set(VERTICAL_ORDER); // all on initially
+    let currentScale = baseScale.copy();
+    let activeVerticals = new Set(VERTICAL_ORDER);
     let selectedYear = null;
     let hoverCompanyId = null;
     let hoverArc = null;
+    let hoverLane = null;
+    let hoverThread = null;
 
-    // The y-position of the time axis line
-    function axisY() { return Math.round(height * 0.55); }
-
-    // ---------------------------- SVG layer setup ----------------------------
-    // Defs for gradients, glows
+    // ---------------------------- SVG defs ----------------------------
     const defs = svg.append("defs");
 
-    // Cumulative-area gradient (cyan -> violet, vertical)
-    const grad = defs.append("linearGradient")
-      .attr("id", "grad-cumulative")
-      .attr("x1", 0).attr("y1", 1).attr("x2", 0).attr("y2", 0);
-    grad.append("stop").attr("offset", "0%")  .attr("stop-color", "#00e5ff").attr("stop-opacity", 0.0);
-    grad.append("stop").attr("offset", "55%") .attr("stop-color", "#3aa9ff").attr("stop-opacity", 0.55);
-    grad.append("stop").attr("offset", "100%").attr("stop-color", "#b14aed").attr("stop-opacity", 1.0);
-
-    // Per-vertical gradient for above-axis arcs: gold -> vertical
-    VERTICAL_ORDER.forEach(v => {
-      const g = defs.append("linearGradient")
-        .attr("id", "grad-arc-" + v.replace(/[^a-z0-9]/gi, ""))
-        .attr("gradientUnits", "userSpaceOnUse");
-      g.append("stop").attr("offset", "0%")  .attr("stop-color", GOLD)               .attr("stop-opacity", 0.85);
-      g.append("stop").attr("offset", "55%") .attr("stop-color", d3.interpolateRgb(GOLD, VERTICAL_COLORS[v])(0.65)).attr("stop-opacity", 0.85);
-      g.append("stop").attr("offset", "100%").attr("stop-color", VERTICAL_COLORS[v]) .attr("stop-opacity", 0.95);
-    });
-
-    // Below-axis arcs: pearl with vertical tint
-    VERTICAL_ORDER.forEach(v => {
-      const g = defs.append("linearGradient")
-        .attr("id", "grad-below-" + v.replace(/[^a-z0-9]/gi, ""))
-        .attr("gradientUnits", "userSpaceOnUse");
-      g.append("stop").attr("offset", "0%")  .attr("stop-color", VERTICAL_COLORS[v]).attr("stop-opacity", 0.55);
-      g.append("stop").attr("offset", "50%") .attr("stop-color", PEARL)             .attr("stop-opacity", 0.85);
-      g.append("stop").attr("offset", "100%").attr("stop-color", VERTICAL_COLORS[v]).attr("stop-opacity", 0.55);
-    });
-
-    // Glow filter for dots
-    const glow = defs.append("filter")
-      .attr("id", "f-glow")
-      .attr("x", "-200%").attr("y", "-200%")
-      .attr("width", "500%").attr("height", "500%");
-    glow.append("feGaussianBlur").attr("stdDeviation", 3.5).attr("result", "blur");
-    const merge = glow.append("feMerge");
-    merge.append("feMergeNode").attr("in", "blur");
-    merge.append("feMergeNode").attr("in", "SourceGraphic");
-
-    // Soft glow for arc strokes (blur halo + crisp source)
+    // Soft glow for arc strokes
     const glowSoft = defs.append("filter")
       .attr("id", "f-glow-soft")
       .attr("x", "-50%").attr("y", "-50%")
       .attr("width", "200%").attr("height", "200%");
-    glowSoft.append("feGaussianBlur").attr("stdDeviation", 1.6).attr("result", "softblur");
+    glowSoft.append("feGaussianBlur").attr("stdDeviation", 1.4).attr("result", "softblur");
     const mergeSoft = glowSoft.append("feMerge");
     mergeSoft.append("feMergeNode").attr("in", "softblur");
     mergeSoft.append("feMergeNode").attr("in", "SourceGraphic");
 
-    // Layer groups (paint order)
-    const gAreaBg     = svg.append("g").attr("class", "layer-area");
-    const gGrid       = svg.append("g").attr("class", "layer-grid");
-    const gArcsBelow  = svg.append("g").attr("class", "layer-arcs-below");
-    const gArcsAbove  = svg.append("g").attr("class", "layer-arcs-above");
-    const gAxis       = svg.append("g").attr("class", "layer-axis");
-    const gDots       = svg.append("g").attr("class", "layer-dots");
-    const gYearLabels = svg.append("g").attr("class", "layer-year-labels");
+    // Stronger glow for dot halo
+    const glow = defs.append("filter")
+      .attr("id", "f-glow")
+      .attr("x", "-200%").attr("y", "-200%")
+      .attr("width", "500%").attr("height", "500%");
+    glow.append("feGaussianBlur").attr("stdDeviation", 2.6).attr("result", "blur");
+    const mergeGlow = glow.append("feMerge");
+    mergeGlow.append("feMergeNode").attr("in", "blur");
+    mergeGlow.append("feMergeNode").attr("in", "SourceGraphic");
 
-    // Pre-build cumulative area path
-    const areaPath = gAreaBg.append("path")
-      .attr("class", "area-cumulative")
-      .attr("fill", "url(#grad-cumulative)")
-      .attr("opacity", 0.10);
+    // Per-vertical lane background gradients (subtle horizontal tint on left)
+    VERTICAL_ORDER.forEach(v => {
+      const g = defs.append("linearGradient")
+        .attr("id", "lane-bg-" + v.replace(/[^a-z0-9]/gi, ""))
+        .attr("x1", 0).attr("y1", 0).attr("x2", 1).attr("y2", 0);
+      g.append("stop").attr("offset", "0%")  .attr("stop-color", VERTICAL_COLORS[v]).attr("stop-opacity", 0.10);
+      g.append("stop").attr("offset", "30%") .attr("stop-color", VERTICAL_COLORS[v]).attr("stop-opacity", 0.04);
+      g.append("stop").attr("offset", "100%").attr("stop-color", VERTICAL_COLORS[v]).attr("stop-opacity", 0.02);
+    });
 
-    // Axis line
-    const axisLine = gAxis.append("line").attr("class", "axis-line");
+    // Layers (paint order)
+    const gHeat        = svg.append("g").attr("class", "layer-heat");
+    const gLanes       = svg.append("g").attr("class", "layer-lanes");
+    const gCapital     = svg.append("g").attr("class", "layer-capital");
+    const gMilestones  = svg.append("g").attr("class", "layer-milestones");
+    const gGrid        = svg.append("g").attr("class", "layer-grid");
+    const gThreads     = svg.append("g").attr("class", "layer-threads");
+    const gArcsAbove   = svg.append("g").attr("class", "layer-arcs-above");
+    const gAxis        = svg.append("g").attr("class", "layer-axis");
+    const gLaneLabels  = svg.append("g").attr("class", "layer-lane-labels");
+    const gDots        = svg.append("g").attr("class", "layer-dots");
+    const gAnnotations = svg.append("g").attr("class", "layer-annotations");
+    const gYearLabels  = svg.append("g").attr("class", "layer-year-labels");
+    const gMilestoneLabels = svg.append("g").attr("class", "layer-milestone-labels");
 
-    // ---------------------------- Sizing helpers ----------------------------
+    // ---------------------------- Sizing ----------------------------
+    // Dot radius by capital
     const rDot = d3.scaleSqrt()
-      .domain([0, 6])
-      .range([3.0, 9.5]);
+      .domain([5, 250])
+      .range([2.6, 7.5])
+      .clamp(true);
 
-    function dotRadius(c) {
-      return rDot(investorCountByCompany.get(c.id) || 1);
+    function dotRadius(c) { return rDot(c._capitalM || 10); }
+
+    // Y position: lanes ----------------------------------------------------
+    function laneBounds() {
+      // Region between top of swim lanes and bottom of swim lanes
+      const top = M.top;
+      const bottom = height - M.bottom;
+      // Layout (top → bottom):
+      //   [arc canopy: ~110px] [milestone band: ~58px] [lanes] [thread canopy: ~110px]
+      const arcsAboveHeight = 110;
+      const milestoneBandHeight = 58;
+      const threadsBelowHeight = 110;
+      const arcsTop = top;
+      const milestoneRow = top + arcsAboveHeight + 6;
+      const laneRegionTop = top + arcsAboveHeight + milestoneBandHeight;
+      const laneRegionBottom = bottom - threadsBelowHeight;
+      const laneCount = VERTICAL_ORDER.length;
+      const laneH = (laneRegionBottom - laneRegionTop) / laneCount;
+      return {
+        laneRegionTop,
+        laneRegionBottom,
+        laneHeight: laneH,
+        arcsTop,
+        milestoneRow
+      };
     }
+    function laneY(vertical) {
+      const lb = laneBounds();
+      const idx = VERTICAL_ORDER.indexOf(vertical);
+      if (idx < 0) return lb.laneRegionTop + lb.laneHeight / 2;
+      return lb.laneRegionTop + lb.laneHeight * (idx + 0.5);
+    }
+    function laneTop(vertical) {
+      const lb = laneBounds();
+      const idx = VERTICAL_ORDER.indexOf(vertical);
+      return lb.laneRegionTop + lb.laneHeight * idx;
+    }
+    function laneHeight() { return laneBounds().laneHeight; }
+
+    // Per-vertical-year capital amount → bar height (within a lane)
+    let capScaleMax = d3.max(Array.from(yearVertAmount.values())) || 1;
+    const capScale = d3.scaleSqrt().domain([0, capScaleMax]).range([0, 1]).clamp(true);
+
+    // Heat scale (companies + investments per year-vertical) — VERY subtle weather-map feel
+    const heatMax = d3.max(VERTICAL_ORDER.map(v =>
+      d3.max(d3.range(startYear, endYear+1).map(y => (yearVertAmount.get(y+"|"+v) || 0)))
+    )) || 1;
+    // Use sqrt scale to compress big peaks; keep alpha tiny
+    const heatScale = d3.scaleSqrt().domain([0, heatMax]).range([0, 1]).clamp(true);
 
     // ---------------------------- Render ----------------------------
     function render() {
-      const innerHeight = height - M.top - M.bottom;
-      const ay = axisY();
+      const lb = laneBounds();
 
-      // -------- Cumulative area --------
-      const yMaxCum = d3.max(cumulative, d => d.cum) || 1;
-      const yArea = d3.scaleLinear()
-        .domain([0, yMaxCum])
-        .range([ay, M.top + 12]); // grows upward from axis
+      // -------- Heatmap (year × vertical) — subtle "weather map" --------
+      const heatCells = [];
+      for (let y = startYear; y <= endYear; y++) {
+        VERTICAL_ORDER.forEach(v => {
+          const a = yearVertAmount.get(y + "|" + v) || 0;
+          const cs = companies.filter(c => c.founded === y && c.vertical === v).length;
+          heatCells.push({ year: y, vert: v, w: a + cs * 12 });
+        });
+      }
+      const heat = gHeat.selectAll("rect.heat-cell").data(heatCells, d => d.year + "|" + d.vert);
+      heat.exit().remove();
+      heat.enter().append("rect")
+          .attr("class", "heat-cell")
+        .merge(heat)
+          .attr("x", d => currentScale(d.year))
+          .attr("y", d => laneTop(d.vert) + 1)
+          .attr("width", d => Math.max(1, currentScale(d.year + 1) - currentScale(d.year)))
+          .attr("height", lb.laneHeight - 2)
+          .attr("fill", d => VERTICAL_COLORS[d.vert])
+          .attr("opacity", d => {
+            if (!activeVerticals.has(d.vert)) return 0;
+            // Subtle weather map: 0..0.22 alpha based on heatScale
+            return heatScale(d.w) * 0.22;
+          });
 
-      const areaGen = d3.area()
-        .x(d => currentScale(d.year))
-        .y0(ay)
-        .y1(d => yArea(d.cum))
-        .curve(d3.curveMonotoneX);
+      // -------- Swim lanes (background tint + horizontal rule top/bottom) --------
+      const lanes = gLanes.selectAll("g.lane").data(VERTICAL_ORDER, d => d);
+      lanes.exit().remove();
+      const lanesEnter = lanes.enter().append("g").attr("class", "lane");
+      lanesEnter.append("rect").attr("class", "lane-bg");
+      lanesEnter.append("line").attr("class", "lane-rule top");
+      lanesEnter.merge(lanes).each(function(d) {
+        const sel = d3.select(this);
+        const top = laneTop(d);
+        sel.select("rect.lane-bg")
+          .attr("x", M.left - 30)
+          .attr("y", top)
+          .attr("width", width - M.right - M.left + 60)
+          .attr("height", lb.laneHeight)
+          .attr("fill", `url(#lane-bg-${d.replace(/[^a-z0-9]/gi,"")})`)
+          .attr("opacity", activeVerticals.has(d) ? 1 : 0.20);
+        sel.select("line.lane-rule.top")
+          .attr("x1", M.left - 30).attr("x2", width - M.right + 30)
+          .attr("y1", top).attr("y2", top);
+      });
+      // Bottom rule of last lane
+      gLanes.selectAll("line.lane-rule.bottom").data([1]).join("line")
+        .attr("class", "lane-rule bottom")
+        .attr("x1", M.left - 30).attr("x2", width - M.right + 30)
+        .attr("y1", lb.laneRegionBottom).attr("y2", lb.laneRegionBottom);
 
-      areaPath
-        .datum(cumulative)
-        .attr("d", areaGen);
+      // -------- Capital bars per (year, vertical) --------
+      // Bars sit at the bottom of each lane, draw upward
+      const barData = [];
+      for (let y = startYear; y <= endYear; y++) {
+        VERTICAL_ORDER.forEach(v => {
+          const a = yearVertAmount.get(y + "|" + v) || 0;
+          if (a > 0) barData.push({ year: y, vert: v, amount: a });
+        });
+      }
+      const bars = gCapital.selectAll("rect.capital-bar").data(barData, d => d.year + "|" + d.vert);
+      bars.exit().remove();
+      bars.enter().append("rect")
+          .attr("class", "capital-bar")
+        .merge(bars)
+          .attr("x", d => currentScale(d.year + 0.30))
+          .attr("y", d => {
+            const top = laneTop(d.vert);
+            const usable = lb.laneHeight - 4;
+            const h = capScale(d.amount) * usable * 0.80;
+            return top + lb.laneHeight - 2 - h;
+          })
+          .attr("width", d => {
+            const w = currentScale(d.year + 0.70) - currentScale(d.year + 0.30);
+            return Math.max(1.5, Math.min(w, 4.5));
+          })
+          .attr("height", d => {
+            const usable = lb.laneHeight - 4;
+            return capScale(d.amount) * usable * 0.80;
+          })
+          .attr("fill", d => VERTICAL_COLORS[d.vert])
+          .attr("opacity", d => activeVerticals.has(d.vert) ? 0.55 : 0.08)
+          .attr("rx", 1);
 
-      // -------- Grid (decade + year ticks) --------
+      // -------- Lane labels (left) --------
+      const laneLabelData = VERTICAL_ORDER.map(v => ({
+        vert: v,
+        count: companies.filter(c => c.vertical === v).length
+      }));
+      const laneLabels = gLaneLabels.selectAll("g.lane-label-g").data(laneLabelData, d => d.vert);
+      laneLabels.exit().remove();
+      const laneLabelsEnter = laneLabels.enter().append("g").attr("class", "lane-label-g");
+      laneLabelsEnter.append("rect").attr("class", "lane-swatch");
+      laneLabelsEnter.append("text").attr("class", "lane-label");
+      laneLabelsEnter.append("text").attr("class", "lane-count");
+      laneLabelsEnter.merge(laneLabels).each(function(d) {
+        const sel = d3.select(this);
+        const y = laneY(d.vert);
+        sel.select("rect.lane-swatch")
+          .attr("x", 24).attr("y", y - 6)
+          .attr("width", 4).attr("height", 12)
+          .attr("fill", VERTICAL_COLORS[d.vert])
+          .attr("opacity", activeVerticals.has(d.vert) ? 0.95 : 0.25)
+          .style("filter", "drop-shadow(0 0 6px " + VERTICAL_COLORS[d.vert] + ")");
+        sel.select("text.lane-label")
+          .attr("x", 36).attr("y", y - 1)
+          .attr("alignment-baseline", "middle")
+          .attr("fill", activeVerticals.has(d.vert) ? "var(--fg)" : "var(--fg-faint)")
+          .text(d.vert.toUpperCase())
+          .style("font-weight", activeVerticals.has(d.vert) ? 500 : 400)
+          .on("mouseenter", () => { hoverLane = d.vert; applyHoverFade(); })
+          .on("mouseleave", () => { hoverLane = null; applyHoverFade(); })
+          .on("click", () => {
+            // toggle isolate
+            if (activeVerticals.size === 1 && activeVerticals.has(d.vert)) {
+              activeVerticals = new Set(VERTICAL_ORDER);
+            } else {
+              activeVerticals = new Set([d.vert]);
+            }
+            updateChips();
+            applyFilters();
+          });
+        sel.select("text.lane-count")
+          .attr("x", 36).attr("y", y + 12)
+          .attr("alignment-baseline", "middle")
+          .text(`${d.count} co · ${investments.filter(i => companyById.get(i.company)?.vertical === d.vert).length} inv`);
+      });
+
+      // -------- Time grid + axis --------
       const [yLo, yHi] = currentScale.domain();
       const yLoVis = Math.floor(yLo);
       const yHiVis = Math.ceil(yHi);
-
-      // Pixels per year — used to decide tick density
       const pxPerYear = currentScale(yLoVis + 1) - currentScale(yLoVis);
 
-      // Decade vertical lines
+      // Decade lines (every 5y)
       const decadeYears = [];
       for (let y = Math.ceil(yLoVis / 5) * 5; y <= yHiVis; y += 5) decadeYears.push(y);
       const decade = gGrid.selectAll("line.grid-decade").data(decadeYears, d => d);
@@ -739,14 +1179,12 @@
         .merge(decade)
           .attr("x1", d => currentScale(d))
           .attr("x2", d => currentScale(d))
-          .attr("y1", M.top - 30)
-          .attr("y2", height - M.bottom + 8);
+          .attr("y1", lb.laneRegionTop)
+          .attr("y2", lb.laneRegionBottom);
 
-      // Yearly faint gridlines (only when zoomed in enough)
+      // Yearly faint gridlines
       let yearLines = [];
-      if (pxPerYear > 8) {
-        for (let y = yLoVis; y <= yHiVis; y++) yearLines.push(y);
-      }
+      if (pxPerYear > 8) for (let y = yLoVis; y <= yHiVis; y++) yearLines.push(y);
       const yearG = gGrid.selectAll("line.grid-year").data(yearLines, d => d);
       yearG.exit().remove();
       yearG.enter().append("line")
@@ -754,16 +1192,17 @@
         .merge(yearG)
           .attr("x1", d => currentScale(d))
           .attr("x2", d => currentScale(d))
-          .attr("y1", M.top - 10)
-          .attr("y2", height - M.bottom);
+          .attr("y1", lb.laneRegionTop)
+          .attr("y2", lb.laneRegionBottom);
 
-      // -------- Axis line --------
-      axisLine
+      // Time axis (bottom)
+      const ay = lb.laneRegionBottom;
+      gAxis.selectAll("line.axis-line").data([1]).join("line")
+        .attr("class", "axis-line")
         .attr("x1", M.left - 30).attr("x2", width - M.right + 30)
         .attr("y1", ay).attr("y2", ay);
 
-      // -------- Year ticks + labels --------
-      // Major every 5y; minor every year if zoomed enough
+      // Year ticks + labels
       let majorYears = [];
       let minorYears = [];
       const stepMajor = pxPerYear > 60 ? 1 : (pxPerYear > 22 ? 2 : (pxPerYear > 9 ? 5 : 10));
@@ -773,7 +1212,6 @@
         if (y % stepMinor === 0 && majorYears.indexOf(y) === -1) minorYears.push(y);
       }
 
-      // Major ticks (long)
       const majTick = gAxis.selectAll("line.year-tick.major").data(majorYears, d => d);
       majTick.exit().remove();
       majTick.enter().append("line")
@@ -781,10 +1219,9 @@
         .merge(majTick)
           .attr("x1", d => currentScale(d))
           .attr("x2", d => currentScale(d))
-          .attr("y1", ay - 7)
+          .attr("y1", ay - 5)
           .attr("y2", ay + 7);
 
-      // Minor ticks
       const minTick = gAxis.selectAll("line.year-tick.minor").data(minorYears, d => d);
       minTick.exit().remove();
       minTick.enter().append("line")
@@ -792,10 +1229,9 @@
         .merge(minTick)
           .attr("x1", d => currentScale(d))
           .attr("x2", d => currentScale(d))
-          .attr("y1", ay - 3)
-          .attr("y2", ay + 3);
+          .attr("y1", ay - 2)
+          .attr("y2", ay + 4);
 
-      // Year labels (major only)
       const labels = gYearLabels.selectAll("text.year-label").data(majorYears, d => d);
       labels.exit().remove();
       const labelsEnter = labels.enter().append("text")
@@ -804,77 +1240,126 @@
           .on("click", (ev, d) => {
             ev.stopPropagation();
             selectedYear = (selectedYear === d) ? null : d;
-            updateYearStatus();
             applyFilters();
           });
       labelsEnter.merge(labels)
           .attr("x", d => currentScale(d))
-          .attr("y", height - M.bottom + 30)
+          .attr("y", ay + 22)
           .classed("selected", d => selectedYear === d);
 
-      // -------- Below-axis arcs (founder-shared) --------
-      const belowData = founderEdges.map(e => {
-        const a = companyById.get(e.c1);
-        const b = companyById.get(e.c2);
-        return Object.assign({}, e, { a, b });
-      }).filter(e => e.a && e.b);
+      // -------- Milestones (vertical glowing lines + labels above) --------
+      const ms = gMilestones.selectAll("g.milestone").data(MILESTONES, d => d.year + "|" + d.label);
+      ms.exit().remove();
+      const msEnter = ms.enter().append("g").attr("class", "milestone");
+      msEnter.append("line").attr("class", "milestone-line glow");
+      msEnter.append("line").attr("class", "milestone-line");
+      msEnter.merge(ms).each(function(d) {
+        const sel = d3.select(this);
+        const x = currentScale(d.year);
+        sel.selectAll("line.milestone-line")
+          .attr("x1", x).attr("x2", x)
+          .attr("y1", lb.milestoneRow - 6)
+          .attr("y2", lb.laneRegionBottom);
+      });
+      // Milestone labels in the top band — rendered above arcs
+      const msLab = gMilestoneLabels.selectAll("g.ms-lab").data(MILESTONES, d => d.year + "|" + d.label);
+      msLab.exit().remove();
+      const msLabEnter = msLab.enter().append("g").attr("class", "ms-lab");
+      msLabEnter.append("line").attr("class", "ms-tick");
+      msLabEnter.append("text").attr("class", "milestone-label");
+      msLabEnter.merge(msLab).each(function(d, i) {
+        const sel = d3.select(this);
+        const x = currentScale(d.year);
+        // Stagger to avoid collision: 3 rows alternating
+        const row = i % 3;
+        const baseY = lb.milestoneRow + row * 16;
+        sel.select("line.ms-tick")
+          .attr("x1", x).attr("x2", x)
+          .attr("y1", baseY - 6)
+          .attr("y2", baseY + 3)
+          .attr("stroke", GOLD)
+          .attr("stroke-width", 0.7)
+          .attr("opacity", 0.55);
+        const t = sel.select("text.milestone-label");
+        t.text(null);
+        t.attr("transform", `translate(${x + 5}, ${baseY + 4})`)
+         .attr("text-anchor", "start");
+        t.append("tspan").attr("class", "yr").attr("font-weight", 600).text(d.year);
+        t.append("tspan").attr("dx", 6).text(d.label);
+        const visible = (x > M.left - 30 && x < width - M.right + 30) ? 0.85 : 0;
+        sel.attr("opacity", visible);
+      });
 
-      const arcsBelow = gArcsBelow.selectAll("path.arc.below").data(belowData, d => d.key);
-      arcsBelow.exit().remove();
-      const arcsBelowEnter = arcsBelow.enter().append("path")
-          .attr("class", "arc below")
-          .attr("stroke-width", 1.1);
-      arcsBelowEnter.merge(arcsBelow)
-          .attr("d", d => arcPath(d.a.founded, d.b.founded, ay, "below"))
-          .attr("stroke", d => `url(#grad-below-${(d.a.vertical||"Other").replace(/[^a-z0-9]/gi,"")})`)
-          .attr("opacity", d => visibleBelow(d) ? 0.32 : 0.04)
-        .on("mouseenter", function(ev, d) {
-            hoverArc = { type: "below", data: d };
-            applyHoverFade();
-          })
-          .on("mouseleave", function() {
-            hoverArc = null;
-            applyHoverFade();
-          });
+      // -------- Below-axis founder threads (gold) --------
+      // Each thread is a curve going DOWN from c1 (in lane) to a y below the axis, back up to c2.
+      const threadData = SYN_FOUNDER_THREADS.map(t => {
+        const a = companyById.get(t.c1);
+        const b = companyById.get(t.c2);
+        if (!a || !b) return null;
+        return Object.assign({}, t, { a, b });
+      }).filter(Boolean);
 
-      // -------- Above-axis arcs (investor → company) --------
-      // For each investment: pick a "start year" — for now, simulate investor's first
-      // appearance year as the earliest investment year for that investor across the
-      // dataset. This gives genuine span variability.
-      // Pre-compute: investor → earliest year in investments
-      // (Cached below.)
-      const arcsAboveData = investments.map(inv => {
+      const threads = gThreads.selectAll("g.thread").data(threadData, d => d.c1 + "|" + d.c2 + "|" + d.founderId);
+      threads.exit().remove();
+      const threadsEnter = threads.enter().append("g").attr("class", "thread");
+      threadsEnter.append("path").attr("class", "founder-thread");
+      threadsEnter.append("text").attr("class", "founder-glyph");
+      threadsEnter.merge(threads).each(function(d) {
+        const sel = d3.select(this);
+        const x1 = currentScale(d.a.founded);
+        const y1 = laneY(d.a.vertical);
+        const x2 = currentScale(d.b.founded);
+        const y2 = laneY(d.b.vertical);
+        const xMid = (x1 + x2) / 2;
+        const apexY = lb.laneRegionBottom + 50 + Math.min(40, Math.abs(x2 - x1) * 0.04);
+        // Bezier path: from (x1,y1) down to apex, up to (x2,y2)
+        const path = `M ${x1} ${y1} C ${x1} ${apexY}, ${x2} ${apexY}, ${x2} ${y2}`;
+        sel.select("path.founder-thread")
+          .attr("d", path)
+          .attr("opacity", visibleThread(d) ? 0.75 : 0.10)
+          .on("mouseenter", function() { hoverThread = d; applyHoverFade(); })
+          .on("mouseleave", function() { hoverThread = null; applyHoverFade(); });
+        // Founder initials at apex
+        const initials = (d.founder || "")
+          .split(/\s+/).map(p => p[0]).join("").slice(0,3).toUpperCase();
+        sel.select("text.founder-glyph")
+          .attr("x", xMid).attr("y", apexY - 4)
+          .text(initials)
+          .attr("opacity", visibleThread(d) ? 0.95 : 0.10);
+      });
+
+      // -------- Above-axis investor arcs --------
+      const arcAboveData = investments.map(inv => {
         const c = companyById.get(inv.company);
         if (!c) return null;
-        const startYear2 = investorFirstYear.get(inv.investor) ?? inv.year;
-        // Ensure start <= end ; if equal, slight artificial span (3y back, clamped)
-        let s = Math.min(startYear2, inv.year);
+        const startY = investorFirstYear.get(inv.investor) ?? inv.year;
+        let s = Math.min(startY, inv.year);
         let e = inv.year;
         if (s === e) s = Math.max(startYear, e - 2);
         return Object.assign({}, inv, { c, startYear: s, endYear: e });
       }).filter(Boolean);
 
-      const arcsAbove = gArcsAbove.selectAll("path.arc.above").data(arcsAboveData, d => d.investor + "|" + d.company);
-      arcsAbove.exit().remove();
-      const arcsAboveEnter = arcsAbove.enter().append("path")
-          .attr("class", "arc above")
-          .attr("stroke-width", 0.95)
-          .attr("filter", "url(#f-glow-soft)");
-      arcsAboveEnter.merge(arcsAbove)
-          .attr("d", d => arcPath(d.startYear, d.endYear, ay, "above"))
-          .attr("stroke", d => `url(#grad-arc-${(d.c.vertical||"Other").replace(/[^a-z0-9]/gi,"")})`)
-          .attr("opacity", d => visibleAbove(d) ? 0.40 : 0.05)
-        .on("mouseenter", function(ev, d) {
-            hoverArc = { type: "above", data: d };
-            applyHoverFade();
-          })
-          .on("mouseleave", function() {
-            hoverArc = null;
-            applyHoverFade();
-          });
+      const arcs = gArcsAbove.selectAll("path.arc.above").data(arcAboveData, d => d.investor + "|" + d.company);
+      arcs.exit().remove();
+      const arcsEnter = arcs.enter().append("path")
+        .attr("class", "arc above")
+        .attr("filter", "url(#f-glow-soft)");
+      arcsEnter.merge(arcs)
+        .attr("d", d => arcAbovePath(d.startYear, d.endYear, d.c.vertical))
+        .attr("stroke", d => VERTICAL_COLORS[d.c.vertical])
+        .attr("stroke-width", 1.0)
+        .attr("stroke-dasharray", d => {
+          if (d.type === "vc") return null;        // solid
+          if (d.type === "corp") return "5 3";     // dashed
+          if (d.type === "gov") return "1.5 2.5";  // dotted
+          return null;
+        })
+        .attr("opacity", d => visibleAbove(d) ? 0.55 : 0.05)
+        .on("mouseenter", function(ev, d) { hoverArc = { type: "above", data: d }; applyHoverFade(); })
+        .on("mouseleave", function() { hoverArc = null; applyHoverFade(); });
 
       // -------- Company dots --------
-      // Glow halo behind
+      // Halo
       const halos = gDots.selectAll("circle.dot-glow").data(companies, d => d.id);
       halos.exit().remove();
       halos.enter().append("circle")
@@ -882,9 +1367,9 @@
           .attr("filter", "url(#f-glow)")
         .merge(halos)
           .attr("cx", d => currentScale(d.founded))
-          .attr("cy", ay)
+          .attr("cy", d => laneY(d.vertical))
           .attr("r",  d => dotRadius(d) * 1.6)
-          .attr("fill", d => VERTICAL_COLORS[d.vertical] || VERTICAL_COLORS.Other)
+          .attr("fill", d => VERTICAL_COLORS[d.vertical])
           .attr("opacity", d => visibleCompany(d) ? 0.45 : 0.06);
 
       // Solid dots
@@ -893,147 +1378,208 @@
       dots.enter().append("circle")
           .attr("class", "dot")
           .attr("stroke-width", 1)
-          .attr("stroke", "rgba(255,255,255,0.2)")
+          .attr("stroke", "rgba(255,255,255,0.30)")
         .merge(dots)
           .attr("cx", d => currentScale(d.founded))
-          .attr("cy", ay)
+          .attr("cy", d => laneY(d.vertical))
           .attr("r",  d => dotRadius(d))
-          .attr("fill", d => VERTICAL_COLORS[d.vertical] || VERTICAL_COLORS.Other)
+          .attr("fill", d => VERTICAL_COLORS[d.vertical])
           .attr("opacity", d => visibleCompany(d) ? 1 : 0.10)
           .on("mouseenter", function(ev, d) {
             hoverCompanyId = d.id;
             applyHoverFade();
-            showInfoCard(d);
+            showInfoCard(d, ev);
           })
           .on("mouseleave", function() {
             hoverCompanyId = null;
             applyHoverFade();
             hideInfoCard();
           })
+          .on("mousemove", function(ev) {
+            positionInfoCard(ev);
+          })
           .on("click", function(ev, d) {
             ev.stopPropagation();
             selectedYear = (selectedYear === d.founded) ? null : d.founded;
-            updateYearStatus();
             applyFilters();
           });
+
+      // -------- Annotations --------
+      const annData = ANNOTATIONS;
+      const ann = gAnnotations.selectAll("g.annotation-g").data(annData, d => d.label);
+      ann.exit().remove();
+      const annEnter = ann.enter().append("g").attr("class", "annotation-g");
+      annEnter.append("path").attr("class", "annotation-leader");
+      annEnter.append("text").attr("class", "annotation").attr("class", "annotation lbl-text");
+      annEnter.merge(ann).each(function(d, i) {
+        const sel = d3.select(this);
+        const x = currentScale(d.targetYear);
+        const yLane = laneY(d.targetVertical);
+        let textX, textY;
+        if (d.anchor === "above") {
+          textX = x + 18;
+          textY = lb.laneRegionTop + 28 + (i * 14);
+          sel.select("path.annotation-leader")
+            .attr("d", `M ${x} ${yLane} L ${x} ${textY + 8} L ${textX - 6} ${textY + 8}`);
+        } else {
+          textX = x + 18;
+          textY = lb.laneRegionBottom + 60 + (i * 14);
+          sel.select("path.annotation-leader")
+            .attr("d", `M ${x} ${yLane} L ${x} ${textY - 14} L ${textX - 6} ${textY - 14}`);
+        }
+        // Build text spans
+        const t = sel.select("text.annotation");
+        t.attr("transform", `translate(${textX}, ${textY})`).text(null);
+        t.append("tspan").attr("class", "lbl").attr("x", 0).attr("dy", 0).text(d.label);
+        const lines = d.body.split("\n");
+        lines.forEach((line, li) => {
+          t.append("tspan").attr("x", 0).attr("dy", li === 0 ? 14 : 13).text(line);
+        });
+        const visible = activeVerticals.has(d.targetVertical);
+        sel.attr("opacity", visible ? 1 : 0.20);
+      });
 
       updateStats();
       applyHoverFade();
     }
 
-    // Investor → first year map (built once)
-    const investorFirstYear = new Map();
-    investments.forEach(inv => {
-      if (!investorFirstYear.has(inv.investor)) investorFirstYear.set(inv.investor, inv.year);
-      else if (inv.year < investorFirstYear.get(inv.investor)) investorFirstYear.set(inv.investor, inv.year);
-    });
-    // Slight randomized backdate for visual variety (deterministic)
-    investorFirstYear.forEach((y, k) => {
-      const back = Math.floor(rand01("ifback:" + k) * 4); // 0..3 years earlier
-      investorFirstYear.set(k, Math.max(startYear + 1, y - back));
-    });
-
     // ---------------------------- Arc geometry ----------------------------
-    function arcPath(yearA, yearB, ay, direction) {
-      // Semicircle-ish arc between two x-coordinates, anchored on axis
+    function arcAbovePath(yearA, yearB, vertical) {
+      const lb = laneBounds();
       const x1 = currentScale(yearA);
       const x2 = currentScale(yearB);
-      if (Math.abs(x2 - x1) < 0.3) return ""; // skip vanishing arcs
-      // Use SVG elliptical arc — radii: rx = |x2-x1|/2, ry = scaled height
+      if (Math.abs(x2 - x1) < 0.3) return "";
+      // Anchor at the TOP of the milestone band; arc rises into the arc canopy above.
+      // Milestone labels stay clear of arcs because they sit BELOW this baseline.
+      const baseY = lb.milestoneRow - 4;
       const rx = Math.abs(x2 - x1) / 2;
-      // Height proportional to span (in years), capped softly
       const span = Math.abs(yearB - yearA);
-      const heightFactor = Math.min(1, Math.sqrt(span / 25)); // 0..1
-      const maxRy = (direction === "above") ? (axisY() - M.top - 18) : (height - M.bottom - axisY() - 18);
+      const heightFactor = Math.min(1, Math.sqrt(span / 25));
+      const maxRy = (baseY - lb.arcsTop - 4);
       const ry = Math.max(8, heightFactor * maxRy);
-      // sweep flag controls direction
-      const sweep = direction === "above" ? 0 : 1;  // 0 = above (counter-clockwise), 1 = below
       const xLeft  = Math.min(x1, x2);
       const xRight = Math.max(x1, x2);
-      // d: M xLeft, ay  A rx ry 0 0 sweep xRight ay
-      return `M ${xLeft} ${ay} A ${rx} ${ry} 0 0 ${sweep} ${xRight} ${ay}`;
+      return `M ${xLeft} ${baseY} A ${rx} ${ry} 0 0 0 ${xRight} ${baseY}`;
     }
 
     // ---------------------------- Visibility predicates ----------------------------
     function visibleCompany(c) {
-      if (!activeVerticals.has(c.vertical) && !activeVerticals.has("Other")) {
-        // when the vertical isn't recognized, show only if Other is on
-        if (!VERTICAL_COLORS[c.vertical]) return activeVerticals.has("Other");
-      }
-      if (!activeVerticals.has(c.vertical || "Other")) return false;
+      if (!activeVerticals.has(c.vertical)) return false;
       if (selectedYear != null && c.founded > selectedYear) return false;
       return true;
     }
-    function visibleAbove(arc) {
-      if (!visibleCompany(arc.c)) return false;
-      return true;
-    }
-    function visibleBelow(e) {
-      return visibleCompany(e.a) && visibleCompany(e.b);
-    }
+    function visibleAbove(arc) { return visibleCompany(arc.c); }
+    function visibleThread(t) { return visibleCompany(t.a) && visibleCompany(t.b); }
 
-    // ---------------------------- Hover fade logic ----------------------------
+    // ---------------------------- Hover fade ----------------------------
     function applyHoverFade() {
-      const hovered = hoverCompanyId;
-      const hArc = hoverArc;
-
-      // Determine which company ids are "active" for hover
       const activeIds = new Set();
-      if (hovered) activeIds.add(hovered);
-      if (hArc && hArc.type === "above") activeIds.add(hArc.data.company);
-      if (hArc && hArc.type === "below") { activeIds.add(hArc.data.c1); activeIds.add(hArc.data.c2); }
-
-      const isHover = activeIds.size > 0;
+      if (hoverCompanyId) activeIds.add(hoverCompanyId);
+      if (hoverArc && hoverArc.type === "above") activeIds.add(hoverArc.data.company);
+      if (hoverThread) { activeIds.add(hoverThread.c1); activeIds.add(hoverThread.c2); }
+      const isHover = activeIds.size > 0 || hoverLane != null;
 
       // Above arcs
       gArcsAbove.selectAll("path.arc.above")
         .attr("opacity", d => {
-          if (!visibleAbove(d)) return 0.03;
-          if (!isHover) return 0.40;
+          if (!visibleAbove(d)) return 0.04;
+          if (hoverLane != null) return d.c.vertical === hoverLane ? 0.85 : 0.05;
+          if (!isHover) return 0.55;
           if (activeIds.has(d.company)) return 0.95;
-          return 0.04;
+          return 0.06;
         })
-        .attr("stroke-width", d => activeIds.has(d.company) && isHover ? 1.6 : 0.95);
+        .attr("stroke-width", d => activeIds.has(d.company) && isHover ? 1.7 : 1.0);
 
-      // Below arcs
-      gArcsBelow.selectAll("path.arc.below")
+      // Threads
+      gThreads.selectAll("path.founder-thread")
         .attr("opacity", d => {
-          if (!visibleBelow(d)) return 0.03;
-          if (!isHover) return 0.32;
-          if (activeIds.has(d.c1) || activeIds.has(d.c2)) return 0.95;
-          return 0.03;
+          if (!visibleThread(d)) return 0.10;
+          if (hoverLane != null) return (d.a.vertical === hoverLane || d.b.vertical === hoverLane) ? 0.95 : 0.08;
+          if (!isHover) return 0.75;
+          if (activeIds.has(d.c1) || activeIds.has(d.c2)) return 1;
+          return 0.10;
         })
-        .attr("stroke-width", d => (activeIds.has(d.c1) || activeIds.has(d.c2)) && isHover ? 1.7 : 1.1);
+        .attr("stroke-width", d => (activeIds.has(d.c1) || activeIds.has(d.c2)) && isHover ? 2.0 : 1.4);
+      gThreads.selectAll("text.founder-glyph")
+        .attr("opacity", d => {
+          if (!visibleThread(d)) return 0.10;
+          if (hoverLane != null) return (d.a.vertical === hoverLane || d.b.vertical === hoverLane) ? 1 : 0.08;
+          if (!isHover) return 0.95;
+          if (activeIds.has(d.c1) || activeIds.has(d.c2)) return 1;
+          return 0.15;
+        });
 
       // Dots
       gDots.selectAll("circle.dot")
         .attr("opacity", d => {
           if (!visibleCompany(d)) return 0.08;
+          if (hoverLane != null) return d.vertical === hoverLane ? 1 : 0.20;
           if (!isHover) return 1;
           return activeIds.has(d.id) ? 1 : 0.18;
         });
       gDots.selectAll("circle.dot-glow")
         .attr("opacity", d => {
           if (!visibleCompany(d)) return 0.04;
+          if (hoverLane != null) return d.vertical === hoverLane ? 0.65 : 0.08;
           if (!isHover) return 0.45;
           return activeIds.has(d.id) ? 0.85 : 0.05;
         })
-        .attr("r", d => activeIds.has(d.id) && isHover ? dotRadius(d) * 2.6 : dotRadius(d) * 1.6);
+        .attr("r", d => activeIds.has(d.id) && isHover ? dotRadius(d) * 2.4 : dotRadius(d) * 1.6);
+
+      // Lane backgrounds and capital bars dim to ~25% when a different lane is hovered
+      gLanes.selectAll("rect.lane-bg")
+        .attr("opacity", function() {
+          const v = d3.select(this.parentNode).datum();
+          if (!activeVerticals.has(v)) return 0.20;
+          if (hoverLane != null) return v === hoverLane ? 1 : 0.25;
+          return 1;
+        });
+      gCapital.selectAll("rect.capital-bar")
+        .attr("opacity", d => {
+          if (!activeVerticals.has(d.vert)) return 0.08;
+          if (hoverLane != null) return d.vert === hoverLane ? 0.85 : 0.15;
+          return 0.55;
+        });
+      gHeat.selectAll("rect.heat-cell")
+        .attr("opacity", d => {
+          if (!activeVerticals.has(d.vert)) return 0;
+          const base = heatScale(d.w) * 0.22;
+          if (hoverLane != null) return d.vert === hoverLane ? heatScale(d.w) * 0.36 : base * 0.4;
+          return base;
+        });
     }
 
     function applyFilters() {
-      // Re-apply opacity using visibility predicates
+      // Re-compute visibility-based opacities (ignore hover for now; hover layer reapplies)
       gArcsAbove.selectAll("path.arc.above")
-        .attr("opacity", d => visibleAbove(d) ? 0.40 : 0.04);
-      gArcsBelow.selectAll("path.arc.below")
-        .attr("opacity", d => visibleBelow(d) ? 0.32 : 0.04);
+        .attr("opacity", d => visibleAbove(d) ? 0.55 : 0.05);
+      gThreads.selectAll("path.founder-thread")
+        .attr("opacity", d => visibleThread(d) ? 0.75 : 0.10);
+      gThreads.selectAll("text.founder-glyph")
+        .attr("opacity", d => visibleThread(d) ? 0.95 : 0.10);
       gDots.selectAll("circle.dot")
         .attr("opacity", d => visibleCompany(d) ? 1 : 0.10);
       gDots.selectAll("circle.dot-glow")
         .attr("opacity", d => visibleCompany(d) ? 0.45 : 0.06);
       gYearLabels.selectAll("text.year-label")
         .classed("selected", d => selectedYear === d);
+      gLanes.selectAll("rect.lane-bg")
+        .attr("opacity", function() {
+          const v = d3.select(this.parentNode).datum();
+          return activeVerticals.has(v) ? 1 : 0.20;
+        });
+      gCapital.selectAll("rect.capital-bar")
+        .attr("opacity", d => activeVerticals.has(d.vert) ? 0.55 : 0.08);
+      gHeat.selectAll("rect.heat-cell")
+        .attr("opacity", d => activeVerticals.has(d.vert) ? heatScale(d.w) * 0.22 : 0);
+      gLaneLabels.selectAll("text.lane-label")
+        .attr("fill", d => activeVerticals.has(d.vert) ? "#e7ecf5" : "#4a5366");
+      gLaneLabels.selectAll("rect.lane-swatch")
+        .attr("opacity", d => activeVerticals.has(d.vert) ? 0.95 : 0.25);
+      gAnnotations.selectAll("g.annotation-g")
+        .attr("opacity", d => activeVerticals.has(d.targetVertical) ? 1 : 0.20);
       updateStats();
+      updateSnapshot();
       applyHoverFade();
     }
 
@@ -1066,21 +1612,54 @@
       const ids = new Set(visibleCompanies.map(c => c.id));
       const set = new Set();
       data.founders.forEach(f => {
-        if (f.companies.some(cid => ids.has(cid))) set.add(f.id);
+        if (f.companies && f.companies.some(cid => ids.has(cid))) set.add(f.id);
       });
       return set.size;
     }
 
+    // ---------------------------- Year snapshot ----------------------------
+    function updateSnapshot() {
+      const snap = document.getElementById("snapshot");
+      if (selectedYear == null) {
+        snap.classList.remove("visible");
+        return;
+      }
+      snap.classList.add("visible");
+      d3.select("#snapshot-year").text(selectedYear);
+      const founded = companies.filter(c => c.founded === selectedYear).length;
+      let cumv = 0;
+      companies.forEach(c => { if (c.founded <= selectedYear) cumv++; });
+      const invs = (yearInvCount.get(selectedYear) || 0);
+      const actInv = (yearActiveInvestors.get(selectedYear) || new Set()).size;
+      d3.select("#snap-founded").text(founded);
+      d3.select("#snap-cum").text(cumv);
+      d3.select("#snap-invs").text(invs);
+      d3.select("#snap-actinv").text(actInv);
+      // Dominant vertical that year (by capital)
+      const vMap = {};
+      VERTICAL_ORDER.forEach(v => vMap[v] = yearVertAmount.get(selectedYear + "|" + v) || 0);
+      let domV = null, domA = -1;
+      Object.entries(vMap).forEach(([k,v]) => { if (v > domA) { domA = v; domV = k; } });
+      const c = VERTICAL_COLORS[domV] || "#888";
+      d3.select("#snap-dom").html(`<span class="tag" style="color:${c}"><span class="sw" style="background:${c}"></span><span style="color:var(--fg)">${domV || "—"}</span></span>`);
+      // Top investors that year
+      const m = yearTopInvestors.get(selectedYear) || new Map();
+      const top = Array.from(m.entries()).sort((a,b) => b[1] - a[1]).slice(0, 4);
+      d3.select("#snap-topinv").html(top.length
+        ? top.map(([k,v]) => `<div style="display:flex;justify-content:space-between;color:var(--fg);font-size:11px;line-height:1.6;"><span>${escapeHtml(k)}</span><span style="color:var(--fg-faint);font-family:'JetBrains Mono',monospace;">${v}</span></div>`).join("")
+        : '<span style="color:var(--fg-faint)">—</span>');
+    }
+
     // ---------------------------- Info card ----------------------------
     const infoEl = document.getElementById("info");
-    function showInfoCard(c) {
+    function showInfoCard(c, ev) {
       const inv = investments.filter(i => i.company === c.id).map(i => i.investor);
       const founders = c.founders;
-      const color = VERTICAL_COLORS[c.vertical] || VERTICAL_COLORS.Other;
+      const color = VERTICAL_COLORS[c.vertical];
       infoEl.innerHTML = `
         <div class="vert" style="color:${color}">
           <span class="dot" style="background:${color}; color:${color}"></span>
-          <span>${escapeHtml(c.vertical || "Other")}</span>
+          <span>${escapeHtml(c.vertical)}${c._syntheticVertical ? ' <span style="color:var(--fg-faint)">// SYN</span>' : ''}</span>
         </div>
         <h3>${escapeHtml(c.name)}</h3>
         <div class="meta">
@@ -1103,8 +1682,21 @@
         </div>` : ""}
       `;
       infoEl.classList.add("visible");
-      // Move stats panel out of the way slightly: just hide info if it'd cover stats — we just keep it in same right position but move it down
-      infoEl.style.top = (200) + "px";
+      positionInfoCard(ev);
+    }
+    function positionInfoCard(ev) {
+      if (!ev) return;
+      const pad = 18;
+      const w = infoEl.offsetWidth || 320;
+      const h = infoEl.offsetHeight || 220;
+      let x = ev.clientX + pad;
+      let y = ev.clientY + pad;
+      if (x + w > window.innerWidth - 16) x = ev.clientX - w - pad;
+      if (y + h > window.innerHeight - 16) y = ev.clientY - h - pad;
+      x = Math.max(12, x);
+      y = Math.max(12, y);
+      infoEl.style.left = x + "px";
+      infoEl.style.top = y + "px";
     }
     function hideInfoCard() {
       infoEl.classList.remove("visible");
@@ -1115,87 +1707,65 @@
 
     // ---------------------------- Filter chips ----------------------------
     const filtersEl = d3.select("#filters");
-    VERTICAL_ORDER.forEach(v => {
-      const chip = filtersEl.append("div")
-        .attr("class", "chip active")
-        .attr("data-vertical", v)
-        .style("color", VERTICAL_COLORS[v])
-        .on("click", function() {
-          // shift-click could isolate; default is toggle
-          const ev = d3.event ? d3.event : (window.event || {});
-          // Toggle membership
-          if (activeVerticals.has(v)) activeVerticals.delete(v);
-          else activeVerticals.add(v);
-          // If user toggles off all, restore all
-          if (activeVerticals.size === 0) VERTICAL_ORDER.forEach(x => activeVerticals.add(x));
-          d3.select(this).classed("active", activeVerticals.has(v));
-          applyFilters();
-        });
-      chip.append("span").attr("class", "swatch").style("background", VERTICAL_COLORS[v]).style("color", VERTICAL_COLORS[v]);
-      chip.append("span").text(v.toUpperCase());
-    });
-
-    // Right-click chip to isolate (custom behaviour)
-    filtersEl.selectAll(".chip").on("contextmenu", function(ev) {
-      ev.preventDefault();
-      const v = this.getAttribute("data-vertical");
-      activeVerticals = new Set([v]);
-      filtersEl.selectAll(".chip").classed("active", function() {
-        return this.getAttribute("data-vertical") === v;
+    function buildChips() {
+      filtersEl.selectAll("*").remove();
+      VERTICAL_ORDER.forEach(v => {
+        const chip = filtersEl.append("div")
+          .attr("class", "chip" + (activeVerticals.has(v) ? " active" : ""))
+          .attr("data-vertical", v)
+          .style("color", VERTICAL_COLORS[v])
+          .on("click", function() {
+            if (activeVerticals.has(v)) activeVerticals.delete(v);
+            else activeVerticals.add(v);
+            if (activeVerticals.size === 0) VERTICAL_ORDER.forEach(x => activeVerticals.add(x));
+            updateChips();
+            applyFilters();
+          })
+          .on("contextmenu", function(ev) {
+            ev.preventDefault();
+            activeVerticals = new Set([v]);
+            updateChips();
+            applyFilters();
+          });
+        chip.append("span").attr("class", "swatch").style("background", VERTICAL_COLORS[v]).style("color", VERTICAL_COLORS[v]);
+        chip.append("span").text(v);
       });
-      applyFilters();
-    });
-
-    // ---------------------------- Legend ----------------------------
-    const legendRowsEl = d3.select("#legend-rows");
-    VERTICAL_ORDER.forEach(v => {
-      const r = legendRowsEl.append("div").attr("class", "row");
-      r.append("span").attr("class", "swatch").style("background", VERTICAL_COLORS[v]).style("color", VERTICAL_COLORS[v]);
-      r.append("span").text(v);
-    });
-
-    // ---------------------------- Year selection status ----------------------------
-    const yearStatusEl = d3.select("#year-status");
-    function updateYearStatus() {
-      if (selectedYear == null) {
-        yearStatusEl.classed("visible", false);
-      } else {
-        yearStatusEl.classed("visible", true);
-        d3.select("#year-status-year").text(selectedYear);
-      }
     }
-    d3.select("#year-status-clear").on("click", () => {
+    function updateChips() {
+      filtersEl.selectAll(".chip")
+        .classed("active", function() { return activeVerticals.has(this.getAttribute("data-vertical")); });
+    }
+    buildChips();
+
+    // ---------------------------- Snapshot clear ----------------------------
+    d3.select("#snapshot-clear").on("click", () => {
       selectedYear = null;
-      updateYearStatus();
       applyFilters();
     });
     d3.select("#stage").on("click", () => {
-      // background click clears selection
       if (selectedYear != null) {
         selectedYear = null;
-        updateYearStatus();
         applyFilters();
       }
     });
 
     // ---------------------------- Zoom & Pan ----------------------------
-    // Custom (along x only) — d3.zoom rescaling
     const zoom = d3.zoom()
-      .scaleExtent([0.6, 18])
-      .translateExtent([[ -1000, 0 ], [ 100000, height ]])  // very loose
+      .scaleExtent([0.7, 16])
+      .translateExtent([[ -2000, 0 ], [ 200000, height ]])
       .filter((ev) => {
-        // Allow wheel + drag; disable zoom on label clicks so click-filter works
         if (ev.type === "click") return false;
-        if (ev.target && ev.target.classList && ev.target.classList.contains("year-label")) return false;
+        if (ev.target && ev.target.classList && (
+            ev.target.classList.contains("year-label") ||
+            ev.target.classList.contains("lane-label")
+        )) return false;
         return !ev.button;
       })
       .on("zoom", (ev) => {
         currentScale = ev.transform.rescaleX(baseScale);
         render();
       });
-
-    svg.call(zoom)
-       .on("dblclick.zoom", null);
+    svg.call(zoom).on("dblclick.zoom", null);
 
     svg.on("mousedown.cursor", () => stageEl.classList.add("dragging"));
     window.addEventListener("mouseup", () => stageEl.classList.remove("dragging"));
@@ -1206,21 +1776,24 @@
       height = window.innerHeight;
       svg.attr("viewBox", `0 0 ${width} ${height}`).attr("width", width).attr("height", height);
       baseScale.range([M.left, width - M.right]);
-      // Re-derive currentScale from current zoom transform
       const t = d3.zoomTransform(svg.node());
       currentScale = t.rescaleX(baseScale);
       render();
     });
 
     // Initial render
-    updateYearStatus();
     render();
+    updateSnapshot();
 
-    // Subtle entrance — fade in arcs
+    // Subtle entrance — fade in
     gArcsAbove.attr("opacity", 0).transition().duration(900).attr("opacity", 1);
-    gArcsBelow.attr("opacity", 0).transition().duration(900).delay(150).attr("opacity", 1);
+    gThreads.attr("opacity", 0).transition().duration(900).delay(150).attr("opacity", 1);
     gDots.attr("opacity", 0).transition().duration(700).delay(300).attr("opacity", 1);
-    gAreaBg.attr("opacity", 0).transition().duration(1200).attr("opacity", 1);
+    gCapital.attr("opacity", 0).transition().duration(1200).attr("opacity", 1);
+    gHeat.attr("opacity", 0).transition().duration(1500).attr("opacity", 1);
+    gAnnotations.attr("opacity", 0).transition().duration(1100).delay(500).attr("opacity", 1);
+    gMilestones.attr("opacity", 0).transition().duration(900).delay(400).attr("opacity", 1);
+    gMilestoneLabels.attr("opacity", 0).transition().duration(900).delay(600).attr("opacity", 1);
   }
 })();
 </script>
