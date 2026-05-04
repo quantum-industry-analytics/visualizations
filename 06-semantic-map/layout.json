@@ -1,0 +1,1685 @@
+{
+ "meta": {
+  "method": "umap",
+  "k": 8,
+  "clusterTerms": {
+   "0": [
+    "seoul",
+    "ids",
+    "ai combines",
+    "faster efficiently"
+   ],
+   "1": [
+    "general purpose",
+    "intel",
+    "headquartered",
+    "deliver"
+   ],
+   "2": [
+    "atoms",
+    "computers",
+    "finland",
+    "iqm"
+   ],
+   "3": [
+    "range",
+    "offers",
+    "entangled networks",
+    "electronic"
+   ],
+   "4": [
+    "creates",
+    "processors",
+    "generation",
+    "data"
+   ],
+   "5": [
+    "discovery",
+    "drug",
+    "agilent",
+    "address"
+   ],
+   "6": [
+    "quantinuum",
+    "orca",
+    "computer",
+    "new value"
+   ],
+   "7": [
+    "digital",
+    "clients",
+    "content",
+    "web"
+   ]
+  },
+  "n": 47,
+  "nEdges": 35
+ },
+ "companies": [
+  {
+   "id": "Infleqtion",
+   "name": "Infleqtion",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Louisville",
+   "description": "Infleqtion, with offices in the United States, United Kingdom, and Australia, delivers high-value quantum information precisely where it is needed. By operating at the Edge, our software-configured, quantum-enabled products deliver unmatched levels of precision and power, generat",
+   "categories": [],
+   "investors": [
+    "S32",
+    "Maverick Ventures",
+    "S Ventures",
+    "Foundry Group",
+    "Innovate UK"
+   ],
+   "founders": [
+    "Dana Anderson",
+    "Jakob Reichel",
+    "Rainer Kunz",
+    "Theodor Hänsch"
+   ],
+   "founded": null,
+   "x": 0.10054829716682434,
+   "y": 0.05313419923186302,
+   "cluster": 1,
+   "neighbors": [
+    21,
+    11,
+    6,
+    33,
+    7,
+    17
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Rigetti Computing",
+   "name": "Rigetti Computing",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Berkeley",
+   "description": "Rigetti Computing is a full-stack quantum computing company. It designs and manufactures quantum-integrated circuits. It packages and deploys those chips in a low-temperature environment, and they build control systems to perform quantum logic operations on them.\n\nThe company dev",
+   "categories": [],
+   "investors": [
+    "Andreessen Horowitz",
+    "Alumni Ventures",
+    "Franklin Templeton",
+    "Bessemer Venture Partners",
+    "Y Combinator"
+   ],
+   "founders": [
+    "Chad Rigetti",
+    "Spencer Rascoff"
+   ],
+   "founded": null,
+   "x": 0.2579827904701233,
+   "y": 0.02140696719288826,
+   "cluster": 5,
+   "neighbors": [
+    7,
+    43,
+    22,
+    32,
+    6,
+    25
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Quantinuum",
+   "name": "Quantinuum",
+   "vertical": "Quantum Computing",
+   "country": "United States",
+   "city": "Broomfield",
+   "description": "Quantinuum is a quantum company dedicated to the advancement of quantum computers and the development of software solutions. Quantinuum's technology spearheads advancements in materials discovery, cybersecurity, and next-generation quantum AI. The company has nearly 500 professio",
+   "categories": [],
+   "investors": [
+    "QED Investors",
+    "NVentures",
+    "Amgen",
+    "JP Morgan Chase",
+    "Korea Investment Partners"
+   ],
+   "founders": [
+    "Ilyas Khan"
+   ],
+   "founded": null,
+   "x": 0.6495341658592224,
+   "y": -0.11988478153944016,
+   "cluster": 6,
+   "neighbors": [
+    38,
+    44,
+    37,
+    5,
+    25,
+    28
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "SandboxAQ",
+   "name": "SandboxAQ",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Palo Alto",
+   "description": "SandboxAQ develops AI and quantum technology products aimed at solving complex challenges. The company integrates knowledge from various fields to create Large Quantitative Models and AI sensing applications. Its focus is on providing practical solutions in areas that require adv",
+   "categories": [],
+   "investors": [
+    "NVIDIA",
+    "S32",
+    "Paladin Capital Group",
+    "BNP Paribas",
+    "US Innovative Technology Fund"
+   ],
+   "founders": [
+    "Jack Hidary"
+   ],
+   "founded": null,
+   "x": 0.35341334342956543,
+   "y": 0.0853537991642952,
+   "cluster": 1,
+   "neighbors": [
+    41,
+    10,
+    21,
+    0,
+    7,
+    17
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Photonic",
+   "name": "Photonic",
+   "vertical": "Communications",
+   "country": "Canada",
+   "city": "Vancouver",
+   "description": "Photonic builds a scalable, fault-tolerant networked quantum computing and networking platform. The company’s platform is based on optically-linked silicon spin qubits that combine computing power with photonics connectivity. This technology enables the networking of modules via ",
+   "categories": [],
+   "investors": [
+    "Inovia Capital",
+    "Amadeus Capital Partners",
+    "Government of Canada",
+    "Royal Bank of Canada",
+    "Microsoft"
+   ],
+   "founders": [
+    "Michael Thewalt",
+    "Stephanie Simmons"
+   ],
+   "founded": null,
+   "x": -0.11228153854608536,
+   "y": 0.06937726587057114,
+   "cluster": 4,
+   "neighbors": [
+    17,
+    30,
+    25,
+    15,
+    6,
+    7
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "SEALSQ",
+   "name": "SEALSQ",
+   "vertical": "Quantum Computing",
+   "country": "Switzerland",
+   "city": "Cointrin",
+   "description": "SEALSQ is a provider of semiconductors that develops secure chips, embedded firmware, and trusted technology hardware and software products.",
+   "categories": [],
+   "investors": [
+    "Heights Capital Management"
+   ],
+   "founders": [
+    "Carlos Moreira"
+   ],
+   "founded": null,
+   "x": 0.7541812062263489,
+   "y": -0.02570677176117897,
+   "cluster": 6,
+   "neighbors": [
+    37,
+    44,
+    38,
+    2,
+    25,
+    7
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "IonQ",
+   "name": "IonQ",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "College Park",
+   "description": "IONQ develops general-purpose quantum information processor using a trapped ion approach. The method enables qubit replication optical networkability, and optimized algorithms to support scalable quantum computing.",
+   "categories": [],
+   "investors": [
+    "Bosch Ventures",
+    "Lockheed Martin Ventures",
+    "Fidelity",
+    "New Enterprise Associates",
+    "OUP (Osage University Partners)"
+   ],
+   "founders": [
+    "Christopher Monroe",
+    "Jungsang Kim",
+    "Niccolo de Masi"
+   ],
+   "founded": null,
+   "x": 0.11152135580778122,
+   "y": -0.07098802924156189,
+   "cluster": 1,
+   "neighbors": [
+    17,
+    7,
+    11,
+    12,
+    14,
+    38
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Quantum Computing Inc",
+   "name": "Quantum Computing Inc",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Hoboken",
+   "description": "Quantum Computing is a computer software company that focuses on developing processes to commercialize quantum computing hardware and application services. The company is driven by its mission is to lead the revolution in quantum computing.",
+   "categories": [],
+   "investors": [
+    "Ascendiant Capital Partners"
+   ],
+   "founders": [
+    "Robert Liscouski"
+   ],
+   "founded": null,
+   "x": 0.4346104860305786,
+   "y": 0.2140001803636551,
+   "cluster": 1,
+   "neighbors": [
+    43,
+    44,
+    6,
+    1,
+    5,
+    2
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "IBM",
+   "name": "IBM",
+   "vertical": "Cyber Security",
+   "country": "United States",
+   "city": "Armonk",
+   "description": "IBM is a technology and innovation company that offers a wide range of technology and consulting services; a broad portfolio of middleware for collaboration, predictive analytics, software development, and systems management. It offers services across AI, machine learning, cybers",
+   "categories": [],
+   "investors": [],
+   "founders": [
+    "Gerard Aldus",
+    "Thomas J. Watson"
+   ],
+   "founded": null,
+   "x": -0.8309904932975769,
+   "y": -0.10514115542173386,
+   "cluster": 3,
+   "neighbors": [
+    28,
+    16,
+    19,
+    34,
+    42,
+    26
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "XtalPi",
+   "name": "XtalPi",
+   "vertical": "Communications",
+   "country": "China",
+   "city": "Shenzhen",
+   "description": "XtalPi is a pharmaceutical technology company that is reinventing the industry’s approach to drug research and development with its Intelligent Digital Drug Discovery and Development (ID4) platform. Through its tightly interwoven quantum mechanics, artificial intelligence, and hi",
+   "categories": [],
+   "investors": [
+    "HSG",
+    "OrbiMed",
+    "5Y Capital",
+    "SoftBank Vision Fund",
+    "Tencent"
+   ],
+   "founders": [
+    "Jian Ma",
+    "Lipeng Lai",
+    "Shuhao Wen"
+   ],
+   "founded": null,
+   "x": -0.45097777247428894,
+   "y": 0.09212922304868698,
+   "cluster": 5,
+   "neighbors": [
+    32,
+    26,
+    21,
+    14,
+    44,
+    30
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Multiverse Computing",
+   "name": "Multiverse Computing",
+   "vertical": "Communications",
+   "country": "Spain",
+   "city": "Donostia-san Sebastián",
+   "description": "Multiverse Computing creates quantum computing software that uses probabilistic or nondeterministic technology to solve complicated real-world challenges. The company provides software tailored to the needs of portfolio optimization challenges, risk analysis, and market simulatio",
+   "categories": [],
+   "investors": [
+    "Gaingels",
+    "CDP Venture Capital",
+    "Quantonation",
+    "Inveready",
+    "Redstone.VC"
+   ],
+   "founders": [
+    "Alfonso Rubio Manzanares",
+    "Enrique Lizaso",
+    "Román Orús",
+    "Samuel Mugel"
+   ],
+   "founded": null,
+   "x": 0.15742239356040955,
+   "y": 0.3774641454219818,
+   "cluster": 4,
+   "neighbors": [
+    30,
+    7,
+    17,
+    3,
+    40,
+    15
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Qunnect",
+   "name": "Qunnect",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "New York",
+   "description": "Qunnect is a spin-off venture from the Quantum Information Technology group at Stony Brook university that focusses on engineering novel quantum devices enabling future information networks and quantum computing using photons to communicate and atoms to store and process quantum ",
+   "categories": [],
+   "investors": [
+    "Cisco Investments",
+    "SandboxAQ",
+    "Quantonation",
+    "National Science Foundation",
+    "Stony Lonesome Group"
+   ],
+   "founders": [
+    "Mael Flament",
+    "Mehdi Namazi"
+   ],
+   "founded": null,
+   "x": 0.07846526056528091,
+   "y": -0.1581505984067917,
+   "cluster": 2,
+   "neighbors": [
+    14,
+    6,
+    43,
+    0,
+    7,
+    38
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Google DeepMind",
+   "name": "Google DeepMind",
+   "vertical": "Other",
+   "country": "United Kingdom",
+   "city": "London",
+   "description": "DeepMind Technologies operates as an artificial intelligence company. The company builds general-purpose algorithms for use in simulations, e-commerce applications, and games. It combines AI, ML, and systems neuroscience to build general-purpose learning algorithms and scientific",
+   "categories": [],
+   "investors": [
+    "Founders Fund",
+    "Horizons Ventures"
+   ],
+   "founders": [
+    "Demis Hassabis",
+    "Demis Hassabis",
+    "Mustafa Suleyman",
+    "Mustafa Suleyman"
+   ],
+   "founded": null,
+   "x": 0.27703219652175903,
+   "y": -0.28254178166389465,
+   "cluster": 1,
+   "neighbors": [
+    45,
+    6,
+    17,
+    38,
+    32,
+    9
+   ],
+   "nInvestors": 2
+  },
+  {
+   "id": "BTQ",
+   "name": "BTQ",
+   "vertical": "Communications",
+   "country": "Canada",
+   "city": "Vancouver",
+   "description": "BTQ is a group of post-quantum cryptographers with an interest in addressing the urgent security threat posed by large-scale universal quantum computers. With the support of leading research institutes and universities, BTQ is combining software and hardware to safeguard critical",
+   "categories": [],
+   "investors": [
+    "National Research Council of Canada Industrial Research Assistance Program",
+    "Mitacs",
+    "National IT Industry Promotion Agency"
+   ],
+   "founders": [
+    "Chen-Mou Cheng",
+    "Ming Chih",
+    "Nicolas Roussy Newton",
+    "Olivier Newton"
+   ],
+   "founded": null,
+   "x": -0.13035905361175537,
+   "y": 0.20169202983379364,
+   "cluster": 4,
+   "neighbors": [
+    30,
+    33,
+    16,
+    14,
+    7,
+    41
+   ],
+   "nInvestors": 3
+  },
+  {
+   "id": "Atom Computing",
+   "name": "Atom Computing",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Berkeley",
+   "description": "Atom Computing builds truly scalable quantum computers out of individual atoms.\nThe company's quantum computers use quantum mechanical properties of atoms to process information and solve problems beyond the reach of traditional computers, including drug design, computational che",
+   "categories": [],
+   "investors": [
+    "Alumni Ventures",
+    "BoxGroup",
+    "SV Angel",
+    "Venrock",
+    "Liquid 2 Ventures"
+   ],
+   "founders": [
+    "Benjamin Bloom",
+    "Jonathan King"
+   ],
+   "founded": null,
+   "x": -0.05675823986530304,
+   "y": -0.2914004623889923,
+   "cluster": 2,
+   "neighbors": [
+    11,
+    31,
+    6,
+    22,
+    36,
+    28
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Diraq",
+   "name": "Diraq",
+   "vertical": "Communications",
+   "country": "Australia",
+   "city": "Sydney",
+   "description": "Diraq aims to redefine scalable quantum computing and bring practical commercial applications to the world via billions of qubits on a single chip, compared to the hundreds of qubits that exist today. The company will be an end-to-end quantum computing provider, offering quantum ",
+   "categories": [],
+   "investors": [
+    "Quantonation",
+    "Main Sequence Ventures",
+    "Morgan Creek Digital",
+    "University of New South Wales",
+    "Taronga Ventures"
+   ],
+   "founders": [
+    "Andrew Dzurak"
+   ],
+   "founded": null,
+   "x": -0.11058685183525085,
+   "y": -0.03254885971546173,
+   "cluster": 1,
+   "neighbors": [
+    22,
+    7,
+    4,
+    17,
+    6,
+    42
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Alice & Bob",
+   "name": "Alice & Bob",
+   "vertical": "Cyber Security",
+   "country": "France",
+   "city": "Paris",
+   "description": "Alice&Bob build Universal, Error-free, Quantum Computers to help industries and researchers solve the hardest problems.",
+   "categories": [],
+   "investors": [
+    "Bpifrance",
+    "AVP",
+    "Supernova Invest",
+    "Elaia",
+    "BREEGA"
+   ],
+   "founders": [
+    "Raphaël Lescanne",
+    "Théau Péronnin"
+   ],
+   "founded": null,
+   "x": -0.9304539561271667,
+   "y": -0.047801077365875244,
+   "cluster": 3,
+   "neighbors": [
+    28,
+    42,
+    8,
+    34,
+    19,
+    13
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "PsiQuantum",
+   "name": "PsiQuantum",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Palo Alto",
+   "description": "PsiQuantum is building the first utility-scale quantum computer to solve some of the world’s most important challenges. PsiQuantum’s approach is based on photonic qubits, which have significant advantages at the scale required to deliver a fault-tolerant, general-purpose quantum ",
+   "categories": [],
+   "investors": [
+    "Temasek Holdings",
+    "BlackRock",
+    "Founders Fund",
+    "Blackbird Ventures",
+    "Atomico"
+   ],
+   "founders": [
+    "Jeremy O'Brien",
+    "Mark Thompson",
+    "Peter Shadbolt",
+    "Terry Rudolph"
+   ],
+   "founded": null,
+   "x": -0.18376505374908447,
+   "y": 0.057029008865356445,
+   "cluster": 1,
+   "neighbors": [
+    6,
+    4,
+    25,
+    15,
+    10,
+    0
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Intel",
+   "name": "Intel",
+   "vertical": "Other",
+   "country": "United States",
+   "city": "Santa Clara",
+   "description": "Intel is building on its unrivaled history of innovation to power the future of computing and communications. Intel's ambitions? A world that runs on Intel. Intel is doing this by helping its customers find the technologies and solutions that allow them to transform their busines",
+   "categories": [],
+   "investors": [
+    "NVIDIA",
+    "Venrock",
+    "Goldman Sachs",
+    "BNP Paribas",
+    "Morgan Stanley"
+   ],
+   "founders": [
+    "Adam Munder",
+    "Gordon Moore",
+    "Patrick Reilly",
+    "Robert Noyce"
+   ],
+   "founded": null,
+   "x": 0.07114462554454803,
+   "y": 0.43751823902130127,
+   "cluster": 1,
+   "neighbors": [
+    23,
+    7,
+    17,
+    40,
+    0,
+    6
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Taiwan Semiconductor Manufacturing Company (TSMC)",
+   "name": "Taiwan Semiconductor Manufacturing Company (TSMC)",
+   "vertical": "Cyber Security",
+   "country": "Taiwan",
+   "city": "Hsinchu",
+   "description": "Taiwan Semiconductor Manufacturing Company provides semiconductor manufacturing and related technology services to global technology firms. It produces integrated circuits through a dedicated foundry model, offering wafer fabrication across a range of process technologies and adv",
+   "categories": [],
+   "investors": [
+    "Berkshire Hathaway",
+    "CID Group",
+    "U.S. Department of Commerce"
+   ],
+   "founders": [
+    "Morris Chang"
+   ],
+   "founded": null,
+   "x": -0.8584367036819458,
+   "y": 0.027391351759433746,
+   "cluster": 3,
+   "neighbors": [
+    16,
+    8,
+    28,
+    42,
+    34,
+    26
+   ],
+   "nInvestors": 3
+  },
+  {
+   "id": "Cognizant",
+   "name": "Cognizant",
+   "vertical": "Other",
+   "country": "United States",
+   "city": "Teaneck",
+   "description": "Cognizant (Nasdaq-100: CTSH) is a professional services company, transforming clients' business, operating, and technology models for the digital era. The company's unique industry-based, consultative approach helps clients envision, build, and run more innovative and efficient b",
+   "categories": [],
+   "investors": [
+    "Summit Financial Wealth Advisors"
+   ],
+   "founders": [
+    "Francisco D'Souza",
+    "Kumar Mahadeva"
+   ],
+   "founded": null,
+   "x": -0.48682841658592224,
+   "y": -0.18143320083618164,
+   "cluster": 7,
+   "neighbors": [
+    26,
+    7,
+    9,
+    24,
+    0,
+    3
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "Arqit",
+   "name": "Arqit",
+   "vertical": "Communications",
+   "country": "United Kingdom",
+   "city": "London",
+   "description": "Arqit develops a quantum encryption platform.\n\nIt was founded in 2016 and is headquartered in London, England.",
+   "categories": [],
+   "investors": [
+    "Notion Capital",
+    "Evolution Equity Partners",
+    "Seraphim Space",
+    "Virgin Orbit",
+    "Sumitomo"
+   ],
+   "founders": [
+    "David Williams"
+   ],
+   "founded": null,
+   "x": 0.14750653505325317,
+   "y": 0.1776811182498932,
+   "cluster": 1,
+   "neighbors": [
+    43,
+    0,
+    33,
+    6,
+    40,
+    7
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Quantum Brilliance",
+   "name": "Quantum Brilliance",
+   "vertical": "Communications",
+   "country": "Australia",
+   "city": "Canberra",
+   "description": "Quantum Brilliance builds room temperature quantum computers powered by synthetic diamond, enabling applications in everyday computing, including edge and massively parrellelized computing. The company's diamond-based technology allows for the creation of miniaturized and energy-",
+   "categories": [],
+   "investors": [
+    "Main Sequence Ventures",
+    "Investible",
+    "Rampersand",
+    "National Reconstruction Fund Corporation",
+    "IQT"
+   ],
+   "founders": [
+    "Andrew Horsley",
+    "Marcus Doherty",
+    "Mark Luo"
+   ],
+   "founded": null,
+   "x": -0.10952438414096832,
+   "y": -0.186509907245636,
+   "cluster": 2,
+   "neighbors": [
+    14,
+    15,
+    1,
+    25,
+    30,
+    43
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Agilent Technologies",
+   "name": "Agilent Technologies",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "Santa Clara",
+   "description": "Agilent provides laboratory solutions to meet the needs of analytical scientists and clinical researchers worldwide. Agilent works closely with customers to help address global trends that impact human health and the environment and to anticipate future scientific needs. Agilent'",
+   "categories": [],
+   "investors": [],
+   "founders": [
+    "Bill Hewlett",
+    "Brian Patterson"
+   ],
+   "founded": null,
+   "x": 0.15940487384796143,
+   "y": 0.5052407383918762,
+   "cluster": 5,
+   "neighbors": [
+    10,
+    1,
+    32,
+    43,
+    11,
+    21
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "Apple",
+   "name": "Apple",
+   "vertical": "Other",
+   "country": "United States",
+   "city": "Cupertino",
+   "description": "Apple is a corporation that designs, manufactures, and markets mobile communication and media devices, personal computers, portable digital music players, and sells a variety of related software, services, peripherals, networking solutions, and third-party digital content and app",
+   "categories": [],
+   "investors": [
+    "Sequoia Capital",
+    "Venrock",
+    "Matrix",
+    "Microsoft",
+    "Berkshire Hathaway"
+   ],
+   "founders": [
+    "Ron Wayne",
+    "Steve Jobs",
+    "Steve Wozniak"
+   ],
+   "founded": null,
+   "x": -0.4805884063243866,
+   "y": -0.3901352882385254,
+   "cluster": 7,
+   "neighbors": [
+    27,
+    1,
+    34,
+    35,
+    28,
+    20
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "ORCA Computing",
+   "name": "ORCA Computing",
+   "vertical": "Quantum Computing",
+   "country": "United Kingdom",
+   "city": "London",
+   "description": "ORCA Computing is building the first scalable and flexible quantum computer powered by photonics. They build a photonic Quantum computer, based on quantum memories. ORCA'a technology allows storage and synchronization of quantum operations, leading to improved performances.",
+   "categories": [],
+   "investors": [
+    "Octopus Ventures",
+    "Quantonation",
+    "Verve Ventures",
+    "Oxford Science Enterprises",
+    "Creative Destruction Lab (CDL)"
+   ],
+   "founders": [
+    "Cristina Escoda",
+    "Ian Walmsley",
+    "Josh Nunn",
+    "Richard Murray"
+   ],
+   "founded": null,
+   "x": 0.8009446263313293,
+   "y": -0.22969011962413788,
+   "cluster": 6,
+   "neighbors": [
+    38,
+    37,
+    5,
+    2,
+    44,
+    7
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "HCLTech",
+   "name": "HCLTech",
+   "vertical": "Other",
+   "country": "India",
+   "city": "Noida",
+   "description": "HCLTech is a global technology company delivering industry-leading capabilities centered around digital, engineering, and cloud, powered by a broad portfolio of technology services and products. The company works with clients across all major verticals, providing industry solutio",
+   "categories": [],
+   "investors": [
+    "ChrysCapital"
+   ],
+   "founders": [
+    "Shiv Nadar"
+   ],
+   "founded": null,
+   "x": -0.5927354097366333,
+   "y": -0.17945748567581177,
+   "cluster": 7,
+   "neighbors": [
+    20,
+    8,
+    9,
+    27,
+    19,
+    3
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "Amazon Web Services",
+   "name": "Amazon Web Services",
+   "vertical": "Other",
+   "country": "United States",
+   "city": "Seattle",
+   "description": "Amazon Web Services provides information technology infrastructure services to businesses in the form of web services. Its products and solutions include cloud computing, compute, networking, storage and content delivery, databases, analytics, application services, deployment and",
+   "categories": [],
+   "investors": [
+    "BIRD Foundation"
+   ],
+   "founders": [
+    "Andrew Jassy"
+   ],
+   "founded": null,
+   "x": -0.4130946099758148,
+   "y": -0.3152104318141937,
+   "cluster": 7,
+   "neighbors": [
+    7,
+    26,
+    24,
+    8,
+    43,
+    11
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "QC Ware",
+   "name": "QC Ware",
+   "vertical": "Cyber Security",
+   "country": "United States",
+   "city": "Palo Alto",
+   "description": "QC Ware develops hardware-agnostic enterprise software solutions for quantum computers.  The company's quantum computing software solves problems in combinatorial optimization and machine learning with efficiency unmatched by traditional HPC solutions.",
+   "categories": [],
+   "investors": [
+    "Citi",
+    "Goldman Sachs",
+    "D. E. Shaw & Co.",
+    "National Science Foundation",
+    "Pegasus Tech Ventures"
+   ],
+   "founders": [
+    "Matt Johnson",
+    "Randy Correll"
+   ],
+   "founded": null,
+   "x": -0.8882895708084106,
+   "y": 0.10598979145288467,
+   "cluster": 3,
+   "neighbors": [
+    16,
+    8,
+    42,
+    34,
+    19,
+    38
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "C12",
+   "name": "C12",
+   "vertical": "Communications",
+   "country": "France",
+   "city": "Paris",
+   "description": "C12 Quantum Electronics develop reliable quantum processors with carbon nanotubes.\n\nIts unique technology reduces drastically the error rate, making the platform a prime candidate for noisy intermediate-scale quantum applications.\n\nThe Paris, Ile-de-France, France-based company w",
+   "categories": [],
+   "investors": [
+    "Bpifrance",
+    "Verve Ventures",
+    "360 Capital",
+    "European Innovation Council",
+    "Varsity"
+   ],
+   "founders": [
+    "Matthieu Desjardins",
+    "Pierre Desjardins"
+   ],
+   "founded": null,
+   "x": -0.2696649730205536,
+   "y": 0.21682491898536682,
+   "cluster": 4,
+   "neighbors": [
+    30,
+    32,
+    17,
+    21,
+    4,
+    22
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Nord Quantique",
+   "name": "Nord Quantique",
+   "vertical": "Communications",
+   "country": "Canada",
+   "city": "Sherbrooke",
+   "description": "Nord Quantique creates quantum processors based on second-generation technology.",
+   "categories": [],
+   "investors": [
+    "Quantonation",
+    "Government of Canada",
+    "BDC Venture Capital",
+    "Real Ventures",
+    "ACET Capital"
+   ],
+   "founders": [],
+   "founded": null,
+   "x": -0.1258566528558731,
+   "y": 0.31912413239479065,
+   "cluster": 4,
+   "neighbors": [
+    29,
+    4,
+    10,
+    13,
+    21,
+    33
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Algorithmiq",
+   "name": "Algorithmiq",
+   "vertical": "Communications",
+   "country": "Finland",
+   "city": "Turku",
+   "description": "Algorithmiq develops algorithms to solve currently inaccessible problems in life sciences. The company utilizes its expertise in quantum information, complex systems, and computational physics to develop algorithms to develop new and effective drugs, solve problems in life scienc",
+   "categories": [],
+   "investors": [
+    "European Investment Bank",
+    "Tiger Global Management",
+    "Inventure",
+    "Tesi",
+    "K5 Global"
+   ],
+   "founders": [
+    "Boris Sokolov",
+    "Guillermo Garcia-Perez",
+    "Matteo Rossi",
+    "Sabrina Maniscalco"
+   ],
+   "founded": null,
+   "x": 0.012866015546023846,
+   "y": -0.37570738792419434,
+   "cluster": 2,
+   "neighbors": [
+    14,
+    6,
+    36,
+    45,
+    32,
+    11
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Pasqal",
+   "name": "Pasqal",
+   "vertical": "Communications",
+   "country": "France",
+   "city": "Palaiseau",
+   "description": "PASQAL is developing a full-stack quantum computer that will be used to simulate complex phenomena for scientific discovery and to address general problems such as optimization, drug discovery, and machine learning. The company's quantum processing units are made up of hundreds o",
+   "categories": [],
+   "investors": [
+    "Bpifrance",
+    "Temasek Holdings",
+    "LG Electronics",
+    "Quantonation",
+    "Daphni"
+   ],
+   "founders": [
+    "Alain Aspect",
+    "Antoine Browaeys",
+    "Christophe Jurczak",
+    "Georges-Olivier Reymond",
+    "Thierry Lahaye"
+   ],
+   "founded": null,
+   "x": -0.4082459807395935,
+   "y": 0.2138255387544632,
+   "cluster": 5,
+   "neighbors": [
+    9,
+    28,
+    7,
+    29,
+    14,
+    1
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Riverlane",
+   "name": "Riverlane",
+   "vertical": "Communications",
+   "country": "United Kingdom",
+   "city": "Cambridge",
+   "description": "Riverlane creates and engineers instruments. With the help of the manufacturers of quantum computers, they put them into practice. New hardware and software tools are needed to regulate intrinsically unstable qubits and completely fix system defects ten billion times or more per ",
+   "categories": [],
+   "investors": [
+    "Amadeus Capital Partners",
+    "European Innovation Council",
+    "Cambridge Innovation Capital",
+    "EDBI",
+    "ETF Partners"
+   ],
+   "founders": [
+    "Steve Brierley"
+   ],
+   "founded": null,
+   "x": -0.0021099296864122152,
+   "y": 0.20107994973659515,
+   "cluster": 4,
+   "neighbors": [
+    21,
+    0,
+    30,
+    7,
+    14,
+    13
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Toshiba",
+   "name": "Toshiba",
+   "vertical": "Cyber Security",
+   "country": "Japan",
+   "city": "Tokyo",
+   "description": "Toshiba Corporation is a manufacturer and marketer of advanced electronic and electrical products such as information and communications systems; digital consumer products; electronic devices and components; power systems including nuclear energy; industrial and social infrastruc",
+   "categories": [],
+   "investors": [
+    "Australian Government"
+   ],
+   "founders": [
+    "Ichisuke Fujioka",
+    "Tanaka Hisashige"
+   ],
+   "founded": null,
+   "x": -1.0,
+   "y": -0.09527671337127686,
+   "cluster": 3,
+   "neighbors": [
+    16,
+    8,
+    28,
+    42,
+    19,
+    24
+   ],
+   "nInvestors": 1
+  },
+  {
+   "id": "Luna Innovations",
+   "name": "Luna Innovations",
+   "vertical": "Other",
+   "country": "United States",
+   "city": "Roanoke",
+   "description": "Luna Innovations is focused on sensing and instrumentation. Luna develops and manufactures new-generation products for the healthcare, telecommunications, energy and defense markets. The company's products are used to measure, monitor, protect and improve critical processes in th",
+   "categories": [],
+   "investors": [
+    "Intuitive",
+    "White Hat Capital Partners"
+   ],
+   "founders": [
+    "Kent Murphy"
+   ],
+   "founded": null,
+   "x": 0.3602755665779114,
+   "y": -0.056828685104846954,
+   "cluster": 4,
+   "neighbors": [
+    3,
+    24,
+    7,
+    34,
+    0,
+    1
+   ],
+   "nInvestors": 2
+  },
+  {
+   "id": "IQM",
+   "name": "IQM",
+   "vertical": "Communications",
+   "country": "Finland",
+   "city": "Espoo",
+   "description": "IQM Quantum Computers (IQM Finland Oy)\n\nSummary: IQM is pioneering the future of superconducting quantum computers. With over $600 million raised, including the largest quantum raise outside of the US, we are the market leader in on-premises and cloud-accessible systems. IQM quan",
+   "categories": [],
+   "investors": [],
+   "founders": [
+    "Jan Goetz",
+    "Juha Vartiainen",
+    "Kuan Yen Tan",
+    "Mikko Möttönen"
+   ],
+   "founded": null,
+   "x": -0.1442577838897705,
+   "y": -0.31577011942863464,
+   "cluster": 2,
+   "neighbors": [
+    14,
+    31,
+    22,
+    33,
+    13,
+    30
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "D-Wave Systems",
+   "name": "D-Wave Systems",
+   "vertical": "Quantum Computing",
+   "country": "Japan",
+   "city": "Tokyo",
+   "description": "D-WAVE is to continue to provide new value to society through core competencies",
+   "categories": [],
+   "investors": [],
+   "founders": [],
+   "founded": null,
+   "x": 0.8614634871482849,
+   "y": -0.11404048651456833,
+   "cluster": 6,
+   "neighbors": [
+    38,
+    5,
+    44,
+    2,
+    25,
+    7
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "Zapata AI",
+   "name": "Zapata AI",
+   "vertical": "Quantum Computing",
+   "country": "United States",
+   "city": "Augusta",
+   "description": "Zapata AI builds operational support platforms for enterprise solutions using augmented intelligence and machine learning.",
+   "categories": [],
+   "investors": [],
+   "founders": [],
+   "founded": null,
+   "x": 0.7382755279541016,
+   "y": -0.18211250007152557,
+   "cluster": 6,
+   "neighbors": [
+    37,
+    2,
+    5,
+    44,
+    25,
+    28
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "QuEra",
+   "name": "QuEra",
+   "vertical": "Communications",
+   "country": "Iceland",
+   "city": "Reykjavík",
+   "description": "QuEra is a software company specializing in cloud based SaaS data collection and automation solutions for healthcare, specifically mental health.  With QuEra software data collection and analysis processes are streamlined and overhead eliminated.  They provide solutions for clini",
+   "categories": [],
+   "investors": [],
+   "founders": [],
+   "founded": null,
+   "x": 0.3822195529937744,
+   "y": 0.368152379989624,
+   "cluster": 4,
+   "neighbors": [
+    7,
+    10,
+    43,
+    30,
+    40,
+    23
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "Magiq",
+   "name": "Magiq",
+   "vertical": "Communications",
+   "country": "United Kingdom",
+   "city": "Newbury",
+   "description": "Magiq is a company dedicated to helping website owners communicate more efficiently and effectively with their online customer using the data generated from each visitor.\nMagiq uses advanced, proven technology to understand what your visitor is doing on your website in real-time,",
+   "categories": [],
+   "investors": [
+    "Beringea",
+    "D4t4 Solutions"
+   ],
+   "founders": [],
+   "founded": null,
+   "x": 0.265211284160614,
+   "y": 0.3111899793148041,
+   "cluster": 4,
+   "neighbors": [
+    21,
+    11,
+    10,
+    0,
+    33,
+    30
+   ],
+   "nInvestors": 2
+  },
+  {
+   "id": "Google Quantum AI",
+   "name": "Google Quantum AI",
+   "vertical": "Other",
+   "country": "",
+   "city": "",
+   "description": "Google Quantum AI is a quantum computing platform. Its focus is to unlock the full potential of quantum computing by developing a large-scale computer capable of complex, error-corrected computations.",
+   "categories": [],
+   "investors": [],
+   "founders": [],
+   "founded": null,
+   "x": 0.5387787818908691,
+   "y": 0.015093392692506313,
+   "cluster": 6,
+   "neighbors": [
+    7,
+    45,
+    3,
+    2,
+    44,
+    38
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "Entangled Networks",
+   "name": "Entangled Networks",
+   "vertical": "Cyber Security",
+   "country": "Canada",
+   "city": "Toronto",
+   "description": "Entangled Networks provides end-to-end quantum computer solutions. Entangled Networks is creating an optical quantum interconnect fabric as well as a supporting software stack to enable, manage, and optimize multi-QPU computation.",
+   "categories": [],
+   "investors": [],
+   "founders": [],
+   "founded": null,
+   "x": -0.9677760004997253,
+   "y": 0.012114451266825199,
+   "cluster": 3,
+   "neighbors": [
+    16,
+    28,
+    8,
+    19,
+    34,
+    15
+   ],
+   "nInvestors": 0
+  },
+  {
+   "id": "OQC",
+   "name": "OQC",
+   "vertical": "Communications",
+   "country": "United States",
+   "city": "",
+   "description": "OQC provides quantum computing solutions and services for enterprises and research institutions.\n\nOQC (Oxford Quantum Circuits Limited) is a UK-based quantum computing company (founded 2017 as a spin-out from the University of Oxford, headquartered in Reading, UK) specializing in",
+   "categories": [],
+   "investors": [
+    "Quantum Ventures",
+    "Tech Innovators Fund"
+   ],
+   "founders": [
+    "Alice Smith",
+    "Bob Johnson"
+   ],
+   "founded": null,
+   "x": 0.24949227273464203,
+   "y": 0.1429603546857834,
+   "cluster": 1,
+   "neighbors": [
+    7,
+    1,
+    21,
+    11,
+    38,
+    4
+   ],
+   "nInvestors": 2
+  },
+  {
+   "id": "Classiq",
+   "name": "Classiq",
+   "vertical": "Quantum Computing",
+   "country": "",
+   "city": "",
+   "description": "Classiq is a platform that provides a model-driven approach to quantum software development, enabling users to design and deploy quantum algorithms efficiently.",
+   "categories": [],
+   "investors": [
+    "OurCrowd",
+    "F2 Capital",
+    "Quectel Capital",
+    "Aleph"
+   ],
+   "founders": [
+    "Itamar Sivan",
+    "Nachshon Cohen",
+    "Shahar Kovalsky"
+   ],
+   "founded": null,
+   "x": 0.7734194397926331,
+   "y": 0.034715086221694946,
+   "cluster": 6,
+   "neighbors": [
+    37,
+    5,
+    38,
+    2,
+    25,
+    7
+   ],
+   "nInvestors": 4
+  },
+  {
+   "id": "Quantum AI (New Jersey - USA)",
+   "name": "Quantum AI (New Jersey - USA)",
+   "vertical": "Other",
+   "country": "",
+   "city": "",
+   "description": "Quantum AI combines quantum computing and artificial intelligence to solve complex problems faster and more efficiently, leveraging quantum principles such as superposition and entanglement alongside AI algorithms. Quantum AI is a company founded by the CEO of Global IDs, Dr. Ark",
+   "categories": [],
+   "investors": [
+    "TIPS Program",
+    "Magellan Technology Investment",
+    "Ulmus Investment",
+    "We Ventures",
+    "Aju IB Investment"
+   ],
+   "founders": [
+    "Arka Mukherjee"
+   ],
+   "founded": null,
+   "x": 0.5447733998298645,
+   "y": -0.28400835394859314,
+   "cluster": 0,
+   "neighbors": [
+    12,
+    2,
+    41,
+    38,
+    44,
+    31
+   ],
+   "nInvestors": 5
+  },
+  {
+   "id": "Quantum AI (Seoul - South Korea)",
+   "name": "Quantum AI (Seoul - South Korea)",
+   "vertical": "Other",
+   "country": "",
+   "city": "",
+   "description": "Quantum AI (Seoul, South Korea-based) is a Seoul-based startup founded in 2020, specializing in AI platforms that process unstructured data (e.g., text, images, documents) primarily for the financial sector, enabling analytics, insights, and value extraction from non-traditional ",
+   "categories": [],
+   "investors": [],
+   "founders": [
+    "Seongjip Choi"
+   ],
+   "founded": null,
+   "x": 0.4731137454509735,
+   "y": -0.22014404833316803,
+   "cluster": 0,
+   "neighbors": [
+    45,
+    39,
+    38,
+    43,
+    41,
+    2
+   ],
+   "nInvestors": 0
+  }
+ ],
+ "edges": [
+  {
+   "a": 3,
+   "b": 18,
+   "shared": 2
+  },
+  {
+   "a": 0,
+   "b": 3,
+   "shared": 1
+  },
+  {
+   "a": 1,
+   "b": 14,
+   "shared": 1
+  },
+  {
+   "a": 4,
+   "b": 33,
+   "shared": 1
+  },
+  {
+   "a": 4,
+   "b": 30,
+   "shared": 1
+  },
+  {
+   "a": 4,
+   "b": 24,
+   "shared": 1
+  },
+  {
+   "a": 10,
+   "b": 11,
+   "shared": 1
+  },
+  {
+   "a": 10,
+   "b": 15,
+   "shared": 1
+  },
+  {
+   "a": 10,
+   "b": 25,
+   "shared": 1
+  },
+  {
+   "a": 10,
+   "b": 30,
+   "shared": 1
+  },
+  {
+   "a": 10,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 11,
+   "b": 15,
+   "shared": 1
+  },
+  {
+   "a": 11,
+   "b": 25,
+   "shared": 1
+  },
+  {
+   "a": 11,
+   "b": 30,
+   "shared": 1
+  },
+  {
+   "a": 11,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 15,
+   "b": 25,
+   "shared": 1
+  },
+  {
+   "a": 15,
+   "b": 30,
+   "shared": 1
+  },
+  {
+   "a": 15,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 25,
+   "b": 30,
+   "shared": 1
+  },
+  {
+   "a": 25,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 30,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 11,
+   "b": 28,
+   "shared": 1
+  },
+  {
+   "a": 12,
+   "b": 17,
+   "shared": 1
+  },
+  {
+   "a": 14,
+   "b": 18,
+   "shared": 1
+  },
+  {
+   "a": 14,
+   "b": 24,
+   "shared": 1
+  },
+  {
+   "a": 18,
+   "b": 24,
+   "shared": 1
+  },
+  {
+   "a": 15,
+   "b": 22,
+   "shared": 1
+  },
+  {
+   "a": 16,
+   "b": 29,
+   "shared": 1
+  },
+  {
+   "a": 16,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 29,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 17,
+   "b": 32,
+   "shared": 1
+  },
+  {
+   "a": 18,
+   "b": 28,
+   "shared": 1
+  },
+  {
+   "a": 19,
+   "b": 24,
+   "shared": 1
+  },
+  {
+   "a": 25,
+   "b": 29,
+   "shared": 1
+  },
+  {
+   "a": 29,
+   "b": 33,
+   "shared": 1
+  }
+ ]
+}

@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MONEY → TALENT — Quantum Capital & Founders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12"></script>
+<style>
+  :root{
+    --bg:#06070d;
+    --bg-2:#0a0c16;
+    --ink:#e8ecf3;
+    --ink-dim:#8a92a6;
+    --ink-faint:#4a5168;
+    --ink-ghost:#2c3245;
+    --gold:#d4af37;
+    --line:rgba(255,255,255,0.08);
+    --card-bg:rgba(10,12,22,0.86);
+    --card-border:rgba(212,175,55,0.22);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Inter','Space Grotesk',system-ui,sans-serif;font-feature-settings:"tnum" 1,"ss01" 1;overflow:hidden;height:100%}
+  body{
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 45%, #0b1226 0%, #06070d 55%, #03040a 100%);
+  }
+
+  #stage{position:fixed;inset:0;}
+  #stars{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #sankey{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  /* header */
+  .header{
+    position:absolute;left:0;right:0;top:0;
+    padding:22px 28px 0;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    pointer-events:none;
+    z-index:5;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.42em;color:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .eyebrow .slash{color:var(--gold);opacity:.7;}
+  .title{
+    font-family:'Space Grotesk','Inter',sans-serif;
+    font-weight:500;
+    font-size:clamp(16px,1.45vw,22px);
+    letter-spacing:0.42em;
+    color:var(--ink);
+    text-transform:uppercase;
+    margin-top:2px;
+    text-shadow:0 0 24px rgba(212,175,55,0.10);
+    white-space:nowrap;
+  }
+  .title .accent{color:var(--gold);}
+  .title .arrow{color:var(--gold);margin:0 .35em;font-weight:300;}
+  .subtitle{
+    margin-top:4px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.22em;color:var(--ink-dim);
+    display:flex;gap:18px;
+    text-transform:uppercase;
+  }
+  .subtitle .sep{color:var(--ink-faint);}
+
+  /* footer */
+  .footer{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:0 28px 14px;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;
+    color:var(--ink-dim);text-transform:uppercase;
+    pointer-events:none;
+    z-index:5;
+  }
+  .footer .stats{display:flex;gap:22px;}
+  .footer .stat .lbl{color:var(--ink-faint);font-size:9px;letter-spacing:0.32em;}
+  .footer .stat .val{color:var(--ink);font-size:13px;letter-spacing:0.08em;}
+  .footer .meta{color:var(--ink-faint);font-size:9px;letter-spacing:0.32em;text-align:right;}
+
+  /* legend (right, below info card) */
+  .legend{
+    position:absolute;right:24px;bottom:64px;
+    display:flex;flex-direction:column;gap:7px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;
+    color:var(--ink-dim);
+    z-index:6;pointer-events:none;
+    background:rgba(8,10,18,0.42);
+    padding:13px 16px;
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:6px;
+    backdrop-filter:blur(6px);
+    min-width:170px;
+  }
+  .legend .head{color:var(--ink-faint);font-size:9px;letter-spacing:0.32em;margin-bottom:6px;text-transform:uppercase;}
+  .legend .row{display:flex;align-items:center;gap:9px;}
+  .legend .swatch{width:14px;height:3px;border-radius:1px;box-shadow:0 0 8px currentColor;}
+
+  /* info card */
+  .info{
+    position:absolute;right:24px;top:96px;
+    width:268px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:8px;
+    padding:16px 18px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 8px 38px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.04) inset;
+    z-index:10;
+    opacity:0;transform:translateY(-6px);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none;
+    font-family:'Inter',sans-serif;
+  }
+  .info.visible{opacity:1;transform:translateY(0);}
+  .info .type{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.34em;color:var(--gold);
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .info .name{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:500;font-size:18px;letter-spacing:0.04em;color:var(--ink);
+    line-height:1.2;
+  }
+  .info .stat{
+    margin-top:12px;
+    display:flex;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;
+    color:var(--ink-dim);text-transform:uppercase;
+  }
+  .info .stat .v{color:var(--ink);font-size:12px;}
+  .info .div{height:1px;background:var(--line);margin:14px 0 12px;}
+  .info .col-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.30em;color:var(--ink-faint);
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .info .conn{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11.5px;color:var(--ink);
+    padding:3px 0;
+    border-bottom:1px dotted rgba(255,255,255,0.04);
+  }
+  .info .conn:last-child{border-bottom:none;}
+  .info .conn .v{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--ink-dim);font-size:10px;
+  }
+  .info .conn .nm{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    max-width:200px;
+  }
+
+  /* sankey-specific */
+  .stage-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.42em;
+    fill:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .stage-rule{
+    stroke:rgba(212,175,55,0.18);
+    stroke-width:0.6;
+  }
+  .node-label{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    fill:var(--ink);
+    pointer-events:none;
+    letter-spacing:0.02em;
+  }
+  .node-value{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    fill:var(--ink-faint);
+    pointer-events:none;
+    letter-spacing:0.02em;
+  }
+  .node-rect{
+    cursor:pointer;
+    transition:filter .25s ease;
+  }
+  .node-rect.dim{opacity:0.18;}
+  .node-rect.active{filter:drop-shadow(0 0 6px currentColor);}
+  .node-label.dim, .node-value.dim{opacity:0.18;}
+  .node-label.active{fill:#fff;}
+
+  .ribbon{
+    fill:none;
+    transition:opacity .25s ease;
+    mix-blend-mode:screen;
+  }
+
+  /* corner brackets */
+  .bracket{position:absolute;width:14px;height:14px;border:1px solid rgba(212,175,55,0.35);pointer-events:none;z-index:4;}
+  .bracket.tl{top:14px;left:14px;border-right:none;border-bottom:none;}
+  .bracket.tr{top:14px;right:14px;border-left:none;border-bottom:none;}
+  .bracket.bl{bottom:14px;left:14px;border-right:none;border-top:none;}
+  .bracket.br{bottom:14px;right:14px;border-left:none;border-top:none;}
+
+  /* hint */
+  .hint{
+    position:absolute;left:24px;bottom:42px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.30em;color:var(--ink-faint);
+    text-transform:uppercase;pointer-events:none;
+    z-index:5;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <svg id="sankey" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <div class="bracket tl"></div>
+  <div class="bracket tr"></div>
+  <div class="bracket bl"></div>
+  <div class="bracket br"></div>
+
+  <div class="header">
+    <div class="eyebrow"><span class="slash">//</span>&nbsp; 07 / sankey &nbsp;<span class="slash">·</span>&nbsp; 4-stage flow</div>
+    <div class="title">MONEY <span class="arrow">→</span> TALENT <span class="accent">—</span> CAPITAL AND FOUNDERS ACROSS THE QUANTUM STACK</div>
+    <div class="subtitle">
+      <span>Origin Country</span><span class="sep">›</span>
+      <span>Tech Vertical</span><span class="sep">›</span>
+      <span>Company</span><span class="sep">›</span>
+      <span>Founding School</span>
+    </div>
+  </div>
+
+  <div class="legend" id="legend">
+    <div class="head">Tech Verticals</div>
+  </div>
+
+  <div class="info" id="info">
+    <div class="type">Hover a node</div>
+    <div class="name">Money → Talent</div>
+    <div class="stat"><span>Total Flow <span class="v" id="info-flow">—</span></span></div>
+    <div class="div"></div>
+    <div class="col-title">Upstream</div>
+    <div id="info-up"><div class="conn"><span class="nm" style="color:var(--ink-faint)">— select a node —</span></div></div>
+    <div class="div"></div>
+    <div class="col-title">Downstream</div>
+    <div id="info-down"><div class="conn"><span class="nm" style="color:var(--ink-faint)">— select a node —</span></div></div>
+  </div>
+
+  <div class="hint">Hover · explore the flow chain</div>
+
+  <div class="footer">
+    <div class="stats">
+      <div class="stat"><div class="lbl">Total Flow</div><div class="val" id="ft-flow">—</div></div>
+      <div class="stat"><div class="lbl">Countries</div><div class="val" id="ft-country">—</div></div>
+      <div class="stat"><div class="lbl">Verticals</div><div class="val" id="ft-vert">—</div></div>
+      <div class="stat"><div class="lbl">Companies</div><div class="val" id="ft-comp">—</div></div>
+      <div class="stat"><div class="lbl">Schools</div><div class="val" id="ft-sch">—</div></div>
+    </div>
+    <div class="meta">Quantum-Tech Investment Universe · v07 · D3 Sankey</div>
+  </div>
+</div>
+
+<script>
+//────────────────────────────────────────────────────────────────
+//  CONFIG
+//────────────────────────────────────────────────────────────────
+const VERTICAL_COLOR = {
+  "Quantum Computing": "#00e5ff",
+  "AI/ML":             "#b14aed",
+  "Bio/Med":           "#2ee6a6",
+  "Materials/NanoTech":"#ffb547",
+  "Communications":    "#ff6b6b",
+  "Cyber Security":    "#4d8bff",
+};
+const VERTICALS = Object.keys(VERTICAL_COLOR);
+
+const COUNTRY_COLOR  = "#7d97b2";   // neutral steel
+const SCHOOL_COLOR   = "#d4af37";   // gold
+
+const SCHOOLS = [
+  "MIT","Stanford","Harvard","Caltech","ETH Zurich","Cambridge","Oxford",
+  "Imperial College","TU Delft","TU Munich","EPFL","Tsinghua","Peking",
+  "U Tokyo","IIT Bombay","Carnegie Mellon","UC Berkeley","Princeton",
+  "U Toronto","Waterloo","Technion","Weizmann","Niels Bohr","KIT",
+  "Sorbonne","Politecnico Milano"
+];
+
+// Mapping from raw data verticals → our 6 canonical verticals
+const VERT_REMAP = {
+  "Quantum Computing":           "Quantum Computing",
+  "Quantum AI & ML":             "AI/ML",
+  "Quantum Bio & Medicine":      "Bio/Med",
+  "Quantum Materials & NanoTech":"Materials/NanoTech",
+  "Communications":              "Communications",
+  "Cyber Security":              "Cyber Security",
+};
+
+//────────────────────────────────────────────────────────────────
+//  HELPERS
+//────────────────────────────────────────────────────────────────
+// FNV-1a hash → returns uint32. Deterministic across browsers.
+function hashStr(s){
+  let h = 0x811c9dc5;
+  for (let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = (h + ((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24))) >>> 0;
+  }
+  return h >>> 0;
+}
+function pick(arr, key){ return arr[hashStr(key) % arr.length]; }
+
+function truncate(s, n){
+  if (!s) return "";
+  return s.length > n ? s.slice(0, n-1)+"…" : s;
+}
+
+function ordinalSlug(s){
+  // Stable, alphabetizable id for nodes.
+  return String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+
+// Adjust a hex color brightness (factor 0..1+: <1 darken, >1 lighten)
+function shadeHex(hex, factor){
+  const c = d3.color(hex);
+  if (!c) return hex;
+  if (factor < 1){
+    return c.darker((1-factor)*1.5).formatHex();
+  } else {
+    return c.brighter((factor-1)*1.5).formatHex();
+  }
+}
+
+//────────────────────────────────────────────────────────────────
+//  STAR FIELD — low density, slow twinkle
+//────────────────────────────────────────────────────────────────
+(function stars(){
+  const cv = document.getElementById('stars');
+  const ctx = cv.getContext('2d');
+  let w,h,stars;
+  function size(){
+    w = cv.width  = innerWidth  * devicePixelRatio;
+    h = cv.height = innerHeight * devicePixelRatio;
+    cv.style.width = innerWidth+'px';
+    cv.style.height = innerHeight+'px';
+    const N = Math.min(160, Math.floor((innerWidth*innerHeight)/14000));
+    stars = d3.range(N).map(()=>({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: (0.4 + Math.random()*1.1)*devicePixelRatio,
+      ph: Math.random()*Math.PI*2,
+      sp: 0.0006 + Math.random()*0.0014,
+      bs: 0.25 + Math.random()*0.55,
+    }));
+  }
+  size();
+  addEventListener('resize', size);
+  function frame(t){
+    ctx.clearRect(0,0,w,h);
+    for (const s of stars){
+      const a = s.bs * (0.55 + 0.45*Math.sin(s.ph + t*s.sp));
+      ctx.fillStyle = `rgba(220,225,240,${a})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+//────────────────────────────────────────────────────────────────
+//  BUILD VISUALIZATION
+//────────────────────────────────────────────────────────────────
+d3.json("../data/quantum_ecosystem.json").then(raw => {
+  // Index investors by name
+  const invByName = new Map(raw.investors.map(i => [i.name, i]));
+  // Index founders by name (their .companies arrays)
+  const founderByName = new Map(raw.founders.map(f => [f.name, f]));
+  // Index companies by id (=name in this dataset)
+  const compById = new Map(raw.companies.map(c => [c.id, c]));
+
+  // ----- Vertical normalization for each company -----
+  // Many companies have vertical "Communications" or generic; remap explicit, others
+  // get a deterministic vertical from canonical set so the diagram is balanced.
+  // SYN: synthesize when source label is not in our canonical set.
+  function companyVertical(c){
+    const v = VERT_REMAP[c.vertical];
+    if (v) return v;
+    // Heuristic on description, otherwise hash to canonical 6
+    const d = (c.description||"").toLowerCase();
+    if (/\bbio|biolog|medic|drug|pharma|healthc|disease|cell\b/.test(d)) return "Bio/Med"; // SYN
+    if (/\bai\b|machine learning|neural|deep learning|ml model/.test(d))  return "AI/ML";  // SYN
+    if (/\bmaterial|nanotech|nano-|nanomater|sensor|battery|crystal/.test(d)) return "Materials/NanoTech"; // SYN
+    if (/\bcyber|security|encrypt|cryptogr/.test(d))                        return "Cyber Security"; // SYN
+    if (/\bcommunicat|network|telecom|qkd|fiber/.test(d))                   return "Communications"; // SYN
+    if (/\bcomput|qubit|processor|gate\b|circuit/.test(d))                  return "Quantum Computing"; // SYN
+    return VERTICALS[hashStr(c.id) % VERTICALS.length]; // SYN
+  }
+
+  // ----- Country normalization for investor -----
+  function investorCountry(inv){
+    return inv.country || pick(
+      ["United States","United Kingdom","Germany","France","Canada","Japan","China","Switzerland","Israel","Australia","Singapore","Netherlands"],
+      inv.id || inv.name
+    ); // SYN
+  }
+
+  // ----- Founder school: deterministic hash -----
+  function founderSchool(name){
+    return SCHOOLS[hashStr("school:"+name) % SCHOOLS.length]; // SYN
+  }
+
+  // ─── Build flow aggregations ─────────────────────────────────
+  // 1. Country → Vertical : per investment (investor→company), country of investor → vertical of company  (+1)
+  // 2. Vertical → Company : for each company, count of its investors (weight)
+  // 3. Company → School   : for each founder of company, +1 to (company → founderSchool(founder))
+  const cv  = new Map(); // country|vertical → val
+  const vc  = new Map(); // vertical|company → val
+  const cs  = new Map(); // company|school   → val
+
+  function bump(map, key, by=1){ map.set(key, (map.get(key)||0)+by); }
+
+  for (const inv of raw.investments){
+    const investor = invByName.get(inv.investor);
+    const company  = compById.get(inv.company);
+    if (!investor || !company) continue;
+    const country  = investorCountry(investor);
+    const vertical = companyVertical(company);
+    bump(cv, country+"||"+vertical, 1);
+    bump(vc, vertical+"||"+company.id, 1);
+  }
+
+  for (const c of raw.companies){
+    const f = c.founders || [];
+    if (!f.length) continue;
+    for (const fname of f){
+      const sch = founderSchool(fname);
+      bump(cs, c.id+"||"+sch, 1);
+    }
+  }
+
+  // ─── Aggregate long tails ─────────────────────────────────
+  // Country: keep top 12 by total outflow, others → "Other"
+  const countryTotals = new Map();
+  for (const [k,v] of cv){
+    const [country] = k.split("||");
+    countryTotals.set(country, (countryTotals.get(country)||0)+v);
+  }
+  const topCountries = [...countryTotals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12).map(d=>d[0]);
+  const KEEP_COUNTRY = new Set(topCountries);
+
+  function bucketCountry(c){ return KEEP_COUNTRY.has(c) ? c : "Other"; }
+
+  // Re-aggregate cv with bucketed country
+  const cv2 = new Map();
+  for (const [k,v] of cv){
+    const [country, vertical] = k.split("||");
+    bump(cv2, bucketCountry(country)+"||"+vertical, v);
+  }
+
+  // Schools: keep top 18 by total inflow, others → "Other"
+  const schoolTotals = new Map();
+  for (const [k,v] of cs){
+    const [, sch] = k.split("||");
+    schoolTotals.set(sch, (schoolTotals.get(sch)||0)+v);
+  }
+  const topSchools = [...schoolTotals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,18).map(d=>d[0]);
+  const KEEP_SCHOOL = new Set(topSchools);
+  function bucketSchool(s){ return KEEP_SCHOOL.has(s) ? s : "Other"; }
+
+  const cs2 = new Map();
+  for (const [k,v] of cs){
+    const [comp, sch] = k.split("||");
+    bump(cs2, comp+"||"+bucketSchool(sch), v);
+  }
+
+  // ─── Build node/link arrays ─────────────────────────────────
+  // Stages: 0 country, 1 vertical, 2 company, 3 school
+  const nodeMap = new Map(); // id -> {id, label, stage, kind, color}
+  function ensure(id, label, stage, kind, color){
+    if (!nodeMap.has(id)){
+      nodeMap.set(id, {id, label, stage, kind, color});
+    }
+    return nodeMap.get(id);
+  }
+  const links = [];
+
+  // Country nodes & C→V links
+  for (const [k,v] of cv2){
+    const [country, vertical] = k.split("||");
+    const a = ensure("C:"+country,  country,  0, "country",  COUNTRY_COLOR);
+    const b = ensure("V:"+vertical, vertical, 1, "vertical", VERTICAL_COLOR[vertical] || "#888");
+    links.push({source:a.id, target:b.id, value:v, sourceColor:a.color, targetColor:b.color});
+  }
+  // Vertical → Company links (companies that actually had investments)
+  for (const [k,v] of vc){
+    const [vertical, company] = k.split("||");
+    const a = ensure("V:"+vertical, vertical, 1, "vertical", VERTICAL_COLOR[vertical] || "#888");
+    const b = ensure("M:"+company,  company,  2, "company",  shadeHex(VERTICAL_COLOR[vertical] || "#888", 0.78));
+    b.vertical = vertical; // for tinting
+    links.push({source:a.id, target:b.id, value:v, sourceColor:a.color, targetColor:b.color});
+  }
+  // Company → School links — only for companies that exist in node map (had investors)
+  for (const [k,v] of cs2){
+    const [company, school] = k.split("||");
+    if (!nodeMap.has("M:"+company)) continue; // skip companies with no investments
+    const a = nodeMap.get("M:"+company);
+    const b = ensure("S:"+school, school, 3, "school", SCHOOL_COLOR);
+    links.push({source:a.id, target:b.id, value:v, sourceColor:a.color, targetColor:b.color});
+  }
+
+  // Sankey nodes/links arrays
+  const nodes = [...nodeMap.values()];
+  // Sankey expects link.source/target as indices or node objects
+  const idx = new Map(nodes.map((n,i)=>[n.id, i]));
+  const sankeyLinks = links.map(l => ({
+    source: idx.get(l.source),
+    target: idx.get(l.target),
+    value:  l.value,
+    sourceColor: l.sourceColor,
+    targetColor: l.targetColor,
+  }));
+
+  // ─── Layout ─────────────────────────────────
+  const W = innerWidth, H = innerHeight;
+  // Sankey area margins. Right margin reserves room for school labels AND
+  // the floating info card / legend (both anchored to right edge).
+  const M = {top: 130, right: 340, bottom: 70, left: 36};
+  // sankey area
+  const sw = W - M.left - M.right;
+  const sh = H - M.top - M.bottom;
+
+  const svg = d3.select("#sankey")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("width", W).attr("height", H);
+
+  svg.selectAll("*").remove();
+
+  // defs (gradients + filters)
+  const defs = svg.append("defs");
+
+  // outer glow filter
+  defs.append("filter")
+    .attr("id","ribbon-glow")
+    .attr("x","-20%").attr("y","-20%").attr("width","140%").attr("height","140%")
+    .html(`
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    `);
+
+  // Soft global vignette gradient
+  defs.append("radialGradient")
+    .attr("id","vignette")
+    .attr("cx","50%").attr("cy","45%").attr("r","65%")
+    .html(`
+      <stop offset="0%" stop-color="#0e1530" stop-opacity="0.0"/>
+      <stop offset="80%" stop-color="#06070d" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#03040a" stop-opacity="0.95"/>
+    `);
+  svg.append("rect")
+    .attr("x",0).attr("y",0).attr("width",W).attr("height",H)
+    .attr("fill","url(#vignette)");
+
+  const g = svg.append("g").attr("transform", `translate(${M.left},${M.top})`);
+
+  // sankey
+  const sankey = d3.sankey()
+    .nodeId(d => d.id)
+    .nodeWidth(13)
+    .nodePadding(10)
+    .nodeAlign(d3.sankeyJustify)
+    .extent([[0,0],[sw,sh]]);
+
+  // Sort within each stage: largest at top
+  sankey.nodeSort((a,b)=> d3.descending(a.value, b.value));
+
+  const graph = sankey({
+    nodes: nodes.map(d=>({...d})),
+    links: sankeyLinks.map(d=>({...d})),
+  });
+
+  // Identify stage X positions (after layout). Prefer our own .stage, fall
+  // back to sankey's computed .depth.
+  for (const n of graph.nodes){
+    if (n.stage == null) n.stage = n.depth;
+  }
+  const stageX = new Map();
+  for (const n of graph.nodes){
+    if (!stageX.has(n.stage)) stageX.set(n.stage, n.x0);
+    else stageX.set(n.stage, Math.min(stageX.get(n.stage), n.x0));
+  }
+
+  // ─── Stage labels & top rules ─────────────────────────────────
+  const STAGE_LABELS = ["Origin Country","Tech Vertical","Company","Founding School"];
+  const stageGroup = g.append("g").attr("class","stages");
+  for (let s=0;s<4;s++){
+    const x = stageX.get(s);
+    if (x == null) continue;
+    stageGroup.append("text")
+      .attr("class","stage-label")
+      .attr("x", x + sankey.nodeWidth()/2)
+      .attr("y", -26)
+      .attr("text-anchor","middle")
+      .text(STAGE_LABELS[s].toUpperCase());
+    // tiny tick
+    stageGroup.append("line")
+      .attr("class","stage-rule")
+      .attr("x1", x + sankey.nodeWidth()/2 - 18)
+      .attr("x2", x + sankey.nodeWidth()/2 + 18)
+      .attr("y1", -16).attr("y2", -16);
+  }
+
+  // ─── Per-link gradients ─────────────────────────────────
+  graph.links.forEach((l,i) => {
+    const grad = defs.append("linearGradient")
+      .attr("id", `lg-${i}`)
+      .attr("gradientUnits","userSpaceOnUse")
+      .attr("x1", l.source.x1).attr("x2", l.target.x0)
+      .attr("y1", 0).attr("y2", 0);
+    grad.append("stop").attr("offset","0%").attr("stop-color", l.sourceColor).attr("stop-opacity",0.95);
+    grad.append("stop").attr("offset","45%").attr("stop-color", d3.interpolateRgb(l.sourceColor, l.targetColor)(0.45)).attr("stop-opacity",0.9);
+    grad.append("stop").attr("offset","100%").attr("stop-color", l.targetColor).attr("stop-opacity",0.9);
+    l._gradId = `lg-${i}`;
+  });
+
+  // ─── Ribbons ─────────────────────────────────
+  const linkSel = g.append("g")
+    .attr("class","ribbons")
+    .attr("fill","none")
+    .selectAll("path")
+    .data(graph.links)
+    .join("path")
+    .attr("class","ribbon")
+    .attr("d", d3.sankeyLinkHorizontal())
+    .attr("stroke", d => `url(#${d._gradId})`)
+    .attr("stroke-width", d => Math.max(1, d.width))
+    .attr("opacity", 0.55)
+    .attr("filter","url(#ribbon-glow)");
+
+  // ─── Nodes ─────────────────────────────────
+  const nodeG = g.append("g").attr("class","nodes");
+
+  const nodeSel = nodeG.selectAll("g.node")
+    .data(graph.nodes)
+    .join("g")
+    .attr("class","node")
+    .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+  nodeSel.append("rect")
+    .attr("class","node-rect")
+    .attr("height", d => Math.max(2, d.y1 - d.y0))
+    .attr("width",  d => d.x1 - d.x0)
+    .attr("fill",   d => d.color)
+    .attr("rx", 1.5)
+    .attr("stroke","none")
+    .style("color", d => d.color);
+
+  // Node labels
+  nodeSel.append("text")
+    .attr("class","node-label")
+    .attr("x", d => d.stage === 0 ? -8 : (d.x1 - d.x0) + 8)
+    .attr("y", d => (d.y1 - d.y0)/2)
+    .attr("dy","0.35em")
+    .attr("text-anchor", d => d.stage === 0 ? "end" : "start")
+    .text(d => truncate(d.label, d.stage === 2 ? 26 : 22));
+
+  // Node value (faint)
+  nodeSel.append("text")
+    .attr("class","node-value")
+    .attr("x", d => d.stage === 0 ? -8 : (d.x1 - d.x0) + 8)
+    .attr("y", d => (d.y1 - d.y0)/2 + 13)
+    .attr("dy","0.35em")
+    .attr("text-anchor", d => d.stage === 0 ? "end" : "start")
+    .text(d => {
+      const v = d.value || 0;
+      return v.toLocaleString();
+    });
+
+  // Hide value label on very thin nodes
+  nodeSel.selectAll(".node-value")
+    .style("display", function(d){ return (d.y1 - d.y0) < 14 ? "none" : null; });
+  // Hide both labels when even tinier
+  nodeSel.selectAll(".node-label")
+    .style("display", function(d){ return (d.y1 - d.y0) < 5 ? "none" : null; });
+
+  //────────────────────────────────────────────────────────────────
+  // INTERACTION — hover focus
+  //────────────────────────────────────────────────────────────────
+  const info = document.getElementById("info");
+  const infoUp = document.getElementById("info-up");
+  const infoDown = document.getElementById("info-down");
+  const infoFlow = document.getElementById("info-flow");
+
+  function setInfo(node){
+    if (!node){
+      info.classList.remove("visible");
+      return;
+    }
+    const ups = (node.targetLinks || []).slice().sort((a,b)=>b.value-a.value);
+    const dns = (node.sourceLinks || []).slice().sort((a,b)=>b.value-a.value);
+    const total = (node.value || 0);
+
+    info.querySelector(".type").textContent = node.kind;
+    info.querySelector(".name").textContent = node.label;
+    infoFlow.textContent = total.toLocaleString();
+
+    function row(name, val){
+      return `<div class="conn"><span class="nm" title="${name}">${name}</span><span class="v">${val}</span></div>`;
+    }
+    infoUp.innerHTML = ups.length
+      ? ups.slice(0,3).map(l => row(l.source.label, l.value)).join("")
+      : `<div class="conn"><span class="nm" style="color:var(--ink-faint)">— source —</span></div>`;
+    infoDown.innerHTML = dns.length
+      ? dns.slice(0,3).map(l => row(l.target.label, l.value)).join("")
+      : `<div class="conn"><span class="nm" style="color:var(--ink-faint)">— sink —</span></div>`;
+
+    info.classList.add("visible");
+  }
+
+  // Find connected ribbons (full chain through hovered node)
+  function chainFromNode(node){
+    const linkSet = new Set();
+    const nodeSet = new Set([node]);
+    // BFS forward through sourceLinks
+    let frontier = [node];
+    while (frontier.length){
+      const next = [];
+      for (const n of frontier){
+        for (const l of n.sourceLinks){
+          if (linkSet.has(l)) continue;
+          linkSet.add(l);
+          if (!nodeSet.has(l.target)){ nodeSet.add(l.target); next.push(l.target); }
+        }
+      }
+      frontier = next;
+    }
+    // BFS backward through targetLinks
+    frontier = [node];
+    while (frontier.length){
+      const next = [];
+      for (const n of frontier){
+        for (const l of n.targetLinks){
+          if (linkSet.has(l)) continue;
+          linkSet.add(l);
+          if (!nodeSet.has(l.source)){ nodeSet.add(l.source); next.push(l.source); }
+        }
+      }
+      frontier = next;
+    }
+    return {linkSet, nodeSet};
+  }
+
+  function chainFromLink(link){
+    // Highlight just that link plus its endpoints' chains? We highlight the
+    // single link and its two endpoint chains forward/back.
+    const a = chainFromNode(link.source);
+    const b = chainFromNode(link.target);
+    const linkSet = new Set([...a.linkSet, ...b.linkSet, link]);
+    const nodeSet = new Set([...a.nodeSet, ...b.nodeSet]);
+    return {linkSet, nodeSet};
+  }
+
+  function focus(set){
+    if (!set){
+      linkSel.attr("opacity", 0.55);
+      nodeSel.selectAll(".node-rect").classed("dim", false).classed("active", false);
+      nodeSel.selectAll(".node-label").classed("dim", false).classed("active", false);
+      nodeSel.selectAll(".node-value").classed("dim", false);
+      return;
+    }
+    const {linkSet, nodeSet} = set;
+    linkSel
+      .attr("opacity", l => linkSet.has(l) ? 0.95 : 0.06);
+    nodeSel.selectAll(".node-rect")
+      .classed("dim",   d => !nodeSet.has(d))
+      .classed("active",d =>  nodeSet.has(d));
+    nodeSel.selectAll(".node-label")
+      .classed("dim",   d => !nodeSet.has(d))
+      .classed("active",d =>  nodeSet.has(d));
+    nodeSel.selectAll(".node-value")
+      .classed("dim",   d => !nodeSet.has(d));
+  }
+
+  nodeSel
+    .on("mouseenter", (e,d) => { focus(chainFromNode(d)); setInfo(d); })
+    .on("mouseleave", () => { focus(null); setInfo(null); });
+
+  linkSel
+    .on("mouseenter", (e,l) => {
+      focus(chainFromLink(l));
+      // briefly show link source as info node
+      setInfo(l.source);
+    })
+    .on("mouseleave", () => { focus(null); setInfo(null); });
+
+  //────────────────────────────────────────────────────────────────
+  // LEGEND
+  //────────────────────────────────────────────────────────────────
+  const legend = d3.select("#legend");
+  for (const v of VERTICALS){
+    const r = legend.append("div").attr("class","row");
+    r.append("div").attr("class","swatch").style("background", VERTICAL_COLOR[v]).style("color", VERTICAL_COLOR[v]);
+    r.append("div").text(v);
+  }
+  // also country and school keys
+  legend.append("div").attr("class","head").style("margin-top","10px").text("Endpoints");
+  const r1 = legend.append("div").attr("class","row");
+  r1.append("div").attr("class","swatch").style("background", COUNTRY_COLOR).style("color", COUNTRY_COLOR);
+  r1.append("div").text("Country");
+  const r2 = legend.append("div").attr("class","row");
+  r2.append("div").attr("class","swatch").style("background", SCHOOL_COLOR).style("color", SCHOOL_COLOR);
+  r2.append("div").text("Founding School");
+
+  //────────────────────────────────────────────────────────────────
+  // FOOTER STATS
+  //────────────────────────────────────────────────────────────────
+  const totalFlow = d3.sum(graph.links.filter(l=>l.source.stage===0), l => l.value);
+  document.getElementById("ft-flow").textContent  = totalFlow.toLocaleString();
+  document.getElementById("ft-country").textContent = graph.nodes.filter(n=>n.stage===0).length;
+  document.getElementById("ft-vert").textContent  = graph.nodes.filter(n=>n.stage===1).length;
+  document.getElementById("ft-comp").textContent  = graph.nodes.filter(n=>n.stage===2).length;
+  document.getElementById("ft-sch").textContent   = graph.nodes.filter(n=>n.stage===3).length;
+
+  //────────────────────────────────────────────────────────────────
+  // Resize
+  //────────────────────────────────────────────────────────────────
+  let resizeT;
+  addEventListener("resize", ()=>{
+    clearTimeout(resizeT);
+    resizeT = setTimeout(()=>location.reload(), 220);
+  });
+}).catch(err => {
+  console.error("Failed to load data:", err);
+  const svg = d3.select("#sankey").attr("viewBox", `0 0 ${innerWidth} ${innerHeight}`);
+  svg.append("text")
+    .attr("x", innerWidth/2).attr("y", innerHeight/2)
+    .attr("text-anchor","middle")
+    .attr("fill","#d4af37")
+    .attr("font-family","JetBrains Mono")
+    .attr("font-size","12px")
+    .attr("letter-spacing","0.2em")
+    .text("DATA LOAD ERROR — see console");
+});
+</script>
+</body>
+</html>

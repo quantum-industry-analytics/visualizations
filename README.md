@@ -11,6 +11,9 @@ Five interactive prototypes for visualizing the quantum-tech ecosystem — compa
 | 03 | Geo Holosphere — interactive globe | globe.gl · three.js | [open](https://quantum-industry-analytics.github.io/visualizations/03-geo-holosphere/) |
 | 04 | Hyperbolic Tree of Influence — Poincaré disk | d3 · möbius math | [open](https://quantum-industry-analytics.github.io/visualizations/04-hyperbolic-tree/) |
 | 05 | Multilayer Network — 3 stacked planes | three.js · d3-force · 3d | [open](https://quantum-industry-analytics.github.io/visualizations/05-multilayer-network/) |
+| 06 | Semantic Map — TF-IDF + UMAP scatter | python · canvas · umap | [open](https://quantum-industry-analytics.github.io/visualizations/06-semantic-map/) |
+| 07 | Money → Talent Sankey — four-stage flow | d3-sankey · svg | [open](https://quantum-industry-analytics.github.io/visualizations/07-sankey-money-talent/) |
+| 08 | Temporal Arc Diagram — VC genealogy timeline | d3 · svg · timeline | [open](https://quantum-industry-analytics.github.io/visualizations/08-temporal-arc/) |
 
 ## Repo layout
 
@@ -25,7 +28,13 @@ Five interactive prototypes for visualizing the quantum-tech ecosystem — compa
 ├── 02-capital-flow-chord/index.html
 ├── 03-geo-holosphere/index.html
 ├── 04-hyperbolic-tree/index.html
-└── 05-multilayer-network/index.html
+├── 05-multilayer-network/index.html
+├── 06-semantic-map/
+│   ├── index.html
+│   ├── layout.json                     pre-computed UMAP coords
+│   └── _precompute.py                  re-run when data changes
+├── 07-sankey-money-talent/index.html
+└── 08-temporal-arc/index.html
 ```
 
 ## Local development
