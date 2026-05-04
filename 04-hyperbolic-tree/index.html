@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HYPERBOLIC INFLUENCE — Quantum Capital Topology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg-deep: #050614;
+    --bg-deeper: #02030a;
+    --ink: #e8ecff;
+    --ink-dim: #8993c2;
+    --ink-faint: #4b5380;
+    --ring: #00e5ff;
+    --gold: #ffce5c;
+    --pearl: #f1efe6;
+    --ql-quantum: #00e5ff;
+    --ql-aiml: #b14aed;
+    --ql-bio: #2ee6a6;
+    --ql-mat: #ffb547;
+    --ql-comm: #ff6b6b;
+    --ql-cyber: #4d8bff;
+    --ql-other: #6b7080;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+    width: 100%; height: 100%;
+    font-feature-settings: "ss01", "tnum";
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 50%, #0a0c25 0%, #050614 45%, #02030a 100%);
+  }
+  #stage {
+    position: fixed; inset: 0;
+    width: 100vw; height: 100vh;
+  }
+  svg.disk { width: 100%; height: 100%; display: block; }
+
+  .ui-overlay {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .ui-overlay > * { pointer-events: auto; }
+
+  .title-block {
+    position: absolute;
+    top: 28px; left: 32px;
+    max-width: 540px;
+  }
+  .title-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.32em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .title-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ring);
+    box-shadow: 0 0 10px var(--ring), 0 0 20px var(--ring);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.35; } }
+  h1.title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+    background: linear-gradient(90deg, #ffffff 0%, #c5d6ff 50%, #6ad9ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .title-sub {
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+    line-height: 1.55;
+  }
+  .title-sub .center-name {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .title-sub .center-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    color: #fff;
+    vertical-align: 1px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+  }
+
+  .breadcrumb {
+    position: absolute;
+    bottom: 28px; left: 32px;
+    display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap;
+    max-width: 56%;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .breadcrumb-label {
+    color: var(--ink-faint);
+    margin-right: 8px;
+  }
+  .crumb {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--ink-dim);
+    padding: 4px 9px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 160ms;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+  .crumb:hover {
+    background: rgba(0,229,255,0.10);
+    color: var(--ink);
+    border-color: rgba(0,229,255,0.4);
+  }
+  .crumb.current {
+    background: rgba(0,229,255,0.14);
+    color: #cdf6ff;
+    border-color: rgba(0,229,255,0.45);
+  }
+  .crumb-arrow {
+    color: var(--ink-faint);
+    font-size: 10px;
+  }
+
+  .legend {
+    position: absolute;
+    bottom: 28px; right: 32px;
+    background: rgba(8, 10, 28, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 16px 18px;
+    min-width: 200px;
+  }
+  .legend-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .legend-row {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+  .legend-swatch {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-swatch.ring {
+    background: transparent;
+    border: 1.5px solid currentColor;
+  }
+  .legend-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 10px 0;
+  }
+
+  .hud-right {
+    position: absolute;
+    top: 28px; right: 32px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    line-height: 1.7;
+  }
+  .hud-right .val { color: var(--ink); font-weight: 500; }
+
+  .info-card {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(8, 10, 28, 0.78);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    padding: 14px 16px;
+    min-width: 220px;
+    max-width: 320px;
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 14px));
+    transition: opacity 180ms;
+    z-index: 20;
+    box-shadow: 0 18px 48px rgba(0,0,0,0.55);
+  }
+  .info-card.show { opacity: 1; }
+  .ic-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--ink-dim);
+  }
+  .ic-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.25;
+  }
+  .ic-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin: 3px 0;
+    gap: 18px;
+  }
+  .ic-row .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .ic-row .v {
+    color: var(--ink);
+    text-align: right;
+    font-weight: 500;
+  }
+  .ic-vert {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10.5px;
+    color: var(--ink-dim);
+  }
+  .ic-vert-swatch {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .ic-hint {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+
+  /* node visuals */
+  .node-circle {
+    cursor: pointer;
+    transition: stroke-opacity 200ms, fill-opacity 200ms;
+  }
+  .node-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    fill: var(--ink);
+    pointer-events: none;
+    text-anchor: middle;
+    font-weight: 500;
+    paint-order: stroke;
+    stroke: rgba(5, 6, 20, 0.85);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  .edge {
+    fill: none;
+    pointer-events: none;
+  }
+  .grid-line {
+    fill: none;
+    stroke: rgba(0, 229, 255, 0.06);
+    stroke-width: 0.6;
+    pointer-events: none;
+  }
+  .ortho-line {
+    fill: none;
+    stroke: rgba(177, 74, 237, 0.04);
+    stroke-width: 0.5;
+    pointer-events: none;
+  }
+
+  .center-marker {
+    fill: none;
+    stroke: rgba(0,229,255,0.25);
+    stroke-width: 0.75;
+    pointer-events: none;
+  }
+
+  .compass {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .compass .formula {
+    font-size: 10.5px;
+    color: var(--ink-dim);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg class="disk" id="disk"></svg>
+</div>
+
+<div class="ui-overlay">
+  <div class="title-block">
+    <div class="title-eyebrow"><span class="dot"></span><span>POINCARÉ DISK · MÖBIUS NAVIGATION</span></div>
+    <h1 class="title">Hyperbolic Influence</h1>
+    <div class="title-sub">
+      Quantum capital topology projected on a hyperbolic disk.
+      Geodesics curve away from the boundary.
+      <br />
+      <span style="opacity:0.7;">Centered on </span>
+      <span class="center-name" id="centerName">—</span>
+      <span class="center-tag" id="centerTag">root</span>
+    </div>
+  </div>
+
+  <div class="hud-right">
+    <div>NODES <span class="val" id="hudNodes">—</span></div>
+    <div>EDGES <span class="val" id="hudEdges">—</span></div>
+    <div>HYPER · DEPTH <span class="val" id="hudDepth">—</span></div>
+  </div>
+
+  <div class="breadcrumb" id="breadcrumb">
+    <span class="breadcrumb-label">TRAJECTORY ·</span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title">VERTICAL</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#00e5ff"></span>Quantum Computing</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#b14aed"></span>AI / ML</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#2ee6a6"></span>Bio &amp; Medicine</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#ffb547"></span>Materials / Nanotech</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#ff6b6b"></span>Communications</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#4d8bff"></span>Cyber Security</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#6b7080"></span>Other</div>
+    <div class="legend-divider"></div>
+    <div class="legend-title">NODE TYPE</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#ffce5c;box-shadow:0 0 6px #ffce5c"></span>Investor</div>
+    <div class="legend-row"><span class="legend-swatch ring" style="color:#00e5ff;background:transparent"></span>Company</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#f1efe6"></span>Founder</div>
+  </div>
+
+  <div class="compass">
+    <div>HYPERBOLIC METRIC</div>
+    <div class="formula">d(0, z) = 2 · atanh(|z|)</div>
+  </div>
+
+  <div class="info-card" id="infoCard">
+    <div class="ic-tag" id="icTag">—</div>
+    <div class="ic-name" id="icName">—</div>
+    <div id="icRows"></div>
+    <div class="ic-vert" id="icVert" style="display:none;">
+      <span class="ic-vert-swatch" id="icVertSwatch"></span>
+      <span id="icVertText"></span>
+    </div>
+    <div class="ic-hint">CLICK TO RE-CENTER · MÖBIUS</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   HYPERBOLIC INFLUENCE — Poincaré Disk Visualization
+   Möbius re-centering, hyperbolic geodesics, quantum mandala.
+   ============================================================ */
+
+const VERT_COLOR = {
+  "Quantum Computing":              "#00e5ff",
+  "Quantum AI & ML":                "#b14aed",
+  "AI/ML":                          "#b14aed",
+  "Quantum Bio & Medicine":         "#2ee6a6",
+  "Bio/Med":                        "#2ee6a6",
+  "Quantum Materials & NanoTech":   "#ffb547",
+  "Materials/NanoTech":             "#ffb547",
+  "Communications":                 "#ff6b6b",
+  "Cyber Security":                 "#4d8bff",
+  "Other":                          "#6b7080",
+  "":                               "#6b7080",
+  null:                             "#6b7080",
+  undefined:                        "#6b7080",
+};
+
+const TYPE_STYLE = {
+  investor: { fill: "#ffce5c", stroke: "#ffe6a3", glow: "#ffce5c" },
+  company:  { fill: null,      stroke: null,      glow: null },
+  founder:  { fill: "#f1efe6", stroke: "#ffffff", glow: "#f1efe6" },
+};
+
+/* ---------- Complex / Möbius helpers ---------- */
+// A complex number is { re, im }
+const C = {
+  add: (a, b) => ({ re: a.re + b.re, im: a.im + b.im }),
+  sub: (a, b) => ({ re: a.re - b.re, im: a.im - b.im }),
+  mul: (a, b) => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }),
+  div: (a, b) => {
+    const d = b.re * b.re + b.im * b.im;
+    return { re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d };
+  },
+  conj: a => ({ re: a.re, im: -a.im }),
+  neg: a => ({ re: -a.re, im: -a.im }),
+  abs: a => Math.hypot(a.re, a.im),
+  abs2: a => a.re * a.re + a.im * a.im,
+  scale: (a, s) => ({ re: a.re * s, im: a.im * s }),
+  fromXY: (x, y) => ({ re: x, im: y }),
+  zero: { re: 0, im: 0 },
+  one:  { re: 1, im: 0 },
+};
+
+// f(z) = (z - a) / (1 - conj(a) * z) — moves point a to origin
+function mobiusRecenter(z, a) {
+  const num = C.sub(z, a);
+  const den = C.sub(C.one, C.mul(C.conj(a), z));
+  return C.div(num, den);
+}
+
+// hyperbolic distance from origin
+function hypDist0(z) {
+  const r = Math.min(C.abs(z), 0.999999);
+  return 2 * Math.atanh(r);
+}
+
+/* ---------- Hyperbolic geodesic between two disk points ---------- */
+// Returns an SVG path string for a circular arc orthogonal to the unit
+// circle, in disk coordinates. If points are collinear with origin or
+// nearly so, returns a straight line.
+function geodesicPath(z1, z2, R, cx, cy) {
+  // disk coords -> screen coords
+  const sx = z => cx + z.re * R;
+  const sy = z => cy - z.im * R;
+
+  // collinear with origin?
+  const cross = z1.re * z2.im - z1.im * z2.re;
+  if (Math.abs(cross) < 1e-7) {
+    return `M ${sx(z1)} ${sy(z1)} L ${sx(z2)} ${sy(z2)}`;
+  }
+
+  // Find inverted points: z1' = z1 / |z1|^2, z2' = z2 / |z2|^2
+  // Circle through z1, z2, z1' (or z2') is the geodesic circle (orthogonal to unit circle).
+  const a1 = C.abs2(z1);
+  const a2 = C.abs2(z2);
+  if (a1 < 1e-10 || a2 < 1e-10) {
+    // one is origin -> diameter
+    return `M ${sx(z1)} ${sy(z1)} L ${sx(z2)} ${sy(z2)}`;
+  }
+
+  const z1i = { re: z1.re / a1, im: z1.im / a1 };
+  // Circle through z1, z2, z1i: solve
+  // |p - c|^2 = r^2 for p in {z1, z2, z1i}.
+  // Use linear system: 2(x_i - x_j) cx + 2(y_i - y_j) cy = (x_i^2+y_i^2) - (x_j^2+y_j^2)
+  const x1 = z1.re, y1 = z1.im;
+  const x2 = z2.re, y2 = z2.im;
+  const x3 = z1i.re, y3 = z1i.im;
+  const A = 2 * (x2 - x1), B = 2 * (y2 - y1);
+  const D = 2 * (x3 - x1), E = 2 * (y3 - y1);
+  const F = (x2 * x2 + y2 * y2) - (x1 * x1 + y1 * y1);
+  const G = (x3 * x3 + y3 * y3) - (x1 * x1 + y1 * y1);
+  const det = A * E - B * D;
+  if (Math.abs(det) < 1e-10) {
+    return `M ${sx(z1)} ${sy(z1)} L ${sx(z2)} ${sy(z2)}`;
+  }
+  const ccx = (F * E - B * G) / det;
+  const ccy = (A * G - F * D) / det;
+  const r = Math.hypot(x1 - ccx, y1 - ccy);
+
+  // Compute screen-space radius and center for arc.
+  // disk-x -> cx + x*R ; disk-y -> cy - y*R, so screen radius is r*R.
+  const rPx = r * R;
+  const sCx = cx + ccx * R;
+  const sCy = cy - ccy * R;
+
+  // Determine sweep flag.  We want the arc that stays inside the disk
+  // (the minor arc connecting z1 to z2 on the geodesic circle, on the
+  // side toward the origin).
+  // Compute angles of z1 and z2 relative to circle center.
+  const ang1 = Math.atan2(y1 - ccy, x1 - ccx);
+  const ang2 = Math.atan2(y2 - ccy, x2 - ccx);
+  let dAng = ang2 - ang1;
+  while (dAng > Math.PI)  dAng -= 2 * Math.PI;
+  while (dAng < -Math.PI) dAng += 2 * Math.PI;
+  const largeArc = 0; // shorter arc is always inside the disk for orthogonal geodesics
+  // Sweep: in screen space y is flipped, so flip sweep flag accordingly.
+  // dAng > 0 means counterclockwise in math coords -> clockwise in screen coords -> sweep=0
+  // We want the arc on the disk-interior side.
+  const sweep = dAng > 0 ? 0 : 1;
+
+  return `M ${sx(z1)} ${sy(z1)} A ${rPx} ${rPx} 0 ${largeArc} ${sweep} ${sx(z2)} ${sy(z2)}`;
+}
+
+/* ============================================================
+   Data load
+   ============================================================ */
+d3.json("../data/quantum_ecosystem.json").then(raw => {
+  build(raw);
+}).catch(err => {
+  console.error("Failed to load data", err);
+  document.getElementById("centerName").textContent = "DATA ERROR";
+});
+
+function normalizeVertical(v) {
+  if (!v) return "Other";
+  const s = String(v);
+  // already in our palette
+  if (VERT_COLOR[s]) return s;
+  return s;
+}
+function vertColor(v) {
+  return VERT_COLOR[v] || VERT_COLOR.Other;
+}
+
+function build(raw) {
+  /* ---------- node + edge construction ---------- */
+  const companyById  = new Map(raw.companies.map(c => [c.id, c]));
+  const investorById = new Map(raw.investors.map(i => [i.id, i]));
+  const founderById  = new Map(raw.founders.map(f => [f.id, f]));
+
+  const nodes = [];
+  const nodeById = new Map();
+
+  function addNode(id, kind, datum, vertical) {
+    if (nodeById.has(id)) return nodeById.get(id);
+    const n = {
+      id,
+      kind,                 // 'investor' | 'company' | 'founder'
+      vertical: vertical || "Other",
+      datum,
+      degree: 0,
+      // Poincaré disk position in current frame:
+      z: { re: 0, im: 0 },
+      // Stable "world" position (before any Möbius transform):
+      z0: { re: 0, im: 0 },
+      depth: -1,
+      neighbors: new Set(),
+    };
+    nodes.push(n);
+    nodeById.set(id, n);
+    return n;
+  }
+
+  // companies
+  raw.companies.forEach(c => {
+    addNode(c.id, "company", c, normalizeVertical(c.vertical));
+  });
+  // investors
+  raw.investors.forEach(i => {
+    addNode(i.id, "investor", i, "Other");
+  });
+  // founders
+  raw.founders.forEach(f => {
+    addNode(f.id, "founder", f, "Other");
+  });
+
+  // edges
+  const edges = [];
+  raw.investments.forEach(e => {
+    const a = nodeById.get(e.investor);
+    const b = nodeById.get(e.company);
+    if (!a || !b) return;
+    edges.push({ source: a, target: b, kind: "invest" });
+    a.neighbors.add(b.id);
+    b.neighbors.add(a.id);
+    a.degree++; b.degree++;
+  });
+  // founder -> company edges
+  raw.founders.forEach(f => {
+    if (!Array.isArray(f.companies)) return;
+    f.companies.forEach(cid => {
+      const a = nodeById.get(f.id);
+      const b = nodeById.get(cid);
+      if (!a || !b) return;
+      edges.push({ source: a, target: b, kind: "founded" });
+      a.neighbors.add(b.id);
+      b.neighbors.add(a.id);
+      a.degree++; b.degree++;
+    });
+  });
+
+  /* ---------- pick root: highest-degree investor ---------- */
+  const investorNodes = nodes.filter(n => n.kind === "investor");
+  investorNodes.sort((a, b) => b.degree - a.degree);
+  const root = investorNodes[0];
+
+  /* ---------- BFS layout in Poincaré disk ---------- */
+  // Levels: depth 0 -> origin, deeper -> larger radius (capped <1).
+  // Cap to ~250 visible nodes.
+  const MAX_NODES = 250;
+  const RADII = [0, 0.42, 0.66, 0.82, 0.91, 0.955];
+
+  const visible = new Set();
+  const queue = [];
+  root.depth = 0;
+  visible.add(root.id);
+  queue.push(root);
+
+  // BFS expanding by neighbor degree (highest first), limited per parent
+  const PARENT_BRANCHING = [12, 8, 6, 4, 3];
+
+  while (queue.length && visible.size < MAX_NODES) {
+    const cur = queue.shift();
+    if (cur.depth >= RADII.length - 1) continue;
+    const branch = PARENT_BRANCHING[cur.depth] || 3;
+    const candidates = [...cur.neighbors]
+      .map(id => nodeById.get(id))
+      .filter(n => n && !visible.has(n.id))
+      .sort((a, b) => b.degree - a.degree)
+      .slice(0, branch);
+    candidates.forEach(n => {
+      if (visible.size >= MAX_NODES) return;
+      n.depth = cur.depth + 1;
+      n._parent = cur;
+      visible.add(n.id);
+      queue.push(n);
+    });
+  }
+
+  const visibleNodes = nodes.filter(n => visible.has(n.id));
+  const visibleEdges = edges.filter(e => visible.has(e.source.id) && visible.has(e.target.id));
+
+  /* ---------- assign angular positions per parent sector ---------- */
+  // root at origin
+  root.z0 = { re: 0, im: 0 };
+
+  // Group children by parent and place in parent's angular sector
+  // Level 1: spread evenly over full circle
+  const level1 = visibleNodes.filter(n => n.depth === 1);
+  level1.sort((a, b) => b.degree - a.degree);
+  level1.forEach((n, i) => {
+    const ang = (i / level1.length) * Math.PI * 2 - Math.PI / 2;
+    n._angle = ang;
+    n._sectorWidth = (Math.PI * 2) / level1.length;
+    const r = RADII[1];
+    n.z0 = { re: r * Math.cos(ang), im: r * Math.sin(ang) };
+  });
+
+  // Deeper levels: each child fits into a sub-sector around its parent's angle
+  for (let d = 2; d < RADII.length; d++) {
+    const levelNodes = visibleNodes.filter(n => n.depth === d);
+    // group by parent
+    const byParent = new Map();
+    levelNodes.forEach(n => {
+      const p = n._parent;
+      if (!byParent.has(p.id)) byParent.set(p.id, []);
+      byParent.get(p.id).push(n);
+    });
+    byParent.forEach((kids, pid) => {
+      const parent = nodeById.get(pid);
+      const baseAng = parent._angle;
+      const sectorW = parent._sectorWidth * 0.78; // shrink as we descend
+      kids.sort((a, b) => b.degree - a.degree);
+      kids.forEach((kid, i) => {
+        const t = kids.length === 1 ? 0 : (i / (kids.length - 1) - 0.5);
+        const ang = baseAng + t * sectorW;
+        kid._angle = ang;
+        kid._sectorWidth = sectorW / Math.max(kids.length, 1);
+        const r = RADII[d];
+        kid.z0 = { re: r * Math.cos(ang), im: r * Math.sin(ang) };
+      });
+    });
+  }
+
+  // Initial frame == world frame: set z = z0
+  visibleNodes.forEach(n => { n.z = { re: n.z0.re, im: n.z0.im }; });
+
+  /* ============================================================
+     Render
+     ============================================================ */
+  const svg = d3.select("#disk");
+  const stage = document.getElementById("stage");
+  let W = stage.clientWidth, H = stage.clientHeight;
+  let cx = W / 2, cy = H / 2;
+  let R  = Math.min(W, H) * 0.46; // disk radius
+
+  svg.attr("viewBox", `0 0 ${W} ${H}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+  /* ---- defs: filters and gradients ---- */
+  const defs = svg.append("defs");
+
+  // soft glow for ring
+  defs.append("filter")
+    .attr("id", "ringGlow")
+    .attr("x", "-30%").attr("y", "-30%")
+    .attr("width", "160%").attr("height", "160%")
+    .html(`
+      <feGaussianBlur stdDeviation="3" result="b1" />
+      <feGaussianBlur stdDeviation="9" result="b2" />
+      <feMerge>
+        <feMergeNode in="b2" />
+        <feMergeNode in="b1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    `);
+
+  defs.append("filter")
+    .attr("id", "softGlow")
+    .attr("x", "-50%").attr("y", "-50%")
+    .attr("width", "200%").attr("height", "200%")
+    .html(`
+      <feGaussianBlur stdDeviation="2.5" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    `);
+
+  defs.append("radialGradient")
+    .attr("id", "diskBg")
+    .attr("cx", "50%").attr("cy", "50%").attr("r", "50%")
+    .html(`
+      <stop offset="0%"   stop-color="#0a1230" stop-opacity="0.42" />
+      <stop offset="55%"  stop-color="#070a22" stop-opacity="0.30" />
+      <stop offset="92%"  stop-color="#0a1638" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#0d1d4a" stop-opacity="0.85" />
+    `);
+
+  // Per-edge gradients are created dynamically.
+  const gradLayer = defs.append("g").attr("id", "gradients");
+
+  /* ---- Layer construction ---- */
+  // disk background
+  svg.append("circle")
+    .attr("cx", cx).attr("cy", cy).attr("r", R)
+    .attr("fill", "url(#diskBg)")
+    .attr("stroke", "none");
+
+  // outer faint glow underlayer
+  svg.append("circle")
+    .attr("cx", cx).attr("cy", cy).attr("r", R * 1.005)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(0, 229, 255, 0.06)")
+    .attr("stroke-width", 18)
+    .attr("filter", "url(#ringGlow)");
+
+  // hyperbolic grid: concentric circles at constant hyperbolic distance
+  const gridLayer = svg.append("g").attr("class", "grid-layer");
+  const concentricRs = [0.2, 0.38, 0.55, 0.7, 0.82, 0.91, 0.96];
+  concentricRs.forEach(rr => {
+    gridLayer.append("circle")
+      .attr("class", "grid-line")
+      .attr("cx", cx).attr("cy", cy)
+      .attr("r", rr * R);
+  });
+  // radial spokes (geodesic diameters)
+  const spokeCount = 12;
+  for (let i = 0; i < spokeCount; i++) {
+    const a = (i / spokeCount) * Math.PI * 2;
+    gridLayer.append("line")
+      .attr("class", "ortho-line")
+      .attr("x1", cx + Math.cos(a) * R * 0.05)
+      .attr("y1", cy + Math.sin(a) * R * 0.05)
+      .attr("x2", cx + Math.cos(a) * R * 0.985)
+      .attr("y2", cy + Math.sin(a) * R * 0.985);
+  }
+
+  // outer ring (the boundary of the Poincaré disk)
+  svg.append("circle")
+    .attr("cx", cx).attr("cy", cy).attr("r", R)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(0, 229, 255, 0.55)")
+    .attr("stroke-width", 1.1)
+    .attr("filter", "url(#ringGlow)");
+  svg.append("circle")
+    .attr("cx", cx).attr("cy", cy).attr("r", R)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(255, 255, 255, 0.08)")
+    .attr("stroke-width", 0.5);
+
+  // inner center marker
+  svg.append("circle")
+    .attr("class", "center-marker")
+    .attr("cx", cx).attr("cy", cy).attr("r", 5);
+  svg.append("circle")
+    .attr("class", "center-marker")
+    .attr("cx", cx).attr("cy", cy).attr("r", 12);
+
+  // edges, then nodes
+  const edgeLayer = svg.append("g").attr("class", "edges");
+  const nodeLayer = svg.append("g").attr("class", "nodes");
+
+  /* ---- create edge gradients ---- */
+  const edgeData = visibleEdges.map((e, i) => {
+    const id = `eg-${i}`;
+    const c1 = colorForNode(e.source);
+    const c2 = colorForNode(e.target);
+    gradLayer.append("linearGradient")
+      .attr("id", id)
+      .attr("gradientUnits", "userSpaceOnUse")
+      .html(`
+        <stop offset="0%" stop-color="${c1}" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="${c2}" stop-opacity="0.55"/>
+      `);
+    return { ...e, gradId: id };
+  });
+
+  function colorForNode(n) {
+    if (n.kind === "investor") return "#ffce5c";
+    if (n.kind === "founder")  return "#f1efe6";
+    return vertColor(n.vertical);
+  }
+  function strokeForNode(n) {
+    if (n.kind === "investor") return "#ffe6a3";
+    if (n.kind === "founder")  return "#ffffff";
+    return d3.color(vertColor(n.vertical))?.brighter(0.7)?.formatHex() || "#ffffff";
+  }
+
+  /* ---- node base size ---- */
+  function baseRadius(n) {
+    if (n.kind === "investor") return 8 + Math.min(n.degree, 8) * 1.2;
+    if (n.kind === "company")  return 6 + Math.min(n.degree, 8) * 0.8;
+    return 3.5;
+  }
+  // hyperbolic shrink: r_screen ~ baseR * (1 - |z|^2) factor (clamped)
+  function hyperbolicScale(z) {
+    const r2 = Math.min(C.abs2(z), 0.999);
+    return Math.max(0.18, 1 - r2 * 0.92);
+  }
+
+  /* ---- edge selection ---- */
+  const edgeSel = edgeLayer.selectAll("path.edge")
+    .data(edgeData, d => `${d.source.id}|${d.target.id}|${d.kind}`)
+    .join("path")
+    .attr("class", "edge")
+    .attr("stroke", d => `url(#${d.gradId})`)
+    .attr("stroke-width", 0.9)
+    .attr("stroke-linecap", "round")
+    .attr("opacity", 0.62)
+    .attr("d", d => geodesicPath(d.source.z, d.target.z, R, cx, cy));
+
+  /* ---- node selection ---- */
+  const nodeG = nodeLayer.selectAll("g.node")
+    .data(visibleNodes, d => d.id)
+    .join("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${cx + d.z.re * R}, ${cy - d.z.im * R})`);
+
+  // glow ring for investors
+  nodeG.filter(d => d.kind === "investor").append("circle")
+    .attr("class", "node-glow")
+    .attr("r", d => baseRadius(d) * hyperbolicScale(d.z) * 2.4)
+    .attr("fill", "#ffce5c")
+    .attr("opacity", 0.10)
+    .attr("filter", "url(#softGlow)");
+
+  // outer halo for company nodes (subtle)
+  nodeG.filter(d => d.kind === "company").append("circle")
+    .attr("class", "node-glow")
+    .attr("r", d => baseRadius(d) * hyperbolicScale(d.z) * 1.85)
+    .attr("fill", d => vertColor(d.vertical))
+    .attr("opacity", 0.10);
+
+  nodeG.append("circle")
+    .attr("class", "node-circle")
+    .attr("r", d => baseRadius(d) * hyperbolicScale(d.z))
+    .attr("fill", d => d.kind === "company" ? "rgba(7,10,30,0.85)" : colorForNode(d))
+    .attr("stroke", d => d.kind === "company" ? vertColor(d.vertical) : strokeForNode(d))
+    .attr("stroke-width", d => d.kind === "company" ? 1.4 : 0.8)
+    .attr("stroke-opacity", 0.95);
+
+  // Inner pip for company nodes (tiny core dot of vertical color)
+  nodeG.filter(d => d.kind === "company").append("circle")
+    .attr("class", "node-pip")
+    .attr("r", d => Math.max(1.3, baseRadius(d) * hyperbolicScale(d.z) * 0.42))
+    .attr("fill", d => vertColor(d.vertical))
+    .attr("opacity", 0.92)
+    .style("pointer-events", "none");
+
+  // labels
+  nodeG.append("text")
+    .attr("class", "node-label")
+    .attr("dy", d => -(baseRadius(d) * hyperbolicScale(d.z) + 6))
+    .text(d => d.id)
+    .attr("opacity", d => labelOpacity(d));
+
+  function labelOpacity(d) {
+    // show only nodes within hyperbolic distance ~1.4 of center
+    const hd = hypDist0(d.z);
+    if (hd < 0.6) return 1;
+    if (hd < 1.4) return 0.95 - (hd - 0.6) * 0.6;
+    return 0;
+  }
+
+  /* ---- HUD update ---- */
+  document.getElementById("hudNodes").textContent = visibleNodes.length;
+  document.getElementById("hudEdges").textContent = visibleEdges.length;
+  document.getElementById("hudDepth").textContent = (RADII.length - 1);
+
+  /* ---- breadcrumb / centered state ---- */
+  const breadcrumbEl = document.getElementById("breadcrumb");
+  const breadcrumb = [];
+
+  function updateCenterDisplay(node) {
+    document.getElementById("centerName").textContent = node.id;
+    document.getElementById("centerTag").textContent = node.kind;
+    // breadcrumb
+    if (breadcrumb[breadcrumb.length - 1] !== node.id) {
+      breadcrumb.push(node.id);
+      if (breadcrumb.length > 5) breadcrumb.shift();
+    }
+    renderBreadcrumb();
+  }
+  function renderBreadcrumb() {
+    breadcrumbEl.innerHTML = '<span class="breadcrumb-label">TRAJECTORY ·</span>';
+    breadcrumb.forEach((id, i) => {
+      if (i > 0) {
+        const arrow = document.createElement("span");
+        arrow.className = "crumb-arrow";
+        arrow.textContent = "›";
+        breadcrumbEl.appendChild(arrow);
+      }
+      const c = document.createElement("span");
+      c.className = "crumb" + (i === breadcrumb.length - 1 ? " current" : "");
+      c.textContent = id.length > 26 ? id.slice(0, 24) + "…" : id;
+      c.addEventListener("click", () => {
+        const node = nodeById.get(id);
+        if (node) recenterOn(node);
+      });
+      breadcrumbEl.appendChild(c);
+    });
+  }
+
+  /* ---- Hover info card + neighbor highlight ---- */
+  const card = document.getElementById("infoCard");
+  const icTag = document.getElementById("icTag");
+  const icName = document.getElementById("icName");
+  const icRows = document.getElementById("icRows");
+  const icVert = document.getElementById("icVert");
+  const icVertText = document.getElementById("icVertText");
+  const icVertSwatch = document.getElementById("icVertSwatch");
+
+  function showCard(d, evt) {
+    icTag.textContent = d.kind === "investor" ? "INVESTOR"
+                       : d.kind === "company"  ? "COMPANY"
+                       : "FOUNDER";
+    icName.textContent = d.id;
+    let html = "";
+    if (d.kind === "company") {
+      const c = d.datum;
+      if (c.country) html += rowHTML("LOCATION", [c.city, c.region, c.country].filter(Boolean).join(" · "));
+      if (c.founded) html += rowHTML("FOUNDED", c.founded);
+      if (c.employees) html += rowHTML("EMPLOYEES", c.employees);
+      html += rowHTML("INVESTORS", (c.investors || []).length);
+      html += rowHTML("FOUNDERS", (c.founders || []).length);
+      html += rowHTML("DEGREE", d.degree);
+    } else if (d.kind === "investor") {
+      const i = d.datum;
+      if (i.type) html += rowHTML("TYPE", i.type);
+      if (i.country) html += rowHTML("COUNTRY", [i.city, i.country].filter(Boolean).join(" · "));
+      if (i.investments_count) html += rowHTML("INVESTMENTS", i.investments_count);
+      if (i.lead_count) html += rowHTML("LEAD", i.lead_count);
+      html += rowHTML("PORTFOLIO", d.degree);
+    } else {
+      const f = d.datum;
+      if (f.companies) html += rowHTML("COMPANIES", f.companies.length);
+      html += rowHTML("DEGREE", d.degree);
+    }
+    icRows.innerHTML = html;
+    if (d.kind === "company") {
+      icVert.style.display = "flex";
+      icVertText.textContent = d.vertical;
+      icVertSwatch.style.background = vertColor(d.vertical);
+    } else {
+      icVert.style.display = "none";
+    }
+    card.classList.add("show");
+    moveCard(evt);
+  }
+  function rowHTML(k, v) {
+    if (v == null || v === "") return "";
+    return `<div class="ic-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  }
+  function moveCard(evt) {
+    if (!evt) return;
+    card.style.left = evt.clientX + "px";
+    card.style.top  = evt.clientY + "px";
+  }
+  function hideCard() { card.classList.remove("show"); }
+
+  function setHighlight(d) {
+    if (!d) {
+      edgeSel.attr("opacity", 0.62);
+      nodeG.style("opacity", 1);
+      return;
+    }
+    const neigh = d.neighbors;
+    nodeG.style("opacity", n => (n.id === d.id || neigh.has(n.id)) ? 1 : 0.18);
+    edgeSel.attr("opacity", e => (e.source.id === d.id || e.target.id === d.id) ? 0.95 : 0.08);
+  }
+
+  nodeG.on("mouseenter", function(evt, d) {
+    showCard(d, evt);
+    setHighlight(d);
+  })
+  .on("mousemove", function(evt) { moveCard(evt); })
+  .on("mouseleave", function() {
+    hideCard();
+    setHighlight(null);
+  })
+  .on("click", function(evt, d) {
+    recenterOn(d);
+  });
+
+  /* ============================================================
+     Möbius re-centering animation
+     ============================================================ */
+
+  // We track an accumulated Möbius transform M relative to the world frame
+  // such that current screen position of node n is M(n.z0).
+  // Composition: applying Möbius "recenter on a" after current transform
+  //   M' (z) = (M(z) - a) / (1 - conj(a) M(z))
+  // We don't need to store M as a 2x2 matrix — we just keep the current
+  // displayed positions n.z and compute the new z via mobiusRecenter from
+  // the *current* z values (which are themselves already the transformed
+  // world coordinates). On animation we tween from current z to target z.
+  //
+  // BUT we want the target z to come from a single Möbius transform applied
+  // to all nodes simultaneously, with proper geodesic interpolation (via
+  // Möbius to a partial point a*t).
+
+  let centered = root;
+  updateCenterDisplay(root);
+
+  let animating = false;
+
+  function recenterOn(target) {
+    if (animating) return;
+    if (target === centered) return;
+    animating = true;
+
+    // The Möbius f(z) = (z - a) / (1 - conj(a) z) where a = current target.z.
+    // Apply this to *every* node's current z to get its new position.
+    const a = { re: target.z.re, im: target.z.im };
+
+    // To animate, we interpolate the *re-center point* from origin to a:
+    // at parameter t ∈ [0,1], apply Möbius f_{t·a}.  This gives a smooth
+    // hyperbolic isometry sliding the target to origin.
+    const startZ = visibleNodes.map(n => ({ re: n.z.re, im: n.z.im }));
+
+    const duration = 750;
+    const t0 = performance.now();
+
+    function frame() {
+      const now = performance.now();
+      const u = Math.min(1, (now - t0) / duration);
+      // ease in-out cubic
+      const t = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+
+      const at = { re: a.re * t, im: a.im * t };
+
+      // Update each node's z via Möbius recenter on at, applied to startZ
+      visibleNodes.forEach((n, i) => {
+        n.z = mobiusRecenter(startZ[i], at);
+      });
+
+      redraw();
+
+      if (u < 1) requestAnimationFrame(frame);
+      else {
+        // commit: set the centered node and finalize positions exactly
+        visibleNodes.forEach((n, i) => {
+          n.z = mobiusRecenter(startZ[i], a);
+        });
+        // the target node now sits at origin (numerically tiny)
+        centered = target;
+        updateCenterDisplay(target);
+        redraw();
+        animating = false;
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function redraw() {
+    nodeG.attr("transform", d => `translate(${cx + d.z.re * R}, ${cy - d.z.im * R})`);
+
+    nodeG.select("circle.node-circle")
+      .attr("r", d => baseRadius(d) * hyperbolicScale(d.z));
+    nodeG.select("circle.node-glow")
+      .attr("r", d => {
+        const k = d.kind === "investor" ? 2.4 : 1.85;
+        return baseRadius(d) * hyperbolicScale(d.z) * k;
+      });
+    // inner pip on company nodes
+    nodeG.select("circle.node-pip")
+      .attr("r", d => Math.max(1.3, baseRadius(d) * hyperbolicScale(d.z) * 0.42));
+
+    nodeG.select("text.node-label")
+      .attr("dy", d => -(baseRadius(d) * hyperbolicScale(d.z) + 6))
+      .attr("opacity", d => labelOpacity(d));
+
+    // edges — gradient endpoints + paths
+    edgeSel.attr("d", d => geodesicPath(d.source.z, d.target.z, R, cx, cy));
+
+    // update gradient coords so colors flow along the edge
+    edgeData.forEach(d => {
+      const grad = document.getElementById(d.gradId);
+      if (!grad) return;
+      const x1 = cx + d.source.z.re * R;
+      const y1 = cy - d.source.z.im * R;
+      const x2 = cx + d.target.z.re * R;
+      const y2 = cy - d.target.z.im * R;
+      grad.setAttribute("x1", x1);
+      grad.setAttribute("y1", y1);
+      grad.setAttribute("x2", x2);
+      grad.setAttribute("y2", y2);
+    });
+  }
+
+  // initial draw to sync gradient coords
+  redraw();
+
+  /* ---- resize ---- */
+  function onResize() {
+    W = stage.clientWidth; H = stage.clientHeight;
+    cx = W / 2; cy = H / 2;
+    R = Math.min(W, H) * 0.46;
+    svg.attr("viewBox", `0 0 ${W} ${H}`);
+
+    // Re-center static disk geometry
+    svg.selectAll("circle").filter(function() {
+      return d3.select(this).attr("fill") === "url(#diskBg)";
+    }).attr("cx", cx).attr("cy", cy).attr("r", R);
+
+    // outer ring + boundary glow circles (any with fill="none" centered on disk)
+    svg.selectAll("circle").filter(function() {
+      const el = d3.select(this);
+      return el.attr("fill") === "none" && !el.classed("grid-line") && !el.classed("center-marker") && !el.classed("edge");
+    }).attr("cx", cx).attr("cy", cy);
+
+    // center markers
+    svg.selectAll("circle.center-marker").attr("cx", cx).attr("cy", cy);
+
+    // rebuild grid lines cleanly
+    svg.selectAll(".grid-layer > *").remove();
+    concentricRs.forEach(rr => {
+      svg.select(".grid-layer").append("circle")
+        .attr("class", "grid-line")
+        .attr("cx", cx).attr("cy", cy)
+        .attr("r", rr * R);
+    });
+    for (let i = 0; i < spokeCount; i++) {
+      const a = (i / spokeCount) * Math.PI * 2;
+      svg.select(".grid-layer").append("line")
+        .attr("class", "ortho-line")
+        .attr("x1", cx + Math.cos(a) * R * 0.05)
+        .attr("y1", cy + Math.sin(a) * R * 0.05)
+        .attr("x2", cx + Math.cos(a) * R * 0.985)
+        .attr("y2", cy + Math.sin(a) * R * 0.985);
+    }
+    redraw();
+  }
+  window.addEventListener("resize", onResize);
+}
+</script>
+</body>
+</html>

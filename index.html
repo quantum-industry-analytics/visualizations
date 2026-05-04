@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quantum Tech — Visualization Prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05060a;
+    --bg-2: #0a0c14;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.14);
+    --fg: #e6e8ef;
+    --fg-dim: #8b91a5;
+    --fg-muted: #5a6075;
+    --accent: #00e5ff;
+    --gold: #d4af37;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 800px at 70% -10%, rgba(0,229,255,0.06), transparent 60%),
+      radial-gradient(900px 600px at 0% 100%, rgba(177,74,237,0.05), transparent 60%),
+      var(--bg);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 64px 32px 96px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(36px, 5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; margin: 0 0 18px; }
+  h1 .accent { background: linear-gradient(120deg, #00e5ff, #b14aed 60%, #ffb547); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .lede { font-size: 17px; line-height: 1.6; color: var(--fg-dim); max-width: 720px; margin: 0 0 12px; }
+  .stats { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .v { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .stat .k { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-top: 56px; }
+  .card { position: relative; display: block; text-decoration: none; color: inherit; padding: 26px 24px 22px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005)); overflow: hidden; transition: border-color 220ms ease, transform 220ms ease, background 220ms ease; }
+  .card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(400px 200px at var(--mx, 50%) var(--my, 0%), rgba(0,229,255,0.10), transparent 60%); opacity: 0; transition: opacity 280ms ease; pointer-events: none; }
+  .card:hover { border-color: var(--line-2); transform: translateY(-2px); }
+  .card:hover::before { opacity: 1; }
+  .card .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--fg-muted); }
+  .card .title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 8px 0 10px; }
+  .card .desc { font-size: 13px; line-height: 1.55; color: var(--fg-dim); }
+  .card .meta { margin-top: 16px; display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-muted); }
+  .card .meta .arrow { display: inline-block; transition: transform 220ms ease; }
+  .card:hover .meta .arrow { transform: translateX(4px); color: var(--accent); }
+  .card .tag { padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 10px; }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--fg-muted); text-transform: uppercase; }
+  .footer a { color: var(--fg-dim); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .footer a:hover { color: var(--fg); border-color: var(--line-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">// quantum-industry-analytics · visualization prototypes</div>
+  <h1>Quantum Tech<br/><span class="accent">Investment Universe</span></h1>
+  <p class="lede">Five exploratory prototypes for visualizing the quantum-tech ecosystem — companies, investors, founders, talent, and capital flow. Each is a self-contained interactive sketch built for a graph-intelligence aesthetic.</p>
+  <div class="stats">
+    <div class="stat"><div class="v">47</div><div class="k">Companies</div></div>
+    <div class="stat"><div class="v">221</div><div class="k">Investors</div></div>
+    <div class="stat"><div class="v">91</div><div class="k">Founders</div></div>
+    <div class="stat"><div class="v">1,098</div><div class="k">People</div></div>
+    <div class="stat"><div class="v">149</div><div class="k">Investment Edges</div></div>
+    <div class="stat"><div class="v">33</div><div class="k">Cities</div></div>
+    <div class="stat"><div class="v">6</div><div class="k">Verticals</div></div>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="01-quantum-constellation/" data-num="01">
+      <div class="num">01 / constellation</div>
+      <div class="title"><span class="swatch" style="background:#00e5ff;box-shadow:0 0 10px #00e5ff;"></span>Quantum Constellation</div>
+      <div class="desc">A 3D force-directed galaxy. Companies are luminous nodes, investors are gravity wells, sectors drift as colored nebulae. Hover lights up an entity's full neighborhood.</div>
+      <div class="meta"><span class="tag">three.js</span><span class="tag">3d-force-graph</span><span class="tag">bloom</span><span style="margin-left:auto;">open <span class="arrow">→</span></span></div>
+    </a>
+    <a class="card" href="02-capital-flow-chord/" data-num="02">
+      <div class="num">02 / chord</div>
+      <div class="title"><span class="swatch" style="background:#d4af37;box-shadow:0 0 10px #d4af37;"></span>Capital Flow Chord</div>
+      <div class="desc">A radial circumplex of investor → company ribbons. Thickness encodes round size, color the destination vertical, opacity recency. A time-slider scrubs from 2010 → 2025.</div>
+      <div class="meta"><span class="tag">d3</span><span class="tag">svg</span><span class="tag">temporal</span><span style="margin-left:auto;">open <span class="arrow">→</span></span></div>
+    </a>
+    <a class="card" href="03-geo-holosphere/" data-num="03">
+      <div class="num">03 / holosphere</div>
+      <div class="title"><span class="swatch" style="background:#4d8bff;box-shadow:0 0 10px #4d8bff;"></span>Geo Holosphere</div>
+      <div class="desc">A dark interactive globe with city-level hotspots and animated investor → company arcs. Heatmap shell hints at vertical density per region.</div>
+      <div class="meta"><span class="tag">globe.gl</span><span class="tag">three.js</span><span class="tag">geo</span><span style="margin-left:auto;">open <span class="arrow">→</span></span></div>
+    </a>
+    <a class="card" href="04-hyperbolic-tree/" data-num="04">
+      <div class="num">04 / hyperbolic</div>
+      <div class="title"><span class="swatch" style="background:#b14aed;box-shadow:0 0 10px #b14aed;"></span>Hyperbolic Tree of Influence</div>
+      <div class="desc">A Poincaré disk where central investors sit at the origin and the long tail curves toward the boundary. Click any node to smoothly Möbius-recenter the disk.</div>
+      <div class="meta"><span class="tag">d3</span><span class="tag">poincaré</span><span class="tag">möbius</span><span style="margin-left:auto;">open <span class="arrow">→</span></span></div>
+    </a>
+    <a class="card" href="05-multilayer-network/" data-num="05">
+      <div class="num">05 / multilayer</div>
+      <div class="title"><span class="swatch" style="background:#2ee6a6;box-shadow:0 0 10px #2ee6a6;"></span>Multilayer Network</div>
+      <div class="desc">Three stacked translucent planes — investors, companies, people — with intra-layer co-relations and inter-layer "spine" edges. A graph of graphs.</div>
+      <div class="meta"><span class="tag">three.js</span><span class="tag">d3-force</span><span class="tag">3d</span><span style="margin-left:auto;">open <span class="arrow">→</span></span></div>
+    </a>
+  </div>
+
+  <div class="footer">
+    <div>concept catalog · <a href="IDEAS.md">IDEAS.md</a></div>
+    <div>data · <a href="data/quantum_ecosystem.json">quantum_ecosystem.json</a></div>
+    <div>source · <a href="https://github.com/quantum-industry-analytics/visualizations">github</a></div>
+  </div>
+</div>
+<script>
+  // mouse-tracked hover gradient on cards
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+</script>
+</body>
+</html>

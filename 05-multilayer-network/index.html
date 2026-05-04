@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Multilayer Network — Capital · Companies · People</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04050a;
+    --ink: #e8eaf3;
+    --muted: #7c8197;
+    --accent: #d4af37;
+    --line: rgba(255,255,255,0.08);
+    --panel: rgba(10,12,22,0.62);
+    --panel-edge: rgba(255,255,255,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; font-feature-settings: 'tnum'; }
+  canvas { display: block; }
+  #scene { position: fixed; inset: 0; z-index: 0; }
+
+  .ui { position: fixed; z-index: 10; pointer-events: none; }
+  .ui > * { pointer-events: auto; }
+
+  .panel {
+    background: var(--panel);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid var(--panel-edge);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  /* TITLE */
+  #title {
+    top: 22px; left: 24px; max-width: 460px;
+  }
+  #title .eyebrow {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  #title h1 {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 18px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink); line-height: 1.25;
+  }
+  #title h1 .sep { color: var(--accent); margin: 0 6px; opacity: 0.85; }
+  #title .stats {
+    margin-top: 12px; display: flex; gap: 18px; flex-wrap: wrap;
+    font-size: 11px; color: var(--muted); letter-spacing: 0.04em;
+  }
+  #title .stats b { color: var(--ink); font-weight: 500; font-feature-settings: 'tnum'; }
+
+  /* LEGEND */
+  #legend { right: 24px; bottom: 22px; min-width: 240px; }
+  #legend h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; font-weight: 500;
+  }
+  .legend-row { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; font-size: 11.5px; }
+  .legend-row .dot { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .legend-row span { color: var(--ink); opacity: 0.92; }
+  .legend-divider { height: 1px; background: var(--panel-edge); margin: 10px 0; }
+  .legend-row.layer .swatch { width: 22px; height: 3px; border-radius: 1px; box-shadow: 0 0 6px currentColor; }
+
+  /* LAYER TOGGLES */
+  #layers { left: 24px; bottom: 22px; }
+  #layers h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; font-weight: 500;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px; margin-right: 6px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-edge);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer; user-select: none;
+    font-size: 11.5px; letter-spacing: 0.04em;
+    color: var(--ink); transition: all 0.18s ease;
+  }
+  .chip:hover { border-color: rgba(255,255,255,0.18); }
+  .chip .led {
+    width: 7px; height: 7px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .chip.off { color: var(--muted); }
+  .chip.off .led { box-shadow: none; opacity: 0.35; }
+
+  /* THRESHOLD SLIDER */
+  #threshold { right: 24px; top: 22px; min-width: 240px; }
+  #threshold h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; font-weight: 500;
+  }
+  #threshold .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  #threshold .val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px; font-weight: 500; color: var(--accent);
+    letter-spacing: 0.02em; min-width: 28px; text-align: right;
+  }
+  #threshold input[type=range] {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    background: transparent; margin-top: 12px;
+  }
+  #threshold input[type=range]::-webkit-slider-runnable-track {
+    height: 2px; background: linear-gradient(90deg, rgba(212,175,55,0.6), rgba(255,255,255,0.1));
+    border-radius: 1px;
+  }
+  #threshold input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); border: 2px solid #04050a;
+    margin-top: -6px; cursor: pointer;
+    box-shadow: 0 0 10px rgba(212,175,55,0.6);
+  }
+  #threshold .hint { color: var(--muted); font-size: 10.5px; margin-top: 8px; letter-spacing: 0.02em; }
+
+  /* HOVER CARD */
+  #card {
+    position: fixed; pointer-events: none; z-index: 20;
+    min-width: 220px; max-width: 320px;
+    background: rgba(8,10,18,0.86);
+    border: 1px solid var(--panel-edge);
+    backdrop-filter: blur(14px);
+    border-radius: 6px; padding: 14px 16px;
+    opacity: 0; transition: opacity 0.14s ease;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  #card.show { opacity: 1; }
+  #card .layer-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9.5px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  #card .name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; font-weight: 600; color: var(--ink);
+    margin-bottom: 8px; letter-spacing: 0.01em;
+  }
+  #card .meta { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+  #card .meta b { color: var(--ink); font-weight: 500; }
+  #card .vertical-tag {
+    display: inline-block; margin-top: 6px;
+    padding: 2px 8px; border-radius: 999px; font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  /* PIN INDICATOR */
+  #pinHint {
+    position: fixed; left: 50%; top: 22px; transform: translateX(-50%);
+    z-index: 9; padding: 6px 14px;
+    border: 1px solid var(--panel-edge);
+    background: rgba(8,10,18,0.6); backdrop-filter: blur(8px);
+    border-radius: 999px; font-size: 10.5px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted);
+    opacity: 0; transition: opacity 0.18s ease; pointer-events: none;
+  }
+  #pinHint.show { opacity: 1; }
+  #pinHint b { color: var(--accent); font-weight: 500; }
+
+  /* LOADING */
+  #loading {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); z-index: 100; transition: opacity 0.5s ease;
+    font-family: 'Space Grotesk', sans-serif; font-size: 11px;
+    letter-spacing: 0.36em; text-transform: uppercase; color: var(--muted);
+  }
+  #loading.gone { opacity: 0; pointer-events: none; }
+  #loading .pulse {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); margin-right: 14px;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px var(--accent); }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading"><span class="pulse"></span>Initializing multilayer graph</div>
+
+<div id="scene"></div>
+
+<div class="ui panel" id="title">
+  <div class="eyebrow">Visualization 05 / 05</div>
+  <h1>Multilayer Network <span class="sep">·</span> Capital · Companies · People</h1>
+  <div class="stats">
+    <div><b id="stat-nodes">—</b> nodes</div>
+    <div><b id="stat-edges">—</b> edges</div>
+    <div><b id="stat-layers">3</b> strata</div>
+  </div>
+</div>
+
+<div class="ui panel" id="threshold">
+  <h4>Connection Threshold</h4>
+  <div class="row">
+    <div style="font-size:11px;color:var(--muted);letter-spacing:0.06em;">Min shared</div>
+    <div class="val" id="thrVal">1</div>
+  </div>
+  <input type="range" id="thrRange" min="1" max="6" step="1" value="1" />
+  <div class="hint">Filters intra-layer edges: investors sharing portfolio companies & companies sharing investors.</div>
+</div>
+
+<div class="ui panel" id="layers">
+  <h4>Layers</h4>
+  <div class="chip on" data-layer="investors" style="color:#d4af37;"><span class="led" style="background:#d4af37;"></span>Investors</div>
+  <div class="chip on" data-layer="companies" style="color:#9eeaff;"><span class="led" style="background:#9eeaff;"></span>Companies</div>
+  <div class="chip on" data-layer="people" style="color:#d8d8e6;"><span class="led" style="background:#d8d8e6;"></span>People</div>
+</div>
+
+<div class="ui panel" id="legend">
+  <h4>Legend</h4>
+  <div class="legend-row layer"><span class="swatch" style="color:#d4af37;background:#d4af37;"></span><span>Capital · Investors</span></div>
+  <div class="legend-row layer"><span class="swatch" style="color:#9eeaff;background:#9eeaff;"></span><span>Companies · Verticals</span></div>
+  <div class="legend-row layer"><span class="swatch" style="color:#d8d8e6;background:#d8d8e6;"></span><span>People · Founders &amp; Staff</span></div>
+  <div class="legend-divider"></div>
+  <div class="legend-row"><span class="dot" style="color:#00e5ff;background:#00e5ff;"></span><span>Quantum Computing</span></div>
+  <div class="legend-row"><span class="dot" style="color:#b14aed;background:#b14aed;"></span><span>AI / ML</span></div>
+  <div class="legend-row"><span class="dot" style="color:#2ee6a6;background:#2ee6a6;"></span><span>Bio / Med</span></div>
+  <div class="legend-row"><span class="dot" style="color:#ffb547;background:#ffb547;"></span><span>Materials / Nano</span></div>
+  <div class="legend-row"><span class="dot" style="color:#ff6b6b;background:#ff6b6b;"></span><span>Communications</span></div>
+  <div class="legend-row"><span class="dot" style="color:#4d8bff;background:#4d8bff;"></span><span>Cyber Security</span></div>
+</div>
+
+<div id="card">
+  <div class="layer-tag" id="card-layer">Layer</div>
+  <div class="name" id="card-name">—</div>
+  <div class="meta" id="card-meta">—</div>
+</div>
+
+<div id="pinHint"><b>Pinned</b> &nbsp;·&nbsp; click empty space to release</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3-force@3/+esm';
+
+/* =========================================================================
+   COLOR PALETTE
+   ========================================================================= */
+const VERTICAL_COLORS = {
+  'Quantum Computing': '#00e5ff',
+  'Quantum AI & ML':   '#b14aed',
+  'AI/ML':             '#b14aed',
+  'Quantum Bio & Medicine': '#2ee6a6',
+  'Bio/Med':           '#2ee6a6',
+  'Quantum Materials & NanoTech': '#ffb547',
+  'Materials/NanoTech':'#ffb547',
+  'Communications':    '#ff6b6b',
+  'Cyber Security':    '#4d8bff',
+  'Other':             '#9eaaff'
+};
+const INVESTOR_COLOR = '#d4af37';
+const PEOPLE_COLOR   = '#d8d8e6';
+
+const Y_INV = 60, Y_CO = 0, Y_PE = -60;
+
+/* =========================================================================
+   LOAD DATA
+   ========================================================================= */
+const data = await fetch('../data/quantum_ecosystem.json').then(r=>r.json());
+
+/* =========================================================================
+   PROCESS DATA
+   ========================================================================= */
+
+// Investment counts per investor (true counts from edges)
+const invCount = new Map();
+for (const e of data.investments) invCount.set(e.investor, (invCount.get(e.investor) || 0) + 1);
+
+// Namespaced node IDs to avoid collisions between layers (IBM, AWS, SandboxAQ exist as both)
+const INV = (id) => 'inv:' + id;
+const CO  = (id) => 'co:'  + id;
+const PE  = (id) => 'p:'   + id;
+
+// Top investors by investment count (~80)
+const investorPool = data.investors
+  .map(i => ({...i, invest_n: invCount.get(i.id) || 0}))
+  .filter(i => i.invest_n > 0);
+investorPool.sort((a,b) => b.invest_n - a.invest_n);
+const investorNodes = investorPool.slice(0, Math.min(80, investorPool.length))
+  .map(i => ({ id: INV(i.id), origId: i.id, name: i.name, country: i.country, invest_n: i.invest_n, layer: 'investor' }));
+const investorOrigIDs = new Set(investorNodes.map(n => n.origId));
+
+// Company nodes — all 47
+const companyNodes = data.companies.map(c => {
+  return {
+    id: CO(c.id), origId: c.id, name: c.name, vertical: c.vertical, country: c.country,
+    investors: c.investors || [], founders: c.founders || [],
+    investor_n: (c.investors || []).length,
+    layer: 'company'
+  };
+});
+const companyOrigIDs = new Set(companyNodes.map(n => n.origId));
+
+// People nodes — top by followers, must be attached to a known company OR be a founder
+const founderSet = new Set();
+const founderPeopleByCompany = new Map(); // companyId -> [{name, isFounder}]
+for (const c of data.companies) {
+  for (const fname of (c.founders || [])) {
+    founderSet.add(fname);
+    if (!founderPeopleByCompany.has(c.id)) founderPeopleByCompany.set(c.id, []);
+    founderPeopleByCompany.get(c.id).push(fname);
+  }
+}
+
+const titleSeniorityScore = (t) => {
+  if (!t) return 0;
+  const s = t.toLowerCase();
+  if (/(ceo|cto|cfo|coo|chief|founder|president)/.test(s)) return 3;
+  if (/(vp|vice president|head of|director|principal)/.test(s)) return 2;
+  if (/(manager|lead|senior)/.test(s)) return 1;
+  return 0;
+};
+
+// Take all founders as people first (all node IDs are prefixed via PE/CO)
+const peoplePool = [];
+const seenPeople = new Set();
+for (const c of data.companies) {
+  for (const fname of (c.founders || [])) {
+    const origKey = `${fname}|${c.id}`;
+    const key = PE(origKey);
+    if (seenPeople.has(key)) continue;
+    seenPeople.add(key);
+    peoplePool.push({
+      id: key, origId: origKey, name: fname, company: c.id, // company is original company id
+      title: 'Founder', followers: 0, isFounder: true,
+      seniority: 3, layer: 'person'
+    });
+  }
+}
+// Then add staff people attached to known companies, sorted by followers
+const staffPeople = data.people
+  .filter(p => companyOrigIDs.has(p.company))
+  .map(p => ({
+    id: PE(p.id), origId: p.id, name: p.name, company: p.company,
+    title: p.title, followers: p.followers || 0,
+    isFounder: founderSet.has(p.name),
+    seniority: titleSeniorityScore(p.title),
+    layer: 'person'
+  }));
+staffPeople.sort((a,b) => (b.seniority * 1500 + b.followers) - (a.seniority * 1500 + a.followers));
+
+// Cap people per company so the bottom plane doesn't become a hairball
+const MAX_PER_CO = 10;
+const TARGET_PEOPLE = 300;
+const perCo = new Map();
+for (const c of companyNodes) perCo.set(c.origId, peoplePool.filter(p => p.company === c.origId).length);
+
+for (const p of staffPeople) {
+  if (peoplePool.length >= TARGET_PEOPLE) break;
+  const cur = perCo.get(p.company) || 0;
+  if (cur >= MAX_PER_CO) continue;
+  if (seenPeople.has(p.id)) continue;
+  seenPeople.add(p.id);
+  perCo.set(p.company, cur + 1);
+  peoplePool.push(p);
+}
+
+const peopleNodes = peoplePool;
+
+// === Recompute co-investment & co-company edges (using ORIGINAL ids, then map to prefixed) ===
+const invToCompanies = new Map(); // origInvestor -> Set<origCompany>
+for (const e of data.investments) {
+  if (!investorOrigIDs.has(e.investor)) continue;
+  if (!companyOrigIDs.has(e.company)) continue;
+  if (!invToCompanies.has(e.investor)) invToCompanies.set(e.investor, new Set());
+  invToCompanies.get(e.investor).add(e.company);
+}
+const coToInvestors = new Map(); // origCompany -> Set<origInvestor>
+for (const c of data.companies) {
+  const set = new Set((c.investors || []).filter(i => investorOrigIDs.has(i)));
+  if (set.size) coToInvestors.set(c.id, set);
+}
+
+// Co-invest pairs (prefixed ids)
+const coInvestEdges = [];
+const invList = Array.from(invToCompanies.keys());
+for (let i = 0; i < invList.length; i++) {
+  for (let j = i+1; j < invList.length; j++) {
+    const a = invList[i], b = invList[j];
+    const sa = invToCompanies.get(a), sb = invToCompanies.get(b);
+    let shared = 0;
+    for (const x of sa) if (sb.has(x)) shared++;
+    if (shared >= 1) coInvestEdges.push({ a: INV(a), b: INV(b), shared });
+  }
+}
+
+// Co-company pairs (prefixed)
+const coCompanyEdges = [];
+const coList = Array.from(coToInvestors.keys());
+for (let i = 0; i < coList.length; i++) {
+  for (let j = i+1; j < coList.length; j++) {
+    const a = coList[i], b = coList[j];
+    const sa = coToInvestors.get(a), sb = coToInvestors.get(b);
+    let shared = 0;
+    for (const x of sa) if (sb.has(x)) shared++;
+    if (shared >= 1) coCompanyEdges.push({ a: CO(a), b: CO(b), shared });
+  }
+}
+
+// People-people edges: same-company colleagues. Limit to a few per company to avoid hairball
+const peopleEdges = [];
+const peopleByCo = new Map(); // origCompany -> [personNode]
+for (const p of peopleNodes) {
+  if (!peopleByCo.has(p.company)) peopleByCo.set(p.company, []);
+  peopleByCo.get(p.company).push(p);
+}
+for (const [co, arr] of peopleByCo) {
+  const founders = arr.filter(p => p.isFounder);
+  const others = arr.filter(p => !p.isFounder);
+  for (const o of others) {
+    for (const f of founders) peopleEdges.push({ a: f.id, b: o.id, shared: 1 });
+  }
+  for (let i = 0; i < founders.length; i++) {
+    for (let j = i+1; j < founders.length; j++) {
+      peopleEdges.push({ a: founders[i].id, b: founders[j].id, shared: 2 });
+    }
+  }
+  others.sort((a,b)=> (b.seniority*100 + b.followers) - (a.seniority*100 + a.followers));
+  for (let i = 0; i < Math.min(others.length-1, 3); i++) {
+    peopleEdges.push({ a: others[i].id, b: others[i+1].id, shared: 1 });
+  }
+}
+
+// Inter-layer edges (prefixed)
+const investEdges = data.investments
+  .filter(e => investorOrigIDs.has(e.investor) && companyOrigIDs.has(e.company))
+  .map(e => ({ a: INV(e.investor), b: CO(e.company) }));
+const employEdges = peopleNodes.map(p => ({ a: CO(p.company), b: p.id }));
+
+/* =========================================================================
+   FORCE LAYOUTS — d3-force per plane (2D), then lift to 3D
+   ========================================================================= */
+const PLANE_R = 130; // half-extent of each plane
+
+function forceLayout({ nodes, links, radius=PLANE_R, iterations=300, linkDist=20, charge=-160 }) {
+  // make defensive copies (d3 mutates)
+  const _nodes = nodes.map(n => ({ id: n.id, x: (Math.random()-0.5)*radius, y: (Math.random()-0.5)*radius }));
+  const _links = links.map(l => ({ source: l.a, target: l.b, value: l.shared || 1 }));
+
+  const sim = d3.forceSimulation(_nodes)
+    .force('link', d3.forceLink(_links).id(d => d.id).distance(linkDist).strength(0.6))
+    .force('charge', d3.forceManyBody().strength(charge).distanceMax(radius*1.5))
+    .force('center', d3.forceCenter(0,0))
+    .force('radial', d3.forceRadial(0, 0, 0).strength(0.02))
+    .force('collision', d3.forceCollide(4))
+    .stop();
+
+  for (let i = 0; i < iterations; i++) sim.tick();
+
+  // Clamp into circle of radius
+  for (const n of _nodes) {
+    const r = Math.hypot(n.x, n.y);
+    if (r > radius) { n.x *= radius/r; n.y *= radius/r; }
+  }
+  const map = new Map(_nodes.map(n => [n.id, {x: n.x, y: n.y}]));
+  return map;
+}
+
+// Investors layout: use co-invest edges
+const investorPos = forceLayout({
+  nodes: investorNodes,
+  links: coInvestEdges.filter(e => e.shared >= 1),
+  iterations: 350,
+  linkDist: 18, charge: -120
+});
+
+// Companies layout: drive by co-company AND by vertical clustering
+function companyLayout() {
+  const _nodes = companyNodes.map(c => ({
+    id: c.id,
+    x: (Math.random()-0.5)*PLANE_R,
+    y: (Math.random()-0.5)*PLANE_R,
+    vertical: c.vertical
+  }));
+
+  const verts = [...new Set(companyNodes.map(c=>c.vertical))];
+  // anchor each vertical at a position around a circle
+  const verticalAnchor = new Map();
+  verts.forEach((v, i) => {
+    const a = (i / verts.length) * Math.PI * 2;
+    verticalAnchor.set(v, { x: Math.cos(a) * PLANE_R*0.5, y: Math.sin(a) * PLANE_R*0.5 });
+  });
+
+  const _links = coCompanyEdges.map(e => ({ source: e.a, target: e.b, value: e.shared }));
+
+  const sim = d3.forceSimulation(_nodes)
+    .force('link', d3.forceLink(_links).id(d => d.id).distance(18).strength(0.4))
+    .force('charge', d3.forceManyBody().strength(-200).distanceMax(180))
+    .force('vertX', d3.forceX(d => verticalAnchor.get(d.vertical)?.x || 0).strength(0.28))
+    .force('vertY', d3.forceY(d => verticalAnchor.get(d.vertical)?.y || 0).strength(0.28))
+    .force('collision', d3.forceCollide(8))
+    .stop();
+  for (let i = 0; i < 400; i++) sim.tick();
+  for (const n of _nodes) {
+    const r = Math.hypot(n.x, n.y);
+    if (r > PLANE_R) { n.x *= PLANE_R/r; n.y *= PLANE_R/r; }
+  }
+  return new Map(_nodes.map(n => [n.id, {x: n.x, y: n.y}]));
+}
+const companyPos = companyLayout();
+
+// People layout — cluster around their company's projected position (so they hang as tendrils)
+function peopleLayout() {
+  const _nodes = peopleNodes.map(p => {
+    const cp = companyPos.get(CO(p.company)) || { x: 0, y: 0 };
+    return {
+      id: p.id,
+      company: p.company,
+      x: cp.x + (Math.random()-0.5)*15,
+      y: cp.y + (Math.random()-0.5)*15
+    };
+  });
+
+  const _links = peopleEdges.map(e => ({ source: e.a, target: e.b }));
+
+  const sim = d3.forceSimulation(_nodes)
+    .force('link', d3.forceLink(_links).id(d => d.id).distance(7).strength(0.5))
+    .force('charge', d3.forceManyBody().strength(-22).distanceMax(40))
+    .force('toCompanyX', d3.forceX(d => (companyPos.get(CO(d.company))?.x || 0)).strength(0.45))
+    .force('toCompanyY', d3.forceY(d => (companyPos.get(CO(d.company))?.y || 0)).strength(0.45))
+    .force('collision', d3.forceCollide(2.2))
+    .stop();
+  for (let i = 0; i < 250; i++) sim.tick();
+
+  for (const n of _nodes) {
+    const r = Math.hypot(n.x, n.y);
+    if (r > PLANE_R) { n.x *= PLANE_R/r; n.y *= PLANE_R/r; }
+  }
+  return new Map(_nodes.map(n => [n.id, {x: n.x, y: n.y}]));
+}
+const peoplePos = peopleLayout();
+
+/* =========================================================================
+   THREE.JS SCENE
+   ========================================================================= */
+const sceneEl = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x04050a, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+sceneEl.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x04050a, 0.0028);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 1, 2000);
+camera.position.set(220, 110, 280);
+camera.lookAt(0, 0, 0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.36; // ~ 1 rev / 100s
+controls.target.set(0, 0, 0);
+controls.minDistance = 90;
+controls.maxDistance = 700;
+
+let userInteracting = false;
+controls.addEventListener('start', () => { userInteracting = true; controls.autoRotate = false; });
+let resumeTimer = null;
+controls.addEventListener('end', () => {
+  userInteracting = false;
+  clearTimeout(resumeTimer);
+  resumeTimer = setTimeout(() => {
+    if (!hoveredObj && !pinned) controls.autoRotate = true;
+  }, 4500);
+});
+
+/* ===== STARFIELD ===== */
+function makeStars() {
+  const N = 1800;
+  const positions = new Float32Array(N*3);
+  const colors = new Float32Array(N*3);
+  for (let i=0;i<N;i++) {
+    const r = 700 + Math.random()*500;
+    const t = Math.random()*Math.PI*2;
+    const p = Math.acos(2*Math.random()-1);
+    positions[i*3]   = r*Math.sin(p)*Math.cos(t);
+    positions[i*3+1] = r*Math.sin(p)*Math.sin(t);
+    positions[i*3+2] = r*Math.cos(p);
+    const tint = 0.55 + Math.random()*0.45;
+    colors[i*3]   = tint;
+    colors[i*3+1] = tint;
+    colors[i*3+2] = tint * (0.85 + Math.random()*0.15);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const m = new THREE.PointsMaterial({
+    size: 1.2, sizeAttenuation: true,
+    vertexColors: true, transparent: true, opacity: 0.85,
+    depthWrite: false
+  });
+  return new THREE.Points(g, m);
+}
+scene.add(makeStars());
+
+/* ===== PLANE FRAMES ===== */
+function makePlaneFrame(y, accentHex) {
+  const group = new THREE.Group();
+  // outer frame as line loop
+  const half = PLANE_R + 8;
+  const pts = [
+    new THREE.Vector3(-half, y, -half),
+    new THREE.Vector3( half, y, -half),
+    new THREE.Vector3( half, y,  half),
+    new THREE.Vector3(-half, y,  half),
+    new THREE.Vector3(-half, y, -half),
+  ];
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const m = new THREE.LineBasicMaterial({ color: accentHex, transparent: true, opacity: 0.22, depthWrite: false });
+  const frame = new THREE.Line(g, m);
+  group.add(frame);
+
+  // subtle disk gradient using shader
+  const diskGeom = new THREE.PlaneGeometry(half*2, half*2, 1, 1);
+  const diskMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    uniforms: {
+      uColor: { value: new THREE.Color(accentHex) },
+      uAlpha: { value: 0.06 }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform vec3 uColor;
+      uniform float uAlpha;
+      void main(){
+        vec2 p = vUv - 0.5;
+        float d = length(p)*2.0;
+        // soft round-ish vignette inside the rectangle
+        float a = smoothstep(1.0, 0.55, d) * uAlpha;
+        // grid stripes
+        float gx = smoothstep(0.49,0.495,abs(fract(vUv.x*8.0)-0.5));
+        float gy = smoothstep(0.49,0.495,abs(fract(vUv.y*8.0)-0.5));
+        float grid = (gx+gy)*0.04;
+        gl_FragColor = vec4(uColor, a + grid * (1.0 - smoothstep(0.85,1.0,d)));
+      }
+    `
+  });
+  const disk = new THREE.Mesh(diskGeom, diskMat);
+  disk.rotation.x = -Math.PI/2;
+  disk.position.y = y;
+  group.add(disk);
+
+  // 4 small corner ticks
+  const tick = (x, z) => {
+    const tg = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x, y, z), new THREE.Vector3(x*0.93, y, z*0.93)
+    ]);
+    return new THREE.Line(tg, new THREE.LineBasicMaterial({ color: accentHex, transparent: true, opacity: 0.45 }));
+  };
+  group.add(tick( half,  half), tick(-half,  half), tick( half, -half), tick(-half, -half));
+  return group;
+}
+const planeInv = makePlaneFrame(Y_INV, INVESTOR_COLOR);
+const planeCo  = makePlaneFrame(Y_CO,  '#9eeaff');
+const planePe  = makePlaneFrame(Y_PE,  PEOPLE_COLOR);
+scene.add(planeInv); scene.add(planeCo); scene.add(planePe);
+
+/* ===== NODES ===== */
+const sphereGeoLow = new THREE.SphereGeometry(1, 12, 12);
+
+const nodeRegistry = new Map(); // id -> { mesh, layer, neighbors:Set<string>, pos2d, color, baseColor, baseScale, data }
+
+function addNode({ id, layer, pos2d, y, color, scale, data }) {
+  const c = new THREE.Color(color);
+  const mat = new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.95 });
+  const mesh = new THREE.Mesh(sphereGeoLow, mat);
+  mesh.position.set(pos2d.x, y, pos2d.y);
+  mesh.scale.setScalar(scale);
+  // halo using sprite
+  const haloMat = new THREE.SpriteMaterial({
+    map: haloTexture, color: c, transparent: true,
+    depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.55
+  });
+  const halo = new THREE.Sprite(haloMat);
+  halo.scale.setScalar(scale * 6.0);
+  mesh.add(halo);
+  mesh.userData = { id, layer, color, baseScale: scale, halo, data };
+  scene.add(mesh);
+  nodeRegistry.set(id, {
+    mesh, layer, neighbors: new Set(), pos2d, color: c.getHex(),
+    baseColor: c.clone(), baseScale: scale, data, halo
+  });
+  return mesh;
+}
+
+// generate a soft round halo texture on a canvas
+function makeHaloTexture() {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const ctx = cv.getContext('2d');
+  const g = ctx.createRadialGradient(64,64,0, 64,64,64);
+  g.addColorStop(0.0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.25,'rgba(255,255,255,0.55)');
+  g.addColorStop(0.6, 'rgba(255,255,255,0.12)');
+  g.addColorStop(1.0, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,128,128);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const haloTexture = makeHaloTexture();
+
+// Investors
+const invSizeMin = 1.5, invSizeMax = 4.0;
+const invMaxN = Math.max(...investorNodes.map(n => n.invest_n));
+for (const n of investorNodes) {
+  const p = investorPos.get(n.id); if (!p) continue;
+  const t = invMaxN > 1 ? (n.invest_n - 1) / (invMaxN - 1) : 0.5;
+  const scale = invSizeMin + t * (invSizeMax - invSizeMin);
+  addNode({ id: n.id, layer: 'investor', pos2d: p, y: Y_INV, color: INVESTOR_COLOR, scale, data: n });
+}
+
+// Companies
+function blendVerticalColor(vert) {
+  return VERTICAL_COLORS[vert] || VERTICAL_COLORS['Other'];
+}
+for (const n of companyNodes) {
+  const p = companyPos.get(n.id); if (!p) continue;
+  const employees = (peopleByCo.get(n.origId) || []).length;
+  const scoreRaw = (n.investor_n || 0) * 1.0 + employees * 0.3;
+  const tNorm = Math.min(1, scoreRaw / 10);
+  const scale = 1.0 + tNorm * 1.5;
+  const color = blendVerticalColor(n.vertical);
+  addNode({ id: n.id, layer: 'company', pos2d: p, y: Y_CO, color, scale, data: n });
+}
+
+// People — tiny, tinted by company vertical
+for (const p of peopleNodes) {
+  const pos = peoplePos.get(p.id); if (!pos) continue;
+  const co = companyNodes.find(c => c.origId === p.company);
+  const vertColor = co ? blendVerticalColor(co.vertical) : '#ffffff';
+  // mix pearl with vertical color (heavier toward pearl)
+  const c = new THREE.Color(PEOPLE_COLOR).lerp(new THREE.Color(vertColor), p.isFounder ? 0.55 : 0.22);
+  const followerNorm = Math.min(1, (p.followers || 0) / 5000);
+  const seniorityFactor = (p.seniority || 0) / 3;
+  const scale = 0.4 + 0.3*followerNorm + 0.3*seniorityFactor + (p.isFounder ? 0.1 : 0);
+  addNode({ id: p.id, layer: 'person', pos2d: pos, y: Y_PE, color: '#'+c.getHexString(), scale, data: p });
+}
+
+/* ===== EDGES ===== */
+const edgeRegistry = []; // each: { line, type: 'intra'|'inter', a, b, sharedVal }
+
+function addLineSeg(positions, colors, ax, ay, az, bx, by, bz, ca, cb) {
+  positions.push(ax, ay, az, bx, by, bz);
+  colors.push(ca.r, ca.g, ca.b, cb.r, cb.g, cb.b);
+}
+
+// Intra-layer: investors
+function buildIntraEdges() {
+  // We'll keep each line as its own object so we can show/hide individually.
+  // For lots of edges we group them into one BufferGeometry but use a mask via per-vertex alpha attribute.
+  return;
+}
+
+// Build intra-layer edges as one merged LineSegments per layer with per-vertex alpha + color
+function buildLayerLineSegments(edges, getNode, baseAlpha, layerName) {
+  // Each edge becomes 2 vertices (segment)
+  const positions = [];
+  const colors = [];
+  const meta = []; // per-edge meta: {a,b,shared,vertexIndex}
+
+  for (const e of edges) {
+    const na = nodeRegistry.get(e.a); const nb = nodeRegistry.get(e.b);
+    if (!na || !nb) continue;
+    const aPos = na.mesh.position; const bPos = nb.mesh.position;
+    let ca, cb;
+    if (layerName === 'investors') {
+      ca = new THREE.Color(INVESTOR_COLOR); cb = new THREE.Color(INVESTOR_COLOR);
+    } else if (layerName === 'companies') {
+      ca = na.baseColor.clone(); cb = nb.baseColor.clone();
+    } else {
+      ca = new THREE.Color(PEOPLE_COLOR); cb = new THREE.Color(PEOPLE_COLOR);
+    }
+    positions.push(aPos.x, aPos.y, aPos.z, bPos.x, bPos.y, bPos.z);
+    colors.push(ca.r, ca.g, ca.b, cb.r, cb.g, cb.b);
+    meta.push({ a: e.a, b: e.b, shared: e.shared || 1, vIndex: meta.length });
+    // record neighbors
+    na.neighbors.add(e.b); nb.neighbors.add(e.a);
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  // per-vertex alpha attribute (we'll modify it to filter / highlight)
+  const alpha = new Float32Array(meta.length * 2);
+  alpha.fill(baseAlpha);
+  geom.setAttribute('aAlpha', new THREE.BufferAttribute(alpha, 1));
+
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexColors: true,
+    uniforms: {
+      uOpacity: { value: 1.0 }
+    },
+    vertexShader: `
+      attribute float aAlpha;
+      varying float vAlpha;
+      varying vec3 vColor;
+      void main(){
+        vAlpha = aAlpha;
+        vColor = color;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying float vAlpha;
+      varying vec3 vColor;
+      uniform float uOpacity;
+      void main(){
+        gl_FragColor = vec4(vColor, vAlpha * uOpacity);
+      }
+    `
+  });
+  const lines = new THREE.LineSegments(geom, mat);
+  scene.add(lines);
+  return { lines, meta, alphaAttr: geom.getAttribute('aAlpha'), baseAlpha };
+}
+
+const investorIntra = buildLayerLineSegments(coInvestEdges, nodeRegistry, 0.18, 'investors');
+const companyIntra  = buildLayerLineSegments(coCompanyEdges, nodeRegistry, 0.22, 'companies');
+const peopleIntra   = buildLayerLineSegments(peopleEdges, nodeRegistry, 0.12, 'people');
+
+// Inter-layer edges as gradient curves (many small line segments per edge for gradient color)
+const SEGMENTS_PER_INTER = 8;
+
+function buildInterEdges(edges, layerFromY, layerToY, colorFn) {
+  const positions = [];
+  const colors = [];
+  const meta = [];
+  const baseIndexMap = []; // each edge: starting vertex offset
+
+  for (const e of edges) {
+    const na = nodeRegistry.get(e.a); const nb = nodeRegistry.get(e.b);
+    if (!na || !nb) continue;
+    const aPos = na.mesh.position.clone();
+    const bPos = nb.mesh.position.clone();
+    const ca = new THREE.Color(colorFn(e.a, 'from'));
+    const cb = new THREE.Color(colorFn(e.b, 'to'));
+    const startIdx = positions.length / 3; // vertex offset before adding
+
+    // Quadratic bezier-ish curve with slight bow
+    const mid = aPos.clone().lerp(bPos, 0.5);
+    // pull mid slightly outward from y axis (so curves don't all overlap)
+    const horiz = new THREE.Vector3((aPos.x+bPos.x)/2, 0, (aPos.z+bPos.z)/2);
+    const bow = horiz.normalize().multiplyScalar(6);
+    mid.add(new THREE.Vector3(bow.x, 0, bow.z));
+
+    let prev = null;
+    for (let i = 0; i <= SEGMENTS_PER_INTER; i++) {
+      const t = i / SEGMENTS_PER_INTER;
+      const omt = 1 - t;
+      const pt = aPos.clone().multiplyScalar(omt*omt)
+        .add(mid.clone().multiplyScalar(2*omt*t))
+        .add(bPos.clone().multiplyScalar(t*t));
+      const color = ca.clone().lerp(cb, t);
+      if (prev) {
+        positions.push(prev.pt.x, prev.pt.y, prev.pt.z, pt.x, pt.y, pt.z);
+        colors.push(prev.color.r, prev.color.g, prev.color.b, color.r, color.g, color.b);
+      }
+      prev = { pt, color };
+    }
+    na.neighbors.add(e.b); nb.neighbors.add(e.a);
+    meta.push({
+      a: e.a, b: e.b,
+      vStart: startIdx,
+      vCount: SEGMENTS_PER_INTER * 2 // each segment = 2 vertices
+    });
+    baseIndexMap.push(meta[meta.length-1]);
+  }
+
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+  const totalVerts = positions.length / 3;
+  const alpha = new Float32Array(totalVerts);
+  alpha.fill(0.35);
+  geom.setAttribute('aAlpha', new THREE.BufferAttribute(alpha, 1));
+
+  const mat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    blending: THREE.AdditiveBlending, vertexColors: true,
+    uniforms: { uOpacity: { value: 1.0 } },
+    vertexShader: `
+      attribute float aAlpha;
+      varying float vAlpha;
+      varying vec3 vColor;
+      void main(){
+        vAlpha = aAlpha;
+        vColor = color;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }
+    `,
+    fragmentShader: `
+      varying float vAlpha;
+      varying vec3 vColor;
+      uniform float uOpacity;
+      void main(){ gl_FragColor = vec4(vColor, vAlpha * uOpacity); }
+    `
+  });
+  const lines = new THREE.LineSegments(geom, mat);
+  scene.add(lines);
+  return { lines, meta, alphaAttr: geom.getAttribute('aAlpha') };
+}
+
+const investorColorFn = (id, end) => {
+  const n = nodeRegistry.get(id);
+  if (!n) return '#ffffff';
+  if (n.layer === 'investor') return INVESTOR_COLOR;
+  if (n.layer === 'company') {
+    const co = companyNodes.find(c => c.id === id);
+    return blendVerticalColor(co?.vertical);
+  }
+  return '#ffffff';
+};
+const employColorFn = (id, end) => {
+  const n = nodeRegistry.get(id);
+  if (!n) return '#ffffff';
+  if (n.layer === 'company') {
+    const co = companyNodes.find(c => c.id === id);
+    return blendVerticalColor(co?.vertical);
+  }
+  if (n.layer === 'person') {
+    return '#'+(n.baseColor).getHexString();
+  }
+  return '#ffffff';
+};
+
+const investBundle = buildInterEdges(investEdges, Y_INV, Y_CO, investorColorFn);
+const employBundle = buildInterEdges(employEdges, Y_CO, Y_PE, employColorFn);
+
+/* ===== STATS ===== */
+const totalNodes = investorNodes.length + companyNodes.length + peopleNodes.length;
+const totalEdges = coInvestEdges.length + coCompanyEdges.length + peopleEdges.length + investEdges.length + employEdges.length;
+document.getElementById('stat-nodes').textContent = totalNodes.toLocaleString();
+document.getElementById('stat-edges').textContent = totalEdges.toLocaleString();
+
+/* =========================================================================
+   PARTICLE FLOW ALONG INTER-LAYER EDGES
+   ========================================================================= */
+const particleTexture = (() => {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const ctx = cv.getContext('2d');
+  const g = ctx.createRadialGradient(32,32,0, 32,32,32);
+  g.addColorStop(0,'rgba(255,255,255,1)');
+  g.addColorStop(0.4,'rgba(255,255,255,0.6)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,64,64);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+})();
+
+class ParticleStream {
+  constructor(edges, colorFn, count) {
+    this.edges = edges.filter(e => nodeRegistry.has(e.a) && nodeRegistry.has(e.b));
+    this.count = count;
+    this.particles = [];
+    for (let i = 0; i < count; i++) {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: particleTexture, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0
+      }));
+      sprite.scale.setScalar(2.4);
+      scene.add(sprite);
+      this.particles.push({
+        sprite,
+        edge: this.edges[Math.floor(Math.random()*this.edges.length)],
+        t: Math.random(),
+        speed: 0.12 + Math.random()*0.18,
+        active: Math.random() > 0.5
+      });
+    }
+    this.colorFn = colorFn;
+  }
+  update(dt) {
+    for (const p of this.particles) {
+      if (!this.edges.length) return;
+      if (!p.active) {
+        if (Math.random() < 0.005) {
+          p.active = true;
+          p.t = 0;
+          p.edge = this.edges[Math.floor(Math.random()*this.edges.length)];
+        } else {
+          p.sprite.material.opacity = 0;
+          continue;
+        }
+      }
+      const na = nodeRegistry.get(p.edge.a);
+      const nb = nodeRegistry.get(p.edge.b);
+      if (!na || !nb) { p.active = false; continue; }
+      const a = na.mesh.position, b = nb.mesh.position;
+      // Same bezier control as the edge curve
+      const mid = a.clone().lerp(b, 0.5);
+      const horiz = new THREE.Vector3((a.x+b.x)/2, 0, (a.z+b.z)/2);
+      if (horiz.length() > 0.001) {
+        const bow = horiz.normalize().multiplyScalar(6);
+        mid.add(new THREE.Vector3(bow.x, 0, bow.z));
+      }
+      p.t += p.speed * dt;
+      if (p.t >= 1) { p.active = false; p.sprite.material.opacity = 0; continue; }
+      const t = p.t, omt = 1-t;
+      const pt = a.clone().multiplyScalar(omt*omt)
+        .add(mid.clone().multiplyScalar(2*omt*t))
+        .add(b.clone().multiplyScalar(t*t));
+      p.sprite.position.copy(pt);
+      const colorHex = this.colorFn(t < 0.5 ? p.edge.a : p.edge.b);
+      p.sprite.material.color.set(colorHex);
+      // fade in/out at endpoints
+      const fade = Math.sin(t * Math.PI);
+      p.sprite.material.opacity = fade * 0.95;
+    }
+  }
+  setVisible(v) {
+    for (const p of this.particles) {
+      p.sprite.visible = v;
+      if (!v) p.sprite.material.opacity = 0;
+    }
+  }
+}
+const investorStream = new ParticleStream(
+  investEdges, (id) => {
+    const n = nodeRegistry.get(id);
+    if (n?.layer === 'investor') return INVESTOR_COLOR;
+    if (n?.layer === 'company') {
+      const co = companyNodes.find(c=>c.id===id);
+      return blendVerticalColor(co?.vertical);
+    }
+    return '#ffffff';
+  },
+  Math.floor(investEdges.length * 0.10) + 6
+);
+const employStream = new ParticleStream(
+  employEdges, (id) => {
+    const n = nodeRegistry.get(id);
+    if (n?.layer === 'company') {
+      const co = companyNodes.find(c=>c.id===id);
+      return blendVerticalColor(co?.vertical);
+    }
+    return PEOPLE_COLOR;
+  },
+  Math.floor(employEdges.length * 0.05) + 4
+);
+
+/* =========================================================================
+   POSTPROCESSING
+   ========================================================================= */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.5, 0.4, 0.0);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* =========================================================================
+   INTERACTION — hover, click, layer toggles, threshold
+   ========================================================================= */
+const raycaster = new THREE.Raycaster();
+raycaster.params.Points = { threshold: 1 };
+const mouse = new THREE.Vector2();
+
+let hoveredObj = null;
+let pinned = null;
+const card = document.getElementById('card');
+
+const allNodeMeshes = [];
+for (const [id, n] of nodeRegistry) allNodeMeshes.push(n.mesh);
+
+function onPointerMove(ev) {
+  mouse.x = (ev.clientX/innerWidth)*2 - 1;
+  mouse.y = -(ev.clientY/innerHeight)*2 + 1;
+  card.style.left = (ev.clientX + 16) + 'px';
+  card.style.top  = (ev.clientY + 16) + 'px';
+  doRaycast();
+}
+function onPointerLeave() { hoveredObj = null; updateHighlight(); card.classList.remove('show'); }
+
+function doRaycast() {
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(allNodeMeshes, false);
+  // pick nearest visible, scaled by sphere size
+  let pick = null;
+  for (const h of hits) {
+    if (!h.object.visible) continue;
+    pick = h; break;
+  }
+  if (pick) {
+    const id = pick.object.userData.id;
+    if (hoveredObj !== id) {
+      hoveredObj = id;
+      updateHighlight();
+      showCard(id);
+    }
+    document.body.style.cursor = 'pointer';
+  } else {
+    if (hoveredObj) { hoveredObj = null; updateHighlight(); card.classList.remove('show'); }
+    document.body.style.cursor = '';
+  }
+}
+
+function showCard(id) {
+  const n = nodeRegistry.get(id);
+  if (!n) return;
+  const d = n.data;
+  document.getElementById('card-name').textContent = d.name || id;
+  let layerLabel = '', metaHTML = '';
+  if (n.layer === 'investor') {
+    layerLabel = 'Investor · Capital Layer';
+    metaHTML = `
+      <div><b>${d.invest_n}</b> investments</div>
+      ${d.country ? `<div>${d.country}</div>` : ''}
+      <div><b>${n.neighbors.size}</b> connections</div>
+    `;
+  } else if (n.layer === 'company') {
+    const peopleN = (peopleByCo.get(d.origId) || []).length;
+    const v = d.vertical || 'Other';
+    const vc = blendVerticalColor(v);
+    layerLabel = 'Company · Operating Layer';
+    metaHTML = `
+      <span class="vertical-tag" style="background:${vc}22;color:${vc};border:1px solid ${vc}55;">${v}</span>
+      <div style="margin-top:6px;">
+        <b>${d.investors.length}</b> investors · <b>${peopleN}</b> mapped people
+      </div>
+      ${d.country ? `<div>${d.country}</div>` : ''}
+      <div><b>${n.neighbors.size}</b> graph connections</div>
+    `;
+  } else {
+    const co = companyNodes.find(c => c.origId === d.company);
+    const v = co?.vertical || '';
+    const vc = blendVerticalColor(v);
+    layerLabel = 'Person · ' + (d.isFounder ? 'Founder' : 'Staff');
+    metaHTML = `
+      <div><b>${d.title || (d.isFounder?'Founder':'—')}</b></div>
+      <div>${co?.name || d.company}</div>
+      ${v ? `<span class="vertical-tag" style="background:${vc}22;color:${vc};border:1px solid ${vc}55;">${v}</span>` : ''}
+      ${d.followers ? `<div style="margin-top:6px;"><b>${d.followers.toLocaleString()}</b> followers</div>` : ''}
+    `;
+  }
+  document.getElementById('card-layer').textContent = layerLabel;
+  document.getElementById('card-meta').innerHTML = metaHTML;
+  card.classList.add('show');
+}
+
+function onClick(ev) {
+  if (hoveredObj) {
+    pinned = hoveredObj;
+    document.getElementById('pinHint').classList.add('show');
+    controls.autoRotate = false;
+  } else {
+    pinned = null;
+    document.getElementById('pinHint').classList.remove('show');
+    updateHighlight();
+  }
+}
+
+renderer.domElement.addEventListener('pointermove', onPointerMove);
+renderer.domElement.addEventListener('pointerleave', onPointerLeave);
+renderer.domElement.addEventListener('click', onClick);
+
+/* ===== HIGHLIGHT (BFS 1-hop highlight, dim others) ===== */
+function updateHighlight() {
+  const focusId = pinned || hoveredObj;
+  if (!focusId) {
+    // restore base
+    for (const [, n] of nodeRegistry) {
+      n.mesh.material.opacity = 0.95;
+      n.halo.material.opacity = 0.55;
+      n.mesh.scale.setScalar(n.baseScale);
+    }
+    setIntraAlpha(investorIntra, 0.18, null);
+    setIntraAlpha(companyIntra, 0.22, null);
+    setIntraAlpha(peopleIntra, 0.12, null);
+    setInterAlpha(investBundle, 0.35, null);
+    setInterAlpha(employBundle, 0.30, null);
+    return;
+  }
+  const focusNode = nodeRegistry.get(focusId);
+  if (!focusNode) return;
+  const set = new Set([focusId, ...focusNode.neighbors]);
+
+  for (const [id, n] of nodeRegistry) {
+    if (set.has(id)) {
+      n.mesh.material.opacity = 1.0;
+      n.halo.material.opacity = 0.95;
+      n.mesh.scale.setScalar(n.baseScale * (id === focusId ? 1.6 : 1.18));
+    } else {
+      n.mesh.material.opacity = 0.10;
+      n.halo.material.opacity = 0.04;
+      n.mesh.scale.setScalar(n.baseScale);
+    }
+  }
+  setIntraAlpha(investorIntra, 0.04, set);
+  setIntraAlpha(companyIntra, 0.04, set);
+  setIntraAlpha(peopleIntra, 0.03, set);
+  setInterAlpha(investBundle, 0.05, set);
+  setInterAlpha(employBundle, 0.05, set);
+}
+
+function setIntraAlpha(bundle, dimVal, focusSet) {
+  const arr = bundle.alphaAttr.array;
+  const baseHigh = bundle.baseAlpha;
+  if (!focusSet) {
+    arr.fill(baseHigh);
+  } else {
+    for (let i = 0; i < bundle.meta.length; i++) {
+      const m = bundle.meta[i];
+      const visible = focusSet.has(m.a) && focusSet.has(m.b);
+      arr[i*2]   = visible ? 0.95 : dimVal;
+      arr[i*2+1] = visible ? 0.95 : dimVal;
+    }
+  }
+  bundle.alphaAttr.needsUpdate = true;
+}
+
+function setInterAlpha(bundle, dimVal, focusSet) {
+  const arr = bundle.alphaAttr.array;
+  if (!focusSet) {
+    arr.fill(0.35);
+  } else {
+    arr.fill(dimVal);
+    for (const m of bundle.meta) {
+      const both = focusSet.has(m.a) && focusSet.has(m.b);
+      if (both) {
+        for (let v = 0; v < m.vCount; v++) {
+          arr[m.vStart + v] = 0.95;
+        }
+      }
+    }
+  }
+  bundle.alphaAttr.needsUpdate = true;
+}
+
+/* ===== LAYER VISIBILITY ===== */
+const layerState = { investors: true, companies: true, people: true };
+
+function applyLayerVisibility() {
+  for (const [id, n] of nodeRegistry) {
+    const visible = (n.layer === 'investor' && layerState.investors) ||
+                    (n.layer === 'company' && layerState.companies) ||
+                    (n.layer === 'person' && layerState.people);
+    n.mesh.visible = visible;
+  }
+  planeInv.visible = layerState.investors;
+  planeCo.visible = layerState.companies;
+  planePe.visible = layerState.people;
+
+  // Intra
+  investorIntra.lines.visible = layerState.investors;
+  companyIntra.lines.visible = layerState.companies;
+  peopleIntra.lines.visible = layerState.people;
+
+  // Inter (require both endpoint layers visible)
+  investBundle.lines.visible = layerState.investors && layerState.companies;
+  employBundle.lines.visible = layerState.companies && layerState.people;
+  investorStream.setVisible(layerState.investors && layerState.companies);
+  employStream.setVisible(layerState.companies && layerState.people);
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const layer = chip.dataset.layer;
+    layerState[layer] = !layerState[layer];
+    chip.classList.toggle('on', layerState[layer]);
+    chip.classList.toggle('off', !layerState[layer]);
+    applyLayerVisibility();
+  });
+});
+
+/* ===== THRESHOLD ===== */
+const thrRange = document.getElementById('thrRange');
+const thrVal = document.getElementById('thrVal');
+const maxShared = Math.max(
+  ...coInvestEdges.map(e=>e.shared),
+  ...coCompanyEdges.map(e=>e.shared),
+  1
+);
+thrRange.max = Math.max(2, Math.min(6, maxShared));
+function applyThreshold() {
+  const t = parseInt(thrRange.value, 10);
+  thrVal.textContent = t;
+
+  // For each intra bundle: hide segments where shared < t (set alpha 0)
+  const apply = (bundle) => {
+    const arr = bundle.alphaAttr.array;
+    for (let i = 0; i < bundle.meta.length; i++) {
+      const visible = bundle.meta[i].shared >= t;
+      const a = visible ? bundle.baseAlpha : 0;
+      arr[i*2]   = a;
+      arr[i*2+1] = a;
+    }
+    bundle.alphaAttr.needsUpdate = true;
+  };
+  apply(investorIntra);
+  apply(companyIntra);
+  // people edges already low — keep them on always (shared is 1 for most)
+  // But if t >= 2, show only co-founder links
+  const arrP = peopleIntra.alphaAttr.array;
+  for (let i = 0; i < peopleIntra.meta.length; i++) {
+    const v = peopleIntra.meta[i].shared >= t;
+    const a = v ? peopleIntra.baseAlpha : 0;
+    arrP[i*2]=a; arrP[i*2+1]=a;
+  }
+  peopleIntra.alphaAttr.needsUpdate = true;
+}
+thrRange.addEventListener('input', () => {
+  applyThreshold();
+  if (hoveredObj || pinned) updateHighlight();
+});
+applyThreshold();
+
+/* =========================================================================
+   ANIMATION LOOP
+   ========================================================================= */
+const clock = new THREE.Clock();
+function tick() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  controls.update();
+  investorStream.update(dt);
+  employStream.update(dt);
+
+  // gentle node breathing
+  const t = performance.now() * 0.001;
+  for (const [, n] of nodeRegistry) {
+    if (!n.mesh.visible) continue;
+    const phase = Math.sin(t * 1.2 + n.pos2d.x * 0.05 + n.pos2d.y * 0.07) * 0.04 + 1.0;
+    if (n.layer === 'company' || n.layer === 'investor') {
+      n.halo.material.opacity = (pinned===n.mesh.userData.id || hoveredObj===n.mesh.userData.id ? 0.95 : 0.55) * phase;
+    }
+  }
+
+  composer.render();
+  requestAnimationFrame(tick);
+}
+tick();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+  bloom.setSize(innerWidth, innerHeight);
+});
+
+// fade out loader
+setTimeout(() => document.getElementById('loading').classList.add('gone'), 250);
+</script>
+</body>
+</html>

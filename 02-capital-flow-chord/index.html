@@ -1,0 +1,1408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CAPITAL FLOWS — Quantum Tech Investment Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root{
+    --bg:#06070d;
+    --bg-2:#0a0c16;
+    --ink:#e8ecf3;
+    --ink-dim:#8a92a6;
+    --ink-faint:#4a5168;
+    --gold:#d4af37;
+    --line:rgba(255,255,255,0.08);
+    --card-bg:rgba(10,12,22,0.86);
+    --card-border:rgba(212,175,55,0.22);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Inter','Space Grotesk',system-ui,sans-serif;font-feature-settings:"tnum" 1,"ss01" 1;overflow:hidden;height:100%}
+  body{
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 50%, #0a1020 0%, #06070d 60%, #03040a 100%);
+  }
+
+  /* layout */
+  #stage{position:fixed;inset:0;}
+  #stars{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #chord{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  /* header */
+  .header{
+    position:absolute;left:0;right:0;top:0;
+    padding:22px 28px 0;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    pointer-events:none;
+    z-index:5;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.42em;color:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .title{
+    font-family:'Space Grotesk','Inter',sans-serif;
+    font-weight:500;
+    font-size:clamp(18px,1.55vw,26px);
+    letter-spacing:0.5em;
+    color:var(--ink);
+    text-transform:uppercase;
+    margin-top:2px;
+    text-shadow:0 0 24px rgba(212,175,55,0.10);
+  }
+  .title .accent{color:var(--gold);}
+  .subtitle{
+    margin-top:2px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.18em;color:var(--ink-dim);
+    display:flex;gap:18px;
+  }
+  .subtitle .num{color:var(--ink);}
+  .subtitle .sep{color:var(--ink-faint);}
+
+  /* legend (top-left) */
+  .legend{
+    position:absolute;left:24px;top:88px;
+    display:flex;flex-direction:column;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;
+    color:var(--ink-dim);
+    z-index:6;pointer-events:none;
+  }
+  .legend .row{display:flex;align-items:center;gap:8px;}
+  .legend .swatch{width:10px;height:2px;border-radius:1px;}
+  .legend .head{color:var(--ink-faint);font-size:9px;letter-spacing:0.32em;margin-bottom:4px;text-transform:uppercase;}
+
+  /* hemisphere labels */
+  .hemi{
+    position:absolute;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.4em;
+    color:var(--ink-faint);text-transform:uppercase;
+    z-index:4;pointer-events:none;
+  }
+  .hemi.top{top:24%;left:50%;transform:translateX(-50%);}
+  .hemi.bot{bottom:18%;left:50%;transform:translateX(-50%);}
+
+  /* meta panel (top-right) */
+  .meta{
+    position:absolute;right:24px;top:88px;
+    text-align:right;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;
+    color:var(--ink-dim);
+    z-index:6;pointer-events:none;
+    line-height:1.65;
+  }
+  .meta .k{color:var(--ink-faint);}
+  .meta .v{color:var(--ink);}
+  .meta .big{font-size:22px;letter-spacing:0.04em;color:var(--gold);font-weight:500;display:block;margin-top:2px;}
+
+  /* hover card */
+  .card{
+    position:absolute;
+    pointer-events:none;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    padding:14px 16px 12px;
+    width:300px;
+    color:var(--ink);
+    font-size:12px;
+    letter-spacing:0.02em;
+    z-index:20;
+    opacity:0;transform:translateY(4px);
+    transition:opacity .18s ease-out, transform .18s ease-out;
+    box-shadow:0 22px 60px -10px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+  .card.show{opacity:1;transform:translateY(0);}
+  .card .kicker{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.38em;
+    color:var(--gold);text-transform:uppercase;margin-bottom:6px;
+  }
+  .card h3{margin:0 0 8px;font-size:15px;font-weight:500;letter-spacing:0.01em;line-height:1.25;}
+  .card .meta-row{
+    display:grid;grid-template-columns:auto 1fr;gap:4px 12px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--ink-dim);letter-spacing:0.08em;
+  }
+  .card .meta-row .lbl{color:var(--ink-faint);text-transform:uppercase;font-size:9px;letter-spacing:0.22em;}
+  .card .meta-row .val{color:var(--ink);}
+  .card .divider{height:1px;background:var(--line);margin:10px 0 8px;}
+  .card .partners{display:flex;flex-direction:column;gap:4px;}
+  .card .partners .p{
+    display:flex;justify-content:space-between;gap:10px;
+    font-size:11px;
+  }
+  .card .partners .p .nm{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .card .partners .p .vl{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;}
+  .card .partners .head{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.32em;
+    color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;
+  }
+
+  /* timeline */
+  .timeline{
+    position:absolute;left:50%;bottom:32px;transform:translateX(-50%);
+    width:min(820px, 78vw);
+    z-index:8;
+    color:var(--ink-dim);
+    font-family:'JetBrains Mono',monospace;
+    user-select:none;
+  }
+  .tl-head{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink-faint);
+    margin-bottom:10px;
+  }
+  .tl-head .yr{
+    font-size:14px;letter-spacing:0.06em;color:var(--gold);
+  }
+  .tl-head .lbl{color:var(--ink-faint);}
+  .tl-track-wrap{
+    position:relative;height:30px;
+  }
+  .tl-track{
+    position:absolute;left:0;right:0;top:14px;height:2px;
+    background:linear-gradient(90deg,rgba(255,255,255,0.04),rgba(255,255,255,0.18),rgba(255,255,255,0.04));
+  }
+  .tl-fill{
+    position:absolute;left:0;top:14px;height:2px;
+    background:linear-gradient(90deg,#d4af37,#f5d27a);
+    box-shadow:0 0 12px rgba(212,175,55,0.5);
+    pointer-events:none;
+  }
+  .tl-ticks{
+    position:absolute;left:0;right:0;top:0;height:30px;pointer-events:none;
+  }
+  .tl-tick{
+    position:absolute;top:8px;width:1px;height:14px;background:rgba(255,255,255,0.12);
+  }
+  .tl-tick.major{height:18px;background:rgba(255,255,255,0.22);}
+  .tl-tick-lbl{
+    position:absolute;top:24px;transform:translateX(-50%);
+    font-size:9px;letter-spacing:0.16em;color:var(--ink-faint);
+  }
+  .tl-handle{
+    position:absolute;top:5px;width:20px;height:20px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff5d6,#d4af37 55%,#5a4710 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.6),0 0 18px rgba(212,175,55,0.55),0 0 36px rgba(212,175,55,0.25);
+    cursor:grab;
+  }
+  .tl-handle:active{cursor:grabbing}
+  .tl-controls{
+    position:absolute;left:-46px;top:6px;
+    display:flex;align-items:center;
+  }
+  .play{
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(212,175,55,0.35);
+    color:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .play:hover{background:rgba(212,175,55,0.10);border-color:rgba(212,175,55,0.7);}
+  .play:active{transform:scale(0.94);}
+  .play svg{display:block}
+
+  /* watermark / corner code */
+  .corner{
+    position:absolute;left:24px;bottom:22px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.32em;
+    color:var(--ink-faint);text-transform:uppercase;
+    z-index:6;pointer-events:none;
+  }
+  .corner-r{
+    position:absolute;right:24px;bottom:22px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.32em;
+    color:var(--ink-faint);text-transform:uppercase;
+    z-index:6;pointer-events:none;
+    text-align:right;
+  }
+
+  /* svg label styling */
+  .ring-label{
+    font-family:'Inter',sans-serif;
+    font-size:9.5px;
+    fill:#aab1c2;
+    letter-spacing:0.06em;
+    pointer-events:none;
+    font-weight:400;
+  }
+  .ring-label.company{fill:#cfd5e3;font-weight:500;}
+  .vertical-mark{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.28em;
+    fill:var(--ink-faint);
+    text-transform:uppercase;
+    pointer-events:none;
+  }
+  .arc-seg{cursor:pointer;}
+  .ribbon{pointer-events:none;}
+  .arc-tick{pointer-events:none;}
+
+  /* small helper */
+  .nowrap{white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <svg id="chord"></svg>
+</div>
+
+<div class="header">
+  <div class="eyebrow">// 02 / capital-flow-chord · quantum-tech ecosystem</div>
+  <div class="title">Capital Flows <span class="accent">—</span> Quantum Tech Investment Universe</div>
+  <div class="subtitle">
+    <span><span class="num" id="kpi-flows">0</span> visible flows</span>
+    <span class="sep">·</span>
+    <span><span class="num" id="kpi-capital">$0</span> deployed</span>
+    <span class="sep">·</span>
+    <span><span class="num" id="kpi-investors">0</span> investors</span>
+    <span class="sep">·</span>
+    <span><span class="num" id="kpi-companies">0</span> companies</span>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="head">verticals</div>
+  <div class="row"><span class="swatch" style="background:#00e5ff"></span>Quantum Computing</div>
+  <div class="row"><span class="swatch" style="background:#b14aed"></span>AI / ML</div>
+  <div class="row"><span class="swatch" style="background:#2ee6a6"></span>Bio / Med</div>
+  <div class="row"><span class="swatch" style="background:#ffb547"></span>Materials / Nano</div>
+  <div class="row"><span class="swatch" style="background:#ff6b6b"></span>Communications</div>
+  <div class="row"><span class="swatch" style="background:#4d8bff"></span>Cyber Security</div>
+  <div class="row" style="margin-top:6px"><span class="swatch" style="background:#d4af37"></span>Investor</div>
+</div>
+
+<div class="meta">
+  <div class="k">period</div>
+  <span class="big" id="meta-year">2010 — 2025</span>
+  <div class="k" style="margin-top:8px">tracked rounds</div>
+  <div class="v" id="meta-rounds">149 synthesized</div>
+  <div class="k" style="margin-top:8px">latency</div>
+  <div class="v">live · idx <span id="meta-idx">00</span></div>
+</div>
+
+<div class="hemi top">— investors —</div>
+<div class="hemi bot">— companies —</div>
+
+<div id="card" class="card"></div>
+
+<div class="timeline" id="timeline">
+  <div class="tl-head">
+    <span class="lbl">timeline</span>
+    <span class="yr" id="tl-year">2010</span>
+    <span class="lbl">2010 — 2025</span>
+  </div>
+  <div class="tl-track-wrap">
+    <div class="tl-controls">
+      <div class="play" id="play" title="play / pause">
+        <svg width="10" height="10" viewBox="0 0 10 10"><polygon id="play-icon" points="2,1 9,5 2,9" fill="currentColor"/></svg>
+      </div>
+    </div>
+    <div class="tl-track"></div>
+    <div class="tl-fill" id="tl-fill"></div>
+    <div class="tl-ticks" id="tl-ticks"></div>
+    <div class="tl-handle" id="tl-handle"></div>
+  </div>
+</div>
+
+<div class="corner">// d3 v7 · synthetic round-size & vintage</div>
+<div class="corner-r">brainstorm vault · viz 02 of 05</div>
+
+<script>
+/* ============================================================
+   Capital Flow Chord — Quantum Tech Investment Universe
+   ============================================================ */
+
+const DATA_URL = "../data/quantum_ecosystem.json";
+
+// vertical color palette
+const VCOLOR = {
+  "Quantum Computing": "#00e5ff",
+  "AI/ML":             "#b14aed",
+  "Quantum AI & ML":   "#b14aed",
+  "Bio/Med":           "#2ee6a6",
+  "Quantum Bio & Medicine": "#2ee6a6",
+  "Materials/NanoTech":"#ffb547",
+  "Quantum Materials & NanoTech":"#ffb547",
+  "Communications":    "#ff6b6b",
+  "Cyber Security":    "#4d8bff",
+  "Other":             "#8a92a6"
+};
+const INVESTOR_GOLD = "#d4af37";
+
+// ---- deterministic hash ----------------------------------------
+function hashStr(s){
+  let h = 2166136261 >>> 0;
+  for (let i=0;i<s.length;i++){
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+// mulberry32
+function rngFrom(seed){
+  let a = seed >>> 0;
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ---- log-normal round size helper ------------------------------
+function lognormal(rng, mu, sigma){
+  // Box-Muller
+  const u1 = Math.max(1e-9, rng());
+  const u2 = rng();
+  const z = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+  return Math.exp(mu + sigma*z);
+}
+
+function roundStage(amountM){
+  if (amountM < 4)   return "Seed";
+  if (amountM < 15)  return "Series A";
+  if (amountM < 40)  return "Series B";
+  if (amountM < 100) return "Series C";
+  return "Growth";
+}
+
+// ---- formatters ------------------------------------------------
+const fmtUSD = d => {
+  if (d >= 1e3) return "$" + (d/1e3).toFixed(2).replace(/\.?0+$/,"") + "B";
+  if (d >= 1)   return "$" + d.toFixed(d<10?1:0) + "M";
+  return "$" + (d*1000).toFixed(0) + "K";
+};
+const fmtNum = d => d.toLocaleString("en-US");
+
+/* ============================================================
+   STARFIELD
+   ============================================================ */
+function startStarfield(canvas){
+  const ctx = canvas.getContext("2d");
+  let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1, 2);
+  const stars=[];
+  function resize(){
+    W = canvas.clientWidth = window.innerWidth;
+    H = canvas.clientHeight = window.innerHeight;
+    canvas.width = W*DPR; canvas.height = H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    stars.length=0;
+    const N = Math.round((W*H)/5200);
+    for(let i=0;i<N;i++){
+      stars.push({
+        x: Math.random()*W,
+        y: Math.random()*H,
+        r: Math.random()*1.05 + 0.18,
+        a: Math.random()*0.8 + 0.15,
+        ph: Math.random()*Math.PI*2,
+        sp: 0.0006 + Math.random()*0.0014,
+        hue: Math.random() < 0.08 ? (Math.random()<0.5?"#9ec8ff":"#ffd9a8") : "#cfd6e6"
+      });
+    }
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  let t=0;
+  function draw(){
+    t += 16;
+    ctx.clearRect(0,0,W,H);
+    // vignette tint
+    const grd = ctx.createRadialGradient(W/2,H/2, Math.min(W,H)*0.15, W/2,H/2, Math.max(W,H)*0.7);
+    grd.addColorStop(0, "rgba(20,28,48,0.18)");
+    grd.addColorStop(0.55,"rgba(8,10,18,0)");
+    grd.addColorStop(1,"rgba(0,0,0,0.5)");
+    ctx.fillStyle = grd; ctx.fillRect(0,0,W,H);
+
+    for(const s of stars){
+      const tw = 0.55 + 0.45*Math.sin(t*s.sp + s.ph);
+      ctx.globalAlpha = s.a*tw;
+      ctx.fillStyle = s.hue;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+      // occasional crisp diffraction
+      if (s.r>0.9){
+        ctx.globalAlpha = 0.18*tw;
+        ctx.fillRect(s.x-2.4, s.y-0.18, 4.8, 0.36);
+        ctx.fillRect(s.x-0.18, s.y-2.4, 0.36, 4.8);
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+startStarfield(document.getElementById("stars"));
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+d3.json(DATA_URL).then(raw => {
+  // --- normalize verticals -------------------------------------
+  const VKEY = (v) => {
+    if (!v) return "Other";
+    if (/computing/i.test(v)) return "Quantum Computing";
+    if (/ai|ml/i.test(v)) return "AI/ML";
+    if (/bio|med/i.test(v)) return "Bio/Med";
+    if (/material|nano/i.test(v)) return "Materials/NanoTech";
+    if (/comm/i.test(v)) return "Communications";
+    if (/cyber/i.test(v)) return "Cyber Security";
+    return "Other";
+  };
+
+  // --- companies & investor maps -------------------------------
+  const companies = raw.companies.map(c => ({
+    id: c.id,
+    name: c.name,
+    vertical: VKEY(c.vertical),
+    rawVertical: c.vertical,
+    founded: c.founded || null,
+    country: c.country || "—",
+    city: c.city || null,
+    investors: c.investors || []
+  }));
+  const compById = new Map(companies.map(c => [c.id, c]));
+
+  // unify investor records: prefer raw.investors but only those that appear in investments
+  const invMeta = new Map(raw.investors.map(i => [i.name, i]));
+
+  // --- synthesize edges (year + round size + stage) ------------
+  // Synthetic fields: year, amount, stage. seeded by hash(investor+company).
+  const edgesAll = raw.investments.map(e => {
+    const seed = hashStr(e.investor + "::" + e.company);
+    const rng  = rngFrom(seed);
+    const co   = compById.get(e.company);
+    const minYear = Math.max( (co && co.founded) ? co.founded : 2010, 2010);
+    const yearRange = 2025 - minYear;
+    // skew toward 2018-2024 (later)
+    const u = rng();
+    const skewed = Math.pow(u, 0.65); // bias to higher years
+    const year = Math.min(2025, minYear + Math.round(skewed * yearRange));
+    // log-normal $M around ~$12M median, fat tail
+    let amt = lognormal(rng, Math.log(12), 0.95);
+    amt = Math.max(1, Math.min(200, amt));
+    const stage = roundStage(amt);
+    return {
+      investor: e.investor,
+      company: e.company,
+      year, amount: amt, stage,
+      // marker so downstream knows these were synthesized
+      _synthetic: true
+    };
+  });
+
+  // build investor list from edges (ensures only connected investors are drawn)
+  const invSet = new Map();
+  for (const e of edgesAll){
+    if (!invSet.has(e.investor)){
+      const meta = invMeta.get(e.investor) || {};
+      invSet.set(e.investor, {
+        id: e.investor,
+        name: e.investor,
+        type: meta.type || "Investor",
+        country: meta.country || "—",
+        edges: []
+      });
+    }
+  }
+  for (const c of companies) c.edges = [];
+  for (const e of edgesAll){
+    invSet.get(e.investor).edges.push(e);
+    if (compById.has(e.company)) compById.get(e.company).edges.push(e);
+  }
+  const investors = Array.from(invSet.values());
+
+  // total flow per node (sum of amounts)
+  function totalFlow(node){ return d3.sum(node.edges, d => d.amount); }
+  investors.forEach(i => i.flow = totalFlow(i));
+  companies.forEach(c => c.flow = totalFlow(c));
+
+  // --- ordering --------------------------------------------------
+  // companies: order by vertical (group) then by flow descending
+  const VERT_ORDER = ["Quantum Computing","AI/ML","Bio/Med","Materials/NanoTech","Communications","Cyber Security","Other"];
+  companies.sort((a,b) => {
+    const va = VERT_ORDER.indexOf(a.vertical), vb = VERT_ORDER.indexOf(b.vertical);
+    if (va!==vb) return va-vb;
+    return b.flow - a.flow;
+  });
+
+  // investors: order by their dominant vertical (the vertical of their largest investment)
+  function dominantVertical(inv){
+    const sums = {};
+    for (const e of inv.edges){
+      const v = compById.get(e.company)?.vertical || "Other";
+      sums[v] = (sums[v]||0) + e.amount;
+    }
+    let best = "Other", bestV=-1;
+    for (const k in sums){ if (sums[k]>bestV){ bestV=sums[k]; best=k; } }
+    inv.dominantVertical = best;
+    return best;
+  }
+  investors.forEach(dominantVertical);
+  investors.sort((a,b) => {
+    const va = VERT_ORDER.indexOf(a.dominantVertical), vb = VERT_ORDER.indexOf(b.dominantVertical);
+    if (va!==vb) return va-vb;
+    return b.flow - a.flow;
+  });
+
+  /* --- LAYOUT ------------------------------------------------- */
+  const svg = d3.select("#chord");
+  const defs = svg.append("defs");
+
+  // glow filter
+  defs.append("filter")
+    .attr("id","ribbon-glow").attr("x","-30%").attr("y","-30%").attr("width","160%").attr("height","160%")
+    .html(`
+      <feGaussianBlur stdDeviation="2.6" result="g1"/>
+      <feGaussianBlur stdDeviation="6" result="g2"/>
+      <feMerge>
+        <feMergeNode in="g2"/>
+        <feMergeNode in="g1"/>
+      </feMerge>
+    `);
+  defs.append("filter")
+    .attr("id","arc-glow").attr("x","-50%").attr("y","-50%").attr("width","200%").attr("height","200%")
+    .html(`<feGaussianBlur stdDeviation="2.4"/>`);
+  defs.append("filter")
+    .attr("id","label-glow").attr("x","-20%").attr("y","-30%").attr("width","140%").attr("height","160%")
+    .html(`<feGaussianBlur stdDeviation="1.3"/>`);
+
+  // radial vignette overlay (subtle)
+  const radial = defs.append("radialGradient").attr("id","rg-vignette")
+    .attr("cx","50%").attr("cy","50%").attr("r","75%");
+  radial.append("stop").attr("offset","0%").attr("stop-color","#0a0c18").attr("stop-opacity","0");
+  radial.append("stop").attr("offset","60%").attr("stop-color","#06070d").attr("stop-opacity","0");
+  radial.append("stop").attr("offset","100%").attr("stop-color","#000").attr("stop-opacity","0.55");
+
+  // axes ring base (thin)
+  // groups
+  const gRoot   = svg.append("g").attr("class","root");
+  const gRings  = gRoot.append("g").attr("class","rings");
+  const gRibbonsGlow = gRoot.append("g").attr("class","ribbons-glow").attr("filter","url(#ribbon-glow)");
+  const gRibbons     = gRoot.append("g").attr("class","ribbons");
+  const gArcs   = gRoot.append("g").attr("class","arcs");
+  const gLabels = gRoot.append("g").attr("class","labels");
+  const gMarks  = gRoot.append("g").attr("class","marks");
+  svg.append("rect").attr("id","vignette").attr("fill","url(#rg-vignette)").attr("pointer-events","none");
+
+  let layout = {};
+
+  // Build per-edge gradients & ribbon paths once ---------------------
+  // We'll store ribbon DOM refs and rebuild geometry on resize.
+  let ribbonNodes = []; // { edge, path, glow, gradId, sourceColor, targetColor }
+
+  // Build node-to-arc map: each investor occupies an arc on top semicircle, each company on bottom
+  // Node arc width proportional to flow, with a minimum width.
+  function buildArcs(width, height){
+    const cx = width/2;
+    const cy = height/2 + 6;
+    const R  = Math.min(width, height) * 0.42;
+    const ringT = 6; // ring thickness
+    const labelPad = 14;
+
+    // Top: investors. Bottom: companies. Gap 5deg each side.
+    // We'll define angles in radians where 0 = +x (right), increasing counter-clockwise. But
+    // for SVG we use trig and convert. Use 'theta' as standard math angle.
+    // Top semicircle: theta from (5°) to (175°) for investors going right-to-left visually.
+    // Actually we want investors arrayed along the top half-arc 180->0 going clockwise.
+    // That means at angle 180° (left) the first investor, at 0° (right) the last.
+    // Bottom semicircle 180->360 clockwise, i.e. going from left (180°) down and around to right (360°/0°).
+    // Use angle in radians, 0 = right, growing clockwise (so we negate y in svg space).
+    // We'll use a function: pt(angleDeg, r) => {x: cx + r*cos(rad), y: cy + r*sin(rad)} (sin positive goes down).
+    const GAP = 5; // degrees
+    // Top: investors from 180+gap... going clockwise to 360-gap (equivalently 0-gap from the right)
+    // Wait: clockwise on standard math means angle decreasing. We'll just place investors along top
+    // (y < cy). Top means sin(angle) < 0, i.e. angle in (180, 360) degrees if we measure 0=right and
+    // ccw-positive. To avoid confusion, use a custom angle 'phi' that goes clockwise from 9 o'clock
+    // (left) along the top arc to 3 o'clock (right). phi in [0,180] for top.
+    // For the bottom: phi in [180,360] from 3 o'clock going down/under to 9 o'clock.
+    // pt(phi):
+    //   For top:    x = cx - R*cos(phi*PI/180),  y = cy - R*sin(phi*PI/180)   (phi in 0..180)
+    //   For bottom: x = cx + R*cos((phi-180)*PI/180), y = cy + R*sin((phi-180)*PI/180) (phi in 180..360)
+    // But it's easier to map phi globally: angleRad = PI + phi*PI/180  -> standard angle measured ccw from +x.
+    // For top semicircle phi 0..180: angle PI..2PI -> upper half (y = sin*R will be negative)... yes.
+    // Then svg pt: x = cx + R*cos(angle), y = cy - R*sin(angle).
+    function ptOnRing(phiDeg, r){
+      const a = Math.PI + phiDeg*Math.PI/180;
+      return { x: cx + r*Math.cos(a), y: cy - r*Math.sin(a), angleRad: a };
+    }
+
+    // total weights
+    const totInv = d3.sum(investors, d => d.flow);
+    const totCo  = d3.sum(companies, d => d.flow);
+
+    const topStart = GAP;
+    const topEnd   = 180 - GAP;
+    const botStart = 180 + GAP;
+    const botEnd   = 360 - GAP;
+
+    const topSpan  = topEnd - topStart;
+    const botSpan  = botEnd - botStart;
+
+    // pad between segments (degrees)
+    const PAD_INV = 0.18;
+    const PAD_CO  = 0.55;
+
+    const padInvTotal = PAD_INV * (investors.length - 1);
+    const padCoTotal  = PAD_CO  * (companies.length - 1);
+
+    const usableTop = topSpan - padInvTotal;
+    const usableBot = botSpan - padCoTotal;
+
+    // assign degrees per node proportional to flow with min
+    function assignArc(nodes, usable, minDeg, pad){
+      const tot = d3.sum(nodes, d => d.flow);
+      // first pass: raw allocation
+      const raw = nodes.map(n => Math.max(minDeg, (n.flow/tot) * usable));
+      const sumRaw = d3.sum(raw);
+      const scale  = usable / sumRaw;
+      let cursor = 0;
+      return nodes.map((n,i) => {
+        const w = raw[i]*scale;
+        const out = { node: n, w, start: cursor };
+        cursor += w + pad;
+        return out;
+      });
+    }
+
+    // investor minDeg ~ small to avoid hairlines but allow many to fit
+    const minInv = Math.max(0.18, Math.min(0.5, usableTop / (investors.length*1.3)));
+    const minCo  = Math.max(0.6,  Math.min(2.4, usableBot / (companies.length*1.5)));
+
+    const invSlots = assignArc(investors, usableTop, minInv, PAD_INV);
+    const coSlots  = assignArc(companies, usableBot, minCo,  PAD_CO);
+
+    // Map slot to absolute phi range
+    const placeMap = new Map(); // id -> {phi0, phi1, mid, side, color}
+    for (const s of invSlots){
+      const phi0 = topStart + s.start;
+      const phi1 = phi0 + s.w;
+      const mid  = (phi0+phi1)/2;
+      placeMap.set("inv:"+s.node.id, { phi0, phi1, mid, side:"top", node:s.node });
+    }
+    for (const s of coSlots){
+      const phi0 = botStart + s.start;
+      const phi1 = phi0 + s.w;
+      const mid  = (phi0+phi1)/2;
+      placeMap.set("co:"+s.node.id, { phi0, phi1, mid, side:"bot", node:s.node });
+    }
+
+    return { cx, cy, R, ringT, ptOnRing, placeMap, invSlots, coSlots, GAP, topStart, topEnd, botStart, botEnd };
+  }
+
+  // Convert a phi in deg to svg-arc command (large-arc / sweep)
+  function arcPath(phi0, phi1, r, ptFn){
+    const p0 = ptFn(phi0, r);
+    const p1 = ptFn(phi1, r);
+    const large = Math.abs(phi1-phi0) > 180 ? 1 : 0;
+    // since phi increases clockwise (top), and our svg y is flipped, sweep flag:
+    // We want to traverse from p0 to p1 going in increasing phi direction (along the ring).
+    // Empirically, with our pt function this corresponds to sweep-flag = 0 for top (going left->right
+    // means angleRad decreasing) ... we'll compute by trying sweep = 0; the path is geometric, so
+    // a wrong sweep flag will only flip the arc direction (same shape). We pick 0 by inspection.
+    return `M ${p0.x} ${p0.y} A ${r} ${r} 0 ${large} 0 ${p1.x} ${p1.y}`;
+  }
+
+  function arcRibbonPath(phi0, phi1, r, ptFn, sweep){
+    const p0 = ptFn(phi0, r);
+    const p1 = ptFn(phi1, r);
+    const large = Math.abs(phi1-phi0) > 180 ? 1 : 0;
+    return `A ${r} ${r} 0 ${large} ${sweep} ${p1.x} ${p1.y}`;
+  }
+
+  /* ------------------------------------------------------------
+     Render
+     ------------------------------------------------------------ */
+  let RENDER = null; // current layout
+
+  function render(){
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    svg.attr("width", W).attr("height", H).attr("viewBox", `0 0 ${W} ${H}`);
+    d3.select("#vignette").attr("x",0).attr("y",0).attr("width",W).attr("height",H);
+
+    const L = buildArcs(W, H);
+    RENDER = L;
+
+    // ----- background guide ring (subtle dotted) ---------------
+    gRings.selectAll("*").remove();
+    const RINGS = [L.R - 22, L.R - 4, L.R + 18];
+    RINGS.forEach((r,i) => {
+      gRings.append("circle")
+        .attr("cx",L.cx).attr("cy",L.cy).attr("r",r)
+        .attr("fill","none")
+        .attr("stroke","rgba(255,255,255,0.04)")
+        .attr("stroke-width", i===1?0.7:0.4)
+        .attr("stroke-dasharray", i===1? null : "1,5");
+    });
+    // crosshair tick at 90/270 ?  add subtle radial spokes outside
+    for (let deg=0; deg<360; deg+=30){
+      const p0 = L.ptOnRing(deg, L.R+22);
+      const p1 = L.ptOnRing(deg, L.R+30);
+      gRings.append("line")
+        .attr("x1",p0.x).attr("y1",p0.y).attr("x2",p1.x).attr("y2",p1.y)
+        .attr("stroke","rgba(255,255,255,0.08)")
+        .attr("stroke-width",0.6);
+    }
+
+    // ----- vertical "marker" bands on company side -------------
+    gMarks.selectAll("*").remove();
+    // group companies by vertical to draw the outer band labels
+    const byVert = d3.groups(L.coSlots.map(s => ({ ...s, v: s.node.vertical })), d => d.v);
+    byVert.forEach(([vert, list]) => {
+      const phi0 = list[0].start + 180 + L.GAP;  // recompute relative to bot start
+      // simpler: lookup placeMap entries
+      let lo=Infinity, hi=-Infinity;
+      list.forEach(s => {
+        const pm = L.placeMap.get("co:"+s.node.id);
+        if (pm.phi0 < lo) lo = pm.phi0;
+        if (pm.phi1 > hi) hi = pm.phi1;
+      });
+      const mid = (lo+hi)/2;
+      const r = L.R + 38;
+      const pt = L.ptOnRing(mid, r);
+      // band arc
+      const band = `M ${L.ptOnRing(lo, L.R+24).x} ${L.ptOnRing(lo, L.R+24).y} ` + arcRibbonPath(lo, hi, L.R+24, L.ptOnRing, 1);
+      gMarks.append("path")
+        .attr("d", band)
+        .attr("fill","none")
+        .attr("stroke", VCOLOR[vert] || "#888")
+        .attr("stroke-width", 1.2)
+        .attr("stroke-opacity", 0.7);
+      // label
+      const tangentDeg = mid - 90; // along arc
+      // We'll draw text along path
+      const pathId = "vband-"+hashStr(vert);
+      defs.selectAll("#"+pathId).remove();
+      defs.append("path")
+        .attr("id", pathId)
+        .attr("d",
+          "M " + L.ptOnRing(hi, r).x + " " + L.ptOnRing(hi, r).y +
+          " " + arcRibbonPath(hi, lo, r, L.ptOnRing, 0)
+        );
+      gMarks.append("text")
+        .attr("class","vertical-mark")
+        .attr("fill", VCOLOR[vert] || "#888")
+        .append("textPath")
+          .attr("href","#"+pathId)
+          .attr("startOffset","50%")
+          .attr("text-anchor","middle")
+          .text(vert.toUpperCase());
+    });
+
+    // also small vertical color marks on investor side aggregated by dominant vertical
+    const byInvVert = d3.groups(L.invSlots, d => d.node.dominantVertical);
+    byInvVert.forEach(([vert, list]) => {
+      let lo=Infinity, hi=-Infinity;
+      list.forEach(s => {
+        const pm = L.placeMap.get("inv:"+s.node.id);
+        if (pm.phi0 < lo) lo = pm.phi0;
+        if (pm.phi1 > hi) hi = pm.phi1;
+      });
+      const r = L.R + 24;
+      const band = `M ${L.ptOnRing(lo, r).x} ${L.ptOnRing(lo, r).y} ` + arcRibbonPath(lo, hi, r, L.ptOnRing, 0);
+      gMarks.append("path")
+        .attr("d", band)
+        .attr("fill","none")
+        .attr("stroke", VCOLOR[vert] || "#888")
+        .attr("stroke-width", 0.9)
+        .attr("stroke-opacity", 0.45)
+        .attr("stroke-dasharray","1,3");
+    });
+
+    // ----- arc segments (clickable hit area + visible tick) ----
+    gArcs.selectAll("*").remove();
+    const innerR = L.R - 4;
+    const outerR = L.R + 4;
+    const haloR  = L.R + 14;
+
+    // base ring strip
+    function drawSeg(slot, side, key){
+      const pm = L.placeMap.get(key+":"+slot.node.id);
+      const phi0 = pm.phi0, phi1 = pm.phi1;
+      const inner = innerR, outer = outerR;
+      const p00 = L.ptOnRing(phi0, outer);
+      const p01 = L.ptOnRing(phi1, outer);
+      const p10 = L.ptOnRing(phi1, inner);
+      const p11 = L.ptOnRing(phi0, inner);
+      // Build closed path
+      // For top side, sweep flags differ from bottom; we'll keep consistent.
+      const sw = side === "top" ? 0 : 1;
+      const swR = side === "top" ? 1 : 0;
+      const d =
+        `M ${p00.x} ${p00.y} ` +
+        `A ${outer} ${outer} 0 0 ${sw} ${p01.x} ${p01.y} ` +
+        `L ${p10.x} ${p10.y} ` +
+        `A ${inner} ${inner} 0 0 ${swR} ${p11.x} ${p11.y} Z`;
+      const color = side === "top"
+        ? VCOLOR[slot.node.dominantVertical] || INVESTOR_GOLD
+        : VCOLOR[slot.node.vertical] || "#888";
+      const segG = gArcs.append("g").attr("class","arc-seg").attr("data-key", key+":"+slot.node.id);
+      // halo (hidden by default)
+      segG.append("path")
+        .attr("class","halo")
+        .attr("d", d)
+        .attr("fill","none")
+        .attr("stroke", color)
+        .attr("stroke-opacity",0)
+        .attr("stroke-width",0)
+        .attr("filter","url(#arc-glow)");
+      // base segment
+      segG.append("path")
+        .attr("class","seg")
+        .attr("d", d)
+        .attr("fill", side === "top" ? d3.color(INVESTOR_GOLD).copy({opacity:0.55}) : d3.color(color).copy({opacity:0.85}))
+        .attr("stroke", "rgba(255,255,255,0.18)")
+        .attr("stroke-width", 0.4);
+      // for investor side, use color-tinted top with gold fade
+      if (side === "top"){
+        segG.select(".seg")
+          .attr("fill", d3.interpolateRgb(INVESTOR_GOLD, color)(0.45))
+          .attr("fill-opacity", 0.85);
+      }
+      // hit area (wider, transparent)
+      const hpInner = inner - 8;
+      const hpOuter = outer + 22;
+      const h00 = L.ptOnRing(phi0, hpOuter);
+      const h01 = L.ptOnRing(phi1, hpOuter);
+      const h10 = L.ptOnRing(phi1, hpInner);
+      const h11 = L.ptOnRing(phi0, hpInner);
+      const dh =
+        `M ${h00.x} ${h00.y} ` +
+        `A ${hpOuter} ${hpOuter} 0 0 ${sw} ${h01.x} ${h01.y} ` +
+        `L ${h10.x} ${h10.y} ` +
+        `A ${hpInner} ${hpInner} 0 0 ${swR} ${h11.x} ${h11.y} Z`;
+      segG.append("path")
+        .attr("class","hit")
+        .attr("d", dh)
+        .attr("fill","rgba(0,0,0,0.001)")
+        .attr("stroke","none");
+    }
+
+    L.invSlots.forEach(s => drawSeg(s, "top", "inv"));
+    L.coSlots .forEach(s => drawSeg(s, "bot", "co"));
+
+    // ----- labels ---------------------------------------------
+    gLabels.selectAll("*").remove();
+
+    // companies: all 47
+    L.coSlots.forEach((s) => {
+      const pm = L.placeMap.get("co:"+s.node.id);
+      const mid = pm.mid;
+      const pt = L.ptOnRing(mid, L.R + 8);
+      // rotate label tangent to ring; for bottom semicircle, text reads outward
+      // angleRad (math) at this point:
+      const a = Math.PI + mid*Math.PI/180;
+      // tangent angle in svg degrees
+      // For readability at bottom: rotate so text follows arc and reads upward
+      let rotDeg = (-a * 180/Math.PI) - 90; // tangent
+      // ensure right-side up
+      const cosA = Math.cos(a);
+      const flip = (Math.sin(a) > 0); // bottom side has sin>0 in math but we flipped y, so this is bottom in svg
+      // We want text anchored close to ring and reading outward
+      let anchor = "start";
+      let radial = L.R + 14;
+      if (mid > 270 || mid < 90) anchor = "start";
+      // For bottom (180-360), normalize rotation so text isn't upside down
+      let textRot = mid - 90;       // along-arc tangent in svg space (deg)
+      // For bottom-half labels, push them outward; flip if necessary
+      let labelDeg;
+      // We'll place text radially (perpendicular pointing out)
+      const radialDeg = mid - 90; // svg rotation that aligns 'baseline' along radial direction
+      // Use radial labels: rotate so text reads outward from center
+      // svg rotate(angle) rotates clockwise. The point on the ring at phi has position
+      // (cx + R*cos(PI+phiRad), cy - R*sin(PI+phiRad)). Outward direction from center:
+      // (cos(PI+phi), -sin(PI+phi)) in svg coords.
+      // We want text local +x along outward direction.
+      // angle in svg from +x axis (clockwise positive in svg-rotate) of outward direction:
+      // Outward = (cos(PI+phi), -sin(PI+phi))
+      // svg-rotate angle a': rotate(+a') maps (1,0) to (cos a', sin a').
+      // So a' = atan2(-sin(PI+phi), cos(PI+phi)) in degrees.
+      const ox = Math.cos(Math.PI + mid*Math.PI/180);
+      const oy = -Math.sin(Math.PI + mid*Math.PI/180);
+      let svgRot = Math.atan2(oy, ox) * 180/Math.PI;
+      // If pointing left-half, flip text by 180 so it reads right-to-left -> we want reading outward
+      let flipText = false;
+      if (svgRot > 90 || svgRot < -90){
+        svgRot += 180;
+        flipText = true;
+      }
+      const radial0 = L.R + 12;
+      const ptL = L.ptOnRing(mid, radial0);
+      const t = gLabels.append("text")
+        .attr("class","ring-label company")
+        .attr("transform", `translate(${ptL.x},${ptL.y}) rotate(${svgRot})`)
+        .attr("text-anchor", flipText ? "end" : "start")
+        .attr("dominant-baseline","middle")
+        .attr("data-key","co:"+s.node.id)
+        .text(s.node.name);
+    });
+
+    // investors: top ~80 by flow
+    const invByFlow = [...investors].sort((a,b)=>b.flow-a.flow);
+    const labelCount = Math.min(80, invByFlow.length);
+    const labeledIds = new Set(invByFlow.slice(0, labelCount).map(d=>d.id));
+
+    L.invSlots.forEach(s => {
+      if (!labeledIds.has(s.node.id)) return;
+      const pm = L.placeMap.get("inv:"+s.node.id);
+      const mid = pm.mid;
+      const ox = Math.cos(Math.PI + mid*Math.PI/180);
+      const oy = -Math.sin(Math.PI + mid*Math.PI/180);
+      let svgRot = Math.atan2(oy, ox) * 180/Math.PI;
+      let flipText = false;
+      if (svgRot > 90 || svgRot < -90){
+        svgRot += 180;
+        flipText = true;
+      }
+      const radial0 = L.R + 12;
+      const ptL = L.ptOnRing(mid, radial0);
+      gLabels.append("text")
+        .attr("class","ring-label")
+        .attr("transform", `translate(${ptL.x},${ptL.y}) rotate(${svgRot})`)
+        .attr("text-anchor", flipText ? "end" : "start")
+        .attr("dominant-baseline","middle")
+        .attr("data-key","inv:"+s.node.id)
+        .text(s.node.name);
+    });
+
+    // ----- ribbons --------------------------------------------
+    gRibbons.selectAll("*").remove();
+    gRibbonsGlow.selectAll("*").remove();
+    // Sort edges so smaller draw first (under), larger on top
+    const edges = [...edgesAll].sort((a,b)=>a.amount-b.amount);
+
+    // amount -> stroke width
+    const wScale = d3.scaleSqrt().domain([1, 200]).range([0.6, 4.8]);
+
+    ribbonNodes = [];
+
+    // Each edge gets a unique gradient id
+    edges.forEach((e, idx) => {
+      const co = compById.get(e.company);
+      if (!co) return;
+      const invPlace = L.placeMap.get("inv:"+e.investor);
+      const coPlace  = L.placeMap.get("co:"+e.company);
+      if (!invPlace || !coPlace) return;
+
+      const p0 = L.ptOnRing(invPlace.mid, L.R - 5);
+      const p1 = L.ptOnRing(coPlace.mid,  L.R - 5);
+
+      // control points pull toward center (slight deflection toward orthogonal)
+      // distance from center scales bend
+      const ctrlR = L.R * 0.05; // small radius near center
+      const c0 = L.ptOnRing(invPlace.mid, ctrlR);
+      const c1 = L.ptOnRing(coPlace.mid,  ctrlR);
+
+      const d = `M ${p0.x} ${p0.y} C ${c0.x} ${c0.y}, ${c1.x} ${c1.y}, ${p1.x} ${p1.y}`;
+
+      const sourceColor = INVESTOR_GOLD;
+      const targetColor = VCOLOR[co.vertical] || "#888";
+
+      // gradient along bbox: d3.linearGradient by coords
+      const gid = "rg_"+idx;
+      const grad = defs.append("linearGradient")
+        .attr("id", gid)
+        .attr("gradientUnits","userSpaceOnUse")
+        .attr("x1", p0.x).attr("y1", p0.y)
+        .attr("x2", p1.x).attr("y2", p1.y);
+      grad.append("stop").attr("offset","0%").attr("stop-color", sourceColor).attr("stop-opacity","0.95");
+      grad.append("stop").attr("offset","45%").attr("stop-color", d3.interpolateRgb(sourceColor, targetColor)(0.55)).attr("stop-opacity","0.85");
+      grad.append("stop").attr("offset","100%").attr("stop-color", targetColor).attr("stop-opacity","0.95");
+
+      const sw = wScale(e.amount);
+
+      const glow = gRibbonsGlow.append("path")
+        .attr("d", d)
+        .attr("fill","none")
+        .attr("stroke", `url(#${gid})`)
+        .attr("stroke-width", sw + 2.5)
+        .attr("stroke-linecap","round")
+        .attr("opacity", 0)
+        .attr("class","ribbon ribbon-glow");
+
+      const path = gRibbons.append("path")
+        .attr("d", d)
+        .attr("fill","none")
+        .attr("stroke", `url(#${gid})`)
+        .attr("stroke-width", sw)
+        .attr("stroke-linecap","round")
+        .attr("opacity", 0)
+        .attr("class","ribbon")
+        .attr("data-inv", e.investor)
+        .attr("data-co",  e.company)
+        .attr("data-year", e.year);
+
+      ribbonNodes.push({
+        edge: e,
+        path, glow, gradId: gid,
+        sourceColor, targetColor,
+        baseWidth: sw
+      });
+    });
+
+    // attach hover handlers to arc segments
+    gArcs.selectAll(".arc-seg")
+      .on("pointerenter", function(ev){
+        const key = this.getAttribute("data-key");
+        focusNode(key, ev);
+      })
+      .on("pointermove", (ev)=> moveCard(ev))
+      .on("pointerleave", ()=> clearFocus());
+
+    // also attach hover to labels (so users can hover the text)
+    gLabels.selectAll("text.ring-label")
+      .style("cursor","pointer")
+      .style("pointer-events","auto")
+      .on("pointerenter", function(ev){
+        const key = this.getAttribute("data-key");
+        focusNode(key, ev);
+      })
+      .on("pointermove", (ev)=> moveCard(ev))
+      .on("pointerleave", ()=> clearFocus());
+
+    applyTimeFilter();
+  }
+
+  /* ---------------------------------------------------------------
+     interaction: time slider, hover focus
+     --------------------------------------------------------------- */
+  let currentYear = 2010;
+  let focusKey = null;
+
+  function applyTimeFilter(){
+    // Recency: ribbons whose year > currentYear are hidden.
+    // Among visible: opacity scaled with age (more recent = more vivid).
+    const yMin = 2010, yMax = 2025;
+    let visibleCount = 0;
+    let visibleCapital = 0;
+
+    ribbonNodes.forEach(rn => {
+      const e = rn.edge;
+      const visible = e.year <= currentYear;
+      if (!visible){
+        rn.path.attr("opacity", 0);
+        rn.glow.attr("opacity", 0);
+        return;
+      }
+      visibleCount++;
+      visibleCapital += e.amount;
+      const ageNorm = (currentYear - e.year) / Math.max(1, currentYear - yMin); // 0..1, older=1
+      // recency opacity: latest = 1, oldest fades to ~0.18
+      const baseOp = d3.interpolate(1.0, 0.22)(ageNorm);
+      let op = baseOp;
+      let glowOp = baseOp * 0.55;
+      let sw = rn.baseWidth;
+
+      if (focusKey){
+        const [side,id] = focusKey.split(":");
+        const isMatch =
+          (side === "inv" && e.investor === id) ||
+          (side === "co"  && e.company  === id);
+        if (isMatch){
+          op = 1.0;
+          glowOp = 0.85;
+          sw = rn.baseWidth * 1.45;
+        } else {
+          op = 0.05;
+          glowOp = 0;
+        }
+      }
+      rn.path.attr("opacity", op).attr("stroke-width", sw);
+      rn.glow.attr("opacity", glowOp).attr("stroke-width", rn.baseWidth + 2.5);
+    });
+
+    // KPIs
+    document.getElementById("kpi-flows").textContent = fmtNum(visibleCount);
+    document.getElementById("kpi-capital").textContent = fmtUSD(visibleCapital);
+    const visInv = new Set(), visCo = new Set();
+    ribbonNodes.forEach(rn => {
+      if (rn.edge.year <= currentYear){
+        visInv.add(rn.edge.investor); visCo.add(rn.edge.company);
+      }
+    });
+    document.getElementById("kpi-investors").textContent = fmtNum(visInv.size);
+    document.getElementById("kpi-companies").textContent = fmtNum(visCo.size);
+    document.getElementById("tl-year").textContent = currentYear;
+    document.getElementById("meta-year").textContent = `2010 — ${currentYear}`;
+    document.getElementById("meta-rounds").textContent = `${visibleCount} of ${ribbonNodes.length}`;
+  }
+
+  function focusNode(key, ev){
+    focusKey = key;
+    // halo on focused node
+    gArcs.selectAll(".arc-seg .halo").attr("stroke-opacity",0).attr("stroke-width",0);
+    const focusedG = gArcs.select(`.arc-seg[data-key="${key}"]`);
+    focusedG.select(".halo")
+      .transition().duration(180).ease(d3.easeCubicOut)
+      .attr("stroke-opacity", 0.55)
+      .attr("stroke-width", 6);
+
+    // counterparties halos
+    const [side, id] = key.split(":");
+    const counterparties = new Set();
+    edgesAll.forEach(e => {
+      if (side==="inv" && e.investor===id) counterparties.add("co:"+e.company);
+      if (side==="co"  && e.company===id)  counterparties.add("inv:"+e.investor);
+    });
+    counterparties.forEach(k => {
+      gArcs.select(`.arc-seg[data-key="${k}"] .halo`)
+        .transition().duration(220).ease(d3.easeCubicOut)
+        .attr("stroke-opacity", 0.32)
+        .attr("stroke-width", 3);
+    });
+
+    applyTimeFilter();
+    showCard(key, ev);
+  }
+
+  function clearFocus(){
+    focusKey = null;
+    gArcs.selectAll(".arc-seg .halo")
+      .transition().duration(220).ease(d3.easeCubicOut)
+      .attr("stroke-opacity", 0)
+      .attr("stroke-width", 0);
+    applyTimeFilter();
+    hideCard();
+  }
+
+  /* ---------------------------------------------------------------
+     hover card
+     --------------------------------------------------------------- */
+  const card = document.getElementById("card");
+  function showCard(key, ev){
+    const [side, id] = key.split(":");
+    let html = "";
+    if (side === "inv"){
+      const node = investors.find(i => i.id === id);
+      if (!node) return hideCard();
+      const visEdges = node.edges.filter(e => e.year <= currentYear);
+      const total = d3.sum(visEdges, d => d.amount);
+      const partners = d3.rollups(visEdges, v => d3.sum(v, d=>d.amount), d=>d.company)
+        .sort((a,b)=>b[1]-a[1]).slice(0,3);
+      html = `
+        <div class="kicker">// investor</div>
+        <h3>${escapeHtml(node.name)}</h3>
+        <div class="meta-row">
+          <span class="lbl">type</span><span class="val">${escapeHtml(node.type || "—")}</span>
+          <span class="lbl">country</span><span class="val">${escapeHtml(node.country || "—")}</span>
+          <span class="lbl">deals</span><span class="val">${visEdges.length} / ${node.edges.length}</span>
+          <span class="lbl">capital</span><span class="val" style="color:${INVESTOR_GOLD}">${fmtUSD(total)}</span>
+          <span class="lbl">focus</span><span class="val" style="color:${VCOLOR[node.dominantVertical]||'#aaa'}">${escapeHtml(node.dominantVertical)}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="partners">
+          <div class="head">top portfolio</div>
+          ${partners.map(([nm,amt]) => `
+            <div class="p"><span class="nm">${escapeHtml(nm)}</span><span class="vl">${fmtUSD(amt)}</span></div>
+          `).join("") || `<div class="p" style="color:var(--ink-faint)">—</div>`}
+        </div>
+      `;
+    } else {
+      const node = companies.find(c => c.id === id);
+      if (!node) return hideCard();
+      const visEdges = node.edges.filter(e => e.year <= currentYear);
+      const total = d3.sum(visEdges, d => d.amount);
+      const partners = d3.rollups(visEdges, v => d3.sum(v, d=>d.amount), d=>d.investor)
+        .sort((a,b)=>b[1]-a[1]).slice(0,3);
+      const color = VCOLOR[node.vertical] || "#aaa";
+      html = `
+        <div class="kicker" style="color:${color}">// company</div>
+        <h3>${escapeHtml(node.name)}</h3>
+        <div class="meta-row">
+          <span class="lbl">vertical</span><span class="val" style="color:${color}">${escapeHtml(node.vertical)}</span>
+          <span class="lbl">country</span><span class="val">${escapeHtml(node.country)}</span>
+          <span class="lbl">city</span><span class="val">${escapeHtml(node.city || "—")}</span>
+          <span class="lbl">backers</span><span class="val">${visEdges.length} / ${node.edges.length}</span>
+          <span class="lbl">raised</span><span class="val" style="color:${INVESTOR_GOLD}">${fmtUSD(total)}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="partners">
+          <div class="head">top backers</div>
+          ${partners.map(([nm,amt]) => `
+            <div class="p"><span class="nm">${escapeHtml(nm)}</span><span class="vl">${fmtUSD(amt)}</span></div>
+          `).join("") || `<div class="p" style="color:var(--ink-faint)">—</div>`}
+        </div>
+      `;
+    }
+    card.innerHTML = html;
+    card.classList.add("show");
+    moveCard(ev);
+  }
+
+  function moveCard(ev){
+    if (!card.classList.contains("show")) return;
+    const pad = 16;
+    const W = window.innerWidth, H = window.innerHeight;
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    let x = ev.clientX + 18;
+    let y = ev.clientY + 18;
+    if (x + cw + pad > W) x = ev.clientX - cw - 18;
+    if (y + ch + pad > H) y = ev.clientY - ch - 18;
+    card.style.left = x + "px";
+    card.style.top = y + "px";
+  }
+
+  function hideCard(){
+    card.classList.remove("show");
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c =>
+      ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])
+    );
+  }
+
+  /* ---------------------------------------------------------------
+     timeline UI
+     --------------------------------------------------------------- */
+  const tl = document.getElementById("timeline");
+  const tlFill = document.getElementById("tl-fill");
+  const tlHandle = document.getElementById("tl-handle");
+  const tlTicks = document.getElementById("tl-ticks");
+  const playBtn = document.getElementById("play");
+  const playIcon = document.getElementById("play-icon");
+
+  // build year ticks
+  function buildTicks(){
+    tlTicks.innerHTML = "";
+    for (let y = 2010; y <= 2025; y++){
+      const pct = (y - 2010) / 15;
+      const tick = document.createElement("div");
+      tick.className = "tl-tick" + (y%5===0 ? " major" : "");
+      tick.style.left = (pct*100) + "%";
+      tlTicks.appendChild(tick);
+      if (y%5===0){
+        const lbl = document.createElement("div");
+        lbl.className = "tl-tick-lbl";
+        lbl.style.left = (pct*100) + "%";
+        lbl.textContent = y;
+        tlTicks.appendChild(lbl);
+      }
+    }
+  }
+  buildTicks();
+
+  function setYear(y){
+    y = Math.max(2010, Math.min(2025, y));
+    currentYear = Math.round(y);
+    const pct = (y - 2010) / 15 * 100;
+    tlFill.style.width = pct + "%";
+    tlHandle.style.left = pct + "%";
+    document.getElementById("meta-idx").textContent = String(currentYear-2009).padStart(2,"0");
+    applyTimeFilter();
+  }
+
+  // drag handle
+  let dragging = false;
+  function trackRect(){
+    const tw = tl.querySelector(".tl-track-wrap").getBoundingClientRect();
+    return tw;
+  }
+  function pctFromEv(ev){
+    const r = trackRect();
+    const x = ev.clientX - r.left;
+    return Math.max(0, Math.min(1, x / r.width));
+  }
+  tl.querySelector(".tl-track-wrap").addEventListener("pointerdown", (ev)=>{
+    if (ev.target === playBtn || playBtn.contains(ev.target)) return;
+    dragging = true;
+    pausePlayback();
+    setYear(2010 + pctFromEv(ev) * 15);
+    ev.target.setPointerCapture && ev.target.setPointerCapture(ev.pointerId);
+  });
+  window.addEventListener("pointermove", (ev)=>{
+    if (!dragging) return;
+    setYear(2010 + pctFromEv(ev) * 15);
+  });
+  window.addEventListener("pointerup", ()=> dragging = false);
+
+  // playback
+  let playing = false;
+  let playStart = 0;
+  let playFrom = 2010;
+  const PLAY_DURATION = 15000; // 15s for full sweep
+
+  function startPlayback(fromYear){
+    playing = true;
+    playFrom = (fromYear !== undefined) ? fromYear : 2010;
+    if (playFrom >= 2025) playFrom = 2010;
+    playStart = performance.now();
+    setPlayIcon(true);
+    requestAnimationFrame(tick);
+  }
+  function pausePlayback(){
+    playing = false;
+    setPlayIcon(false);
+  }
+  function setPlayIcon(isPlaying){
+    if (isPlaying){
+      // pause icon
+      playIcon.setAttribute("points","2,1 4,1 4,9 2,9 6,1 8,1 8,9 6,9");
+    } else {
+      playIcon.setAttribute("points","2,1 9,5 2,9");
+    }
+  }
+  function tick(now){
+    if (!playing) return;
+    const t = (now - playStart) / PLAY_DURATION;
+    const y = playFrom + t * (2025 - playFrom);
+    if (y >= 2025){
+      setYear(2025);
+      pausePlayback();
+      return;
+    }
+    setYear(y);
+    requestAnimationFrame(tick);
+  }
+  playBtn.addEventListener("click", () => {
+    if (playing) pausePlayback();
+    else startPlayback(currentYear >= 2025 ? 2010 : currentYear);
+  });
+
+  /* ---------------------------------------------------------------
+     init
+     --------------------------------------------------------------- */
+  render();
+  // start from 2010 with auto-play after a short beat
+  setYear(2010);
+  setTimeout(()=> startPlayback(2010), 600);
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{
+      // clear gradients to avoid id buildup
+      defs.selectAll("linearGradient[id^='rg_']").remove();
+      render();
+    }, 120);
+  });
+
+}).catch(err => {
+  console.error("Data load failed", err);
+  const el = document.createElement("div");
+  el.style.cssText = "position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#ff6b6b;font-family:monospace;text-align:center;padding:32px;";
+  el.innerHTML = `<div>could not load data<br><br><span style="color:#888;font-size:12px">${escapeHtmlSafe(err.message||err)}</span><br><br><span style="color:#666;font-size:11px">serve via: python3 -m http.server</span></div>`;
+  document.body.appendChild(el);
+});
+
+function escapeHtmlSafe(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])
+  );
+}
+</script>
+</body>
+</html>

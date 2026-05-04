@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quantum Constellation — Investment Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #05060a;
+    --fg: #e7ecf5;
+    --fg-dim: #8892a8;
+    --fg-faint: #4a5366;
+    --panel: rgba(8, 10, 16, 0.62);
+    --panel-border: rgba(255, 255, 255, 0.06);
+    --accent: #7cd6ff;
+
+    --c-qcomp: #00e5ff;
+    --c-aiml:  #b14aed;
+    --c-bio:   #2ee6a6;
+    --c-mat:   #ffb547;
+    --c-comm:  #ff6b6b;
+    --c-cyber: #4d8bff;
+    --c-other: #8a93a6;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: var(--bg); color: var(--fg);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-feature-settings: "tnum" 1, "ss01" 1, "cv11" 1;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* The graph mounts here */
+  #graph {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(20, 24, 40, 0.4) 0%, rgba(0,0,0,0) 60%),
+      var(--bg);
+  }
+
+  /* Vignette overlay — pulls the eye into the center, makes bloom feel intentional */
+  #vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: radial-gradient(ellipse at center,
+      rgba(0,0,0,0) 35%,
+      rgba(0,0,0,0.35) 75%,
+      rgba(0,0,0,0.85) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  /* Subtle scanline / film grain feel via a noisy SVG */
+  #grain {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+    mix-blend-mode: overlay;
+  }
+
+  /* Header */
+  .panel {
+    position: fixed;
+    z-index: 20;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-radius: 12px;
+    color: var(--fg);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  #header {
+    top: 22px; left: 24px;
+    padding: 14px 18px 12px 18px;
+    min-width: 320px;
+  }
+  #header .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #header .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--c-qcomp);
+    box-shadow: 0 0 10px var(--c-qcomp);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.25); }
+  }
+  #header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  #header h1 .accent { color: var(--accent); font-weight: 500; }
+  #header .subtitle {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    line-height: 1.5;
+    display: flex; gap: 14px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+  }
+  #header .subtitle .stat .v { color: var(--fg); font-weight: 500; }
+  #header .subtitle .stat .k { color: var(--fg-faint); margin-right: 4px; }
+
+  /* Search */
+  #search {
+    top: 22px; right: 24px;
+    padding: 10px 12px;
+    width: 280px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #search svg { width: 14px; height: 14px; color: var(--fg-faint); flex: 0 0 auto; }
+  #search input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--fg);
+    font: 500 12.5px "Inter", sans-serif;
+    letter-spacing: 0.01em;
+  }
+  #search input::placeholder { color: var(--fg-faint); }
+  #search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: rgba(10, 12, 18, 0.92);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(14px);
+    border-radius: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+  #search-results.show { display: block; }
+  .search-row {
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 120ms ease;
+  }
+  .search-row:last-child { border-bottom: 0; }
+  .search-row:hover { background: rgba(255,255,255,0.04); }
+  .search-row .swatch {
+    width: 8px; height: 8px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+    flex: 0 0 auto;
+  }
+  .search-row .name { flex: 1; color: var(--fg); }
+  .search-row .meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Hover info card (top-right under search) */
+  #info-card {
+    top: 84px; right: 24px;
+    width: 320px;
+    padding: 16px 18px;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 220ms ease-out, transform 220ms ease-out;
+  }
+  #info-card.show { opacity: 1; transform: translateY(0); }
+  #info-card .vert-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 8px;
+  }
+  #info-card .vert-tag .swatch {
+    width: 7px; height: 7px; border-radius: 50%;
+    box-shadow: 0 0 9px currentColor;
+  }
+  #info-card h2 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  #info-card .desc {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--fg-dim);
+    margin-bottom: 12px;
+  }
+  #info-card .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+  #info-card .grid .item {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+  }
+  #info-card .grid .k { color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 2px; }
+  #info-card .grid .v { color: var(--fg); font-size: 12px; font-family: "Inter", sans-serif; font-weight: 500; }
+  #info-card .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  #info-card .chip {
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    color: var(--fg-dim);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  #info-card .funding {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+  }
+  #info-card .funding .label { color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.14em; }
+  #info-card .funding .amount { color: var(--accent); font-size: 14px; font-weight: 600; }
+  #info-card .funding .round { color: var(--fg-dim); margin-left: 6px; }
+
+  /* Legend */
+  #legend {
+    bottom: 22px; right: 24px;
+    padding: 12px 14px;
+    min-width: 220px;
+  }
+  #legend h3 {
+    margin: 0 0 10px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    font-weight: 500;
+  }
+  #legend .row {
+    display: flex; align-items: center;
+    gap: 9px;
+    padding: 4px 0;
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    cursor: pointer;
+    transition: color 150ms ease;
+  }
+  #legend .row:hover { color: var(--fg); }
+  #legend .row.active { color: var(--fg); }
+  #legend .row .sw {
+    width: 10px; height: 10px; border-radius: 50%;
+    box-shadow: 0 0 10px currentColor;
+    flex: 0 0 auto;
+  }
+  #legend .row .ct {
+    margin-left: auto;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--fg-faint);
+  }
+
+  /* Footer status — bottom-left */
+  #status {
+    bottom: 22px; left: 24px;
+    padding: 8px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--fg-faint);
+    display: flex; gap: 16px; align-items: center;
+  }
+  #status .live { color: var(--c-bio); }
+  #status .live .dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--c-bio); margin-right: 6px;
+    box-shadow: 0 0 8px var(--c-bio);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  #status .sep { color: var(--fg-faint); opacity: 0.4; }
+
+  /* Loading overlay */
+  #loading {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    transition: opacity 600ms ease 200ms;
+  }
+  #loading.hide { opacity: 0; pointer-events: none; }
+  #loading .spinner {
+    text-align: center;
+  }
+  #loading .ring {
+    width: 56px; height: 56px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-top-color: var(--c-qcomp);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 18px auto;
+    box-shadow: 0 0 22px rgba(0, 229, 255, 0.25);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  /* Hide scrollbars but keep scroll */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+  /* Three-spritetext labels (rendered into the canvas, but we set body color for default) */
+  canvas { display: block; }
+</style>
+
+<!-- 3d-force-graph (UMD) bundles its own Three.js (r163). To minimize cross-instance
+     issues with UnrealBloomPass + SpriteText we pin our ESM Three.js to the same revision. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/",
+    "three-spritetext": "https://unpkg.com/three-spritetext@1.8.2/dist/three-spritetext.mjs"
+  }
+}
+</script>
+<script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner">
+    <div class="ring"></div>
+    <div class="label">Initializing constellation</div>
+  </div>
+</div>
+
+<div id="graph"></div>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<div id="header" class="panel">
+  <div class="eyebrow"><span class="dot"></span> Quantum Investment Graph · Live</div>
+  <h1>QUANTUM CONSTELLATION <span class="accent">— Investment Universe</span></h1>
+  <div class="subtitle">
+    <span class="stat"><span class="k">companies</span><span class="v" id="s-companies">—</span></span>
+    <span class="stat"><span class="k">investors</span><span class="v" id="s-investors">—</span></span>
+    <span class="stat"><span class="k">founders</span><span class="v" id="s-founders">—</span></span>
+    <span class="stat"><span class="k">edges</span><span class="v" id="s-edges">—</span></span>
+  </div>
+</div>
+
+<div id="search" class="panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+  <input id="search-input" type="text" placeholder="Search companies, investors, founders…" autocomplete="off" spellcheck="false" />
+  <div id="search-results"></div>
+</div>
+
+<div id="info-card" class="panel">
+  <div class="vert-tag"><span class="swatch" id="ic-swatch"></span><span id="ic-vert">—</span></div>
+  <h2 id="ic-name">—</h2>
+  <div class="desc" id="ic-desc"></div>
+  <div class="grid" id="ic-grid"></div>
+  <div class="chips" id="ic-chips"></div>
+  <div class="funding" id="ic-funding" style="display:none;">
+    <span class="label">Total raised<sup style="opacity:0.5">*</sup></span>
+    <span><span class="amount" id="ic-amount">—</span><span class="round" id="ic-round"></span></span>
+  </div>
+</div>
+
+<div id="legend" class="panel">
+  <h3>Verticals</h3>
+  <div id="legend-rows"></div>
+</div>
+
+<div id="status" class="panel">
+  <span class="live"><span class="dot"></span>STREAM ACTIVE</span>
+  <span class="sep">·</span>
+  <span id="status-fps">— FPS</span>
+  <span class="sep">·</span>
+  <span id="status-mode">AUTO-ORBIT</span>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import SpriteText from 'three-spritetext';
+// ForceGraph3D is loaded synchronously as a UMD bundle in <head> and exposed as window.ForceGraph3D.
+const ForceGraph3D = window.ForceGraph3D;
+
+// ============================================================
+// Config: vertical color map (matches CSS custom props)
+// ============================================================
+const VERTICAL_COLORS = {
+  'Quantum Computing':           '#00e5ff',
+  'Quantum AI & ML':             '#b14aed',
+  'Quantum Bio & Medicine':      '#2ee6a6',
+  'Quantum Materials & NanoTech':'#ffb547',
+  'Communications':              '#ff6b6b',
+  'Cyber Security':              '#4d8bff',
+  'Other':                       '#8a93a6',
+};
+
+// Short labels for compact UI
+const VERTICAL_SHORT = {
+  'Quantum Computing':            'Quantum Computing',
+  'Quantum AI & ML':              'Quantum AI / ML',
+  'Quantum Bio & Medicine':       'Quantum Bio & Med',
+  'Quantum Materials & NanoTech': 'Materials / Nano',
+  'Communications':               'Communications',
+  'Cyber Security':               'Cyber Security',
+  'Other':                        'Other',
+};
+
+const VERTICAL_ORDER = [
+  'Quantum Computing',
+  'Quantum AI & ML',
+  'Quantum Bio & Medicine',
+  'Quantum Materials & NanoTech',
+  'Communications',
+  'Cyber Security',
+  'Other',
+];
+
+// Synthetic-augmentation seeded RNG (stable across renders)
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function hashStr(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+// ============================================================
+// Boot
+// ============================================================
+(async function main() {
+  // ----------------------------
+  // Load data
+  // ----------------------------
+  const data = await fetch('../data/quantum_ecosystem.json').then(r => r.json());
+
+  // ----------------------------
+  // Build graph: companies + investors + founders
+  // Aim for ~500-800 visible nodes.
+  // We have 47 companies, 221 investors, 91 founders = ~360 nodes core.
+  // We'll also include the 1098 "people" (executives) attached to companies, capped per company,
+  // to thicken the constellation visually.
+  // ----------------------------
+  const companies = data.companies || [];
+  const investors = data.investors || [];
+  const founders  = data.founders  || [];
+  const people    = data.people    || [];
+  const investmentsRaw = data.investments || [];
+
+  // Index investors by name for lookup (some company.investors are names that may not exactly match investors[].name)
+  const investorByName = new Map();
+  for (const inv of investors) investorByName.set(inv.name, inv);
+
+  // Investor portfolio counts (from edges)
+  const portfolioCount = new Map();
+  for (const e of investmentsRaw) {
+    portfolioCount.set(e.investor, (portfolioCount.get(e.investor) || 0) + 1);
+  }
+  // Some company.investors may not appear in investments[] — count those too
+  for (const c of companies) {
+    for (const invName of (c.investors || [])) {
+      // we'll add edges from these later if missing, so portfolio increments later
+    }
+  }
+
+  // Build node + link arrays
+  const nodes = [];
+  const links = [];
+  const nodeById = new Map();
+
+  function pushNode(n) {
+    if (nodeById.has(n.id)) return nodeById.get(n.id);
+    nodeById.set(n.id, n);
+    nodes.push(n);
+    return n;
+  }
+
+  // SYNTHETIC: invent plausible round series + funding amounts per company so info card feels rich.
+  // Marked with `_synthetic: true` so user can swap in real data later.
+  const ROUNDS = ['Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Growth'];
+  function syntheticFunding(company) {
+    const rng = mulberry32(hashStr(company.id || company.name));
+    const r = rng();
+    let round, base;
+    if (r < 0.18)      { round = 'Seed';     base = 4 + rng() * 8; }
+    else if (r < 0.45) { round = 'Series A'; base = 12 + rng() * 25; }
+    else if (r < 0.7)  { round = 'Series B'; base = 35 + rng() * 60; }
+    else if (r < 0.88) { round = 'Series C'; base = 80 + rng() * 140; }
+    else               { round = 'Series D'; base = 200 + rng() * 450; }
+    // weight up by # investors known
+    const invBoost = 1 + ((company.investors || []).length) * 0.12;
+    const amount = Math.round(base * invBoost);
+    return { round, amount, _synthetic: true };
+  }
+
+  // 1) Company nodes
+  for (const c of companies) {
+    const vertical = c.vertical || 'Other';
+    const fund = syntheticFunding(c);
+    pushNode({
+      id: 'C::' + c.id,
+      kind: 'company',
+      name: c.name,
+      vertical,
+      country: c.country,
+      city: c.city,
+      founded: c.founded,
+      employees: c.employees,
+      description: c.description,
+      categories: c.categories || [],
+      investorsList: c.investors || [],
+      foundersList: c.founders || [],
+      website: c.website,
+      funding: fund,
+      // visual
+      color: VERTICAL_COLORS[vertical] || VERTICAL_COLORS['Other'],
+    });
+  }
+
+  // 2) Investor nodes — include all investors that appear in investments[] OR in any company.investors
+  const investorNamesUsed = new Set();
+  for (const e of investmentsRaw) investorNamesUsed.add(e.investor);
+  for (const c of companies) for (const n of (c.investors || [])) investorNamesUsed.add(n);
+
+  for (const name of investorNamesUsed) {
+    const inv = investorByName.get(name) || { name, country: null, type: null };
+    // count portfolio: edges where they are investor (we'll compute after edge build, but estimate now)
+    const known = portfolioCount.get(name) || 0;
+    pushNode({
+      id: 'I::' + name,
+      kind: 'investor',
+      name,
+      vertical: 'Investor',
+      country: inv.country,
+      city: inv.city,
+      type: inv.type,
+      description: inv.description,
+      portfolio: known, // updated after edges
+      // visual
+      color: '#ffffff',
+    });
+  }
+
+  // 3) Founder nodes — include founders that appear in any company.founders
+  const founderByName = new Map();
+  for (const f of founders) founderByName.set(f.name, f);
+  const founderNamesUsed = new Set();
+  for (const c of companies) for (const n of (c.founders || [])) founderNamesUsed.add(n);
+
+  for (const name of founderNamesUsed) {
+    const f = founderByName.get(name) || { name, companies: [] };
+    pushNode({
+      id: 'F::' + name,
+      kind: 'founder',
+      name,
+      vertical: 'Founder',
+      companiesList: f.companies || [],
+      color: '#ffd2a8',
+    });
+  }
+
+  // 4) People (executives) — small, used for visual density. Cap per company.
+  // Group people by company, take top by followers.
+  const peopleByCompany = new Map();
+  for (const p of people) {
+    if (!p.company) continue;
+    if (!peopleByCompany.has(p.company)) peopleByCompany.set(p.company, []);
+    peopleByCompany.get(p.company).push(p);
+  }
+  const PEOPLE_PER_COMPANY = 8; // 47 * 8 ~ 376 → total ~700 nodes
+  const personLinks = [];
+  let personCount = 0;
+  for (const c of companies) {
+    const list = (peopleByCompany.get(c.name) || [])
+      .sort((a,b) => (b.followers||0) - (a.followers||0))
+      .slice(0, PEOPLE_PER_COMPANY);
+    for (const p of list) {
+      const id = 'P::' + p.id;
+      pushNode({
+        id,
+        kind: 'person',
+        name: p.name,
+        vertical: c.vertical || 'Other',
+        company: p.company,
+        title: p.title,
+        country: p.country,
+        followers: p.followers,
+        color: VERTICAL_COLORS[c.vertical || 'Other'] || VERTICAL_COLORS['Other'],
+      });
+      personLinks.push({ source: 'C::' + c.id, target: id, kind: 'employs' });
+      personCount++;
+    }
+  }
+
+  // 5) Build edges
+  // 5a) investor -> company
+  for (const e of investmentsRaw) {
+    const sId = 'I::' + e.investor;
+    const tId = 'C::' + e.company;
+    if (!nodeById.has(sId) || !nodeById.has(tId)) continue;
+    // SYNTHETIC: edge weight = round size proxy (used for particle speed/width)
+    const target = nodeById.get(tId);
+    const rng = mulberry32(hashStr(e.investor + '::' + e.company));
+    const weight = 0.4 + rng() * 1.6;
+    links.push({
+      source: sId, target: tId,
+      kind: 'invest', weight,
+      _synthetic_weight: true,
+    });
+  }
+  // 5b) Add edges for company.investors entries that weren't in investments[]
+  const seenInv = new Set(links.filter(l => l.kind === 'invest').map(l => l.source + '||' + l.target));
+  for (const c of companies) {
+    for (const invName of (c.investors || [])) {
+      const sId = 'I::' + invName;
+      const tId = 'C::' + c.id;
+      if (!nodeById.has(sId) || !nodeById.has(tId)) continue;
+      const key = sId + '||' + tId;
+      if (seenInv.has(key)) continue;
+      seenInv.add(key);
+      const rng = mulberry32(hashStr(invName + '::' + c.id));
+      links.push({
+        source: sId, target: tId, kind: 'invest',
+        weight: 0.4 + rng() * 1.6, _synthetic_weight: true,
+      });
+    }
+  }
+  // 5c) founder -> company
+  for (const c of companies) {
+    for (const fName of (c.founders || [])) {
+      const sId = 'F::' + fName;
+      const tId = 'C::' + c.id;
+      if (!nodeById.has(sId) || !nodeById.has(tId)) continue;
+      links.push({ source: sId, target: tId, kind: 'founded' });
+    }
+  }
+  // 5d) person -> company (already built as personLinks)
+  for (const l of personLinks) links.push(l);
+
+  // Update investor portfolio counts (final)
+  for (const l of links) {
+    if (l.kind === 'invest') {
+      const inv = nodeById.get(l.source);
+      if (inv) inv.portfolio = (inv.portfolio || 0) + 1;
+    }
+  }
+
+  // Build adjacency for hover lookups
+  const adj = new Map();
+  for (const n of nodes) adj.set(n.id, new Set());
+  for (const l of links) {
+    const s = typeof l.source === 'object' ? l.source.id : l.source;
+    const t = typeof l.target === 'object' ? l.target.id : l.target;
+    adj.get(s).add(t);
+    adj.get(t).add(s);
+  }
+
+  // ----------------------------
+  // Update header counts
+  // ----------------------------
+  document.getElementById('s-companies').textContent = companies.length;
+  document.getElementById('s-investors').textContent = investorNamesUsed.size;
+  document.getElementById('s-founders').textContent  = founderNamesUsed.size;
+  document.getElementById('s-edges').textContent     = links.filter(l => l.kind === 'invest').length;
+
+  // ----------------------------
+  // Legend
+  // ----------------------------
+  const verticalCounts = {};
+  for (const v of VERTICAL_ORDER) verticalCounts[v] = 0;
+  for (const c of companies) {
+    const v = c.vertical || 'Other';
+    verticalCounts[v] = (verticalCounts[v] || 0) + 1;
+  }
+  const legendEl = document.getElementById('legend-rows');
+  const legendRows = [];
+  for (const v of VERTICAL_ORDER) {
+    if (!verticalCounts[v]) continue;
+    const row = document.createElement('div');
+    row.className = 'row active';
+    row.dataset.vert = v;
+    row.innerHTML = `
+      <span class="sw" style="background:${VERTICAL_COLORS[v]}; color:${VERTICAL_COLORS[v]}"></span>
+      <span class="lbl">${VERTICAL_SHORT[v]}</span>
+      <span class="ct">${verticalCounts[v]}</span>
+    `;
+    legendEl.appendChild(row);
+    legendRows.push(row);
+  }
+
+  // ----------------------------
+  // Build the 3D graph
+  // ----------------------------
+  const elem = document.getElementById('graph');
+  const Graph = ForceGraph3D({
+    rendererConfig: { antialias: true, alpha: false },
+    extraRenderers: []
+  })(elem)
+    .backgroundColor('#05060a')
+    .graphData({ nodes, links })
+    .nodeId('id')
+    .nodeRelSize(4)
+    .nodeOpacity(1)
+    .nodeResolution(16)
+    .linkOpacity(0.32)
+    .linkWidth(l => (l.kind === 'invest' ? 0.6 + (l.weight || 0) * 0.4 : 0.25))
+    .linkDirectionalParticles(l => (l.kind === 'invest' ? 2 : 0))
+    .linkDirectionalParticleSpeed(l => 0.0035 + (l.weight || 0) * 0.0015)
+    .linkDirectionalParticleWidth(l => l.kind === 'invest' ? 1.8 : 0)
+    .linkDirectionalParticleResolution(6)
+    .cooldownTicks(220)
+    .warmupTicks(40);
+
+  // node sphere builder — emissive-glowing materials, sized per kind
+  Graph.nodeThreeObject((node) => {
+    let radius, color, emissiveIntensity;
+    if (node.kind === 'company') {
+      radius = 2.2 + Math.min(((node.investorsList || []).length) * 0.35, 4);
+      color = node.color;
+      emissiveIntensity = 1.4;
+    } else if (node.kind === 'investor') {
+      const p = node.portfolio || 1;
+      radius = 3.2 + Math.min(p, 12) * 0.55;
+      color = '#f5f9ff';
+      emissiveIntensity = 1.1;
+    } else if (node.kind === 'founder') {
+      radius = 1.6;
+      color = '#ffd2a8';
+      emissiveIntensity = 0.9;
+    } else { // person
+      radius = 0.9;
+      color = node.color;
+      emissiveIntensity = 0.6;
+    }
+
+    const geom = new THREE.SphereGeometry(radius, 16, 16);
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(color),
+      emissive: new THREE.Color(color),
+      emissiveIntensity,
+      roughness: 0.35,
+      metalness: 0.15,
+      transparent: true,
+      opacity: 1,
+    });
+    const mesh = new THREE.Mesh(geom, mat);
+
+    // Add an outer "glow" halo for big nodes (investors + larger companies)
+    if (node.kind === 'investor' || (node.kind === 'company' && (node.investorsList || []).length >= 3)) {
+      const haloGeom = new THREE.SphereGeometry(radius * 1.55, 16, 16);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(color),
+        transparent: true,
+        opacity: 0.10,
+        side: THREE.BackSide,
+        depthWrite: false,
+      });
+      const halo = new THREE.Mesh(haloGeom, haloMat);
+      mesh.add(halo);
+    }
+
+    // Add label only for big nodes (investors + companies) — keeps the scene clean
+    if (node.kind === 'company' || node.kind === 'investor') {
+      const sprite = new SpriteText(node.name);
+      sprite.color = node.kind === 'investor' ? '#f5f9ff' : node.color;
+      sprite.textHeight = node.kind === 'investor' ? 2.8 : 2.0;
+      sprite.fontFace = 'Inter, sans-serif';
+      sprite.fontWeight = node.kind === 'investor' ? 600 : 500;
+      sprite.fontSize = 70;
+      sprite.padding = 2;
+      sprite.borderRadius = 3;
+      sprite.material.depthWrite = false;
+      sprite.material.transparent = true;
+      sprite.material.opacity = 0.78;
+      sprite.position.y = -(radius + 2.3);
+      mesh.add(sprite);
+      node.__label = sprite;
+    }
+
+    node.__threeObj = mesh;
+    node.__mesh = mesh;
+    node.__mat = mat;
+    node.__baseRadius = radius;
+    return mesh;
+  });
+
+  // Custom link colors via a canvas-based gradient is heavy; we use plain color blend instead.
+  Graph.linkColor((l) => {
+    const sId = typeof l.source === 'object' ? l.source.id : l.source;
+    const tId = typeof l.target === 'object' ? l.target.id : l.target;
+    const s = nodeById.get(sId);
+    const t = nodeById.get(tId);
+    if (!s || !t) return 'rgba(255,255,255,0.18)';
+    if (l.kind === 'invest') return blendHex(s.color || '#ffffff', t.color || '#ffffff', 0.5, 0.5);
+    if (l.kind === 'founded') return 'rgba(255, 210, 168, 0.35)';
+    if (l.kind === 'employs') {
+      // make these very faint — they exist for density
+      return hexToRgba(t.color || '#8a93a6', 0.10);
+    }
+    return 'rgba(255,255,255,0.18)';
+  });
+
+  Graph.linkDirectionalParticleColor(l => {
+    const tId = typeof l.target === 'object' ? l.target.id : l.target;
+    const t = nodeById.get(tId);
+    return t?.color || '#ffffff';
+  });
+
+  // ----------------------------
+  // Force layout: cluster by vertical (act like nebulae)
+  // ----------------------------
+  // Use the d3 forces exposed by 3d-force-graph
+  const fg = Graph;
+  // Vertical anchor positions, evenly spread on a sphere
+  const verticalAnchors = {};
+  const ang = 2 * Math.PI / VERTICAL_ORDER.length;
+  const ANCHOR_RADIUS = 240;
+  VERTICAL_ORDER.forEach((v, i) => {
+    const lat = (i % 2 === 0 ? 0.45 : -0.45);
+    const theta = i * ang;
+    verticalAnchors[v] = new THREE.Vector3(
+      Math.cos(theta) * ANCHOR_RADIUS,
+      lat * ANCHOR_RADIUS * 0.6,
+      Math.sin(theta) * ANCHOR_RADIUS,
+    );
+  });
+  // Attractor force toward anchor for company / person nodes
+  function clusterForce(alpha) {
+    for (const n of nodes) {
+      let anchor = null;
+      if (n.kind === 'company' || n.kind === 'person') anchor = verticalAnchors[n.vertical || 'Other'];
+      else continue;
+      if (!anchor) continue;
+      const k = (n.kind === 'company' ? 0.05 : 0.025) * alpha;
+      n.vx = (n.vx || 0) + (anchor.x - n.x) * k;
+      n.vy = (n.vy || 0) + (anchor.y - n.y) * k;
+      n.vz = (n.vz || 0) + (anchor.z - n.z) * k;
+    }
+  }
+  // Register custom force on the underlying d3-force simulation
+  if (fg.d3Force) {
+    fg.d3Force('cluster', clusterForce);
+    // Tune existing forces for a nicer galaxy
+    if (fg.d3Force('charge'))  fg.d3Force('charge').strength(-130);
+    if (fg.d3Force('link'))    fg.d3Force('link').distance(l => l.kind === 'employs' ? 14 : (l.kind === 'invest' ? 38 : 22)).strength(l => l.kind === 'employs' ? 0.6 : 0.4);
+    if (fg.d3Force('center'))  fg.d3Force('center').strength(0.04);
+  }
+  fg.d3VelocityDecay(0.32);
+
+  // ----------------------------
+  // Lights
+  // ----------------------------
+  const scene = Graph.scene();
+  scene.fog = new THREE.FogExp2(0x05060a, 0.0012);
+  // Remove default directional light (force-graph adds one) — replace with mood lighting
+  const ambient = new THREE.AmbientLight(0x6f86ff, 0.35);
+  scene.add(ambient);
+  const key = new THREE.PointLight(0x88ccff, 1.0, 0, 1.6);
+  key.position.set(220, 180, 160);
+  scene.add(key);
+  const rim = new THREE.PointLight(0xff6b6b, 0.5, 0, 1.6);
+  rim.position.set(-260, -120, -180);
+  scene.add(rim);
+  const fill = new THREE.PointLight(0xb14aed, 0.4, 0, 1.6);
+  fill.position.set(0, -260, 80);
+  scene.add(fill);
+
+  // ----------------------------
+  // Starfield
+  // ----------------------------
+  const STAR_COUNT = 2400;
+  const starGeom = new THREE.BufferGeometry();
+  const starPos = new Float32Array(STAR_COUNT * 3);
+  const starCol = new Float32Array(STAR_COUNT * 3);
+  const starSize = new Float32Array(STAR_COUNT);
+  for (let i = 0; i < STAR_COUNT; i++) {
+    // Random points on a large sphere
+    const r = 1200 + Math.random() * 1400;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    starPos[i*3+0] = r * Math.sin(phi) * Math.cos(theta);
+    starPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    starPos[i*3+2] = r * Math.cos(phi);
+    // Subtle color variation: white -> faint blue -> faint amber
+    const tint = Math.random();
+    let cr, cg, cb;
+    if (tint < 0.7)      { cr = 0.95; cg = 0.97; cb = 1.0; }   // white
+    else if (tint < 0.9) { cr = 0.7;  cg = 0.85; cb = 1.0; }   // pale blue
+    else                 { cr = 1.0;  cg = 0.9;  cb = 0.7; }   // pale amber
+    const b = 0.4 + Math.random() * 0.6;
+    starCol[i*3+0] = cr * b;
+    starCol[i*3+1] = cg * b;
+    starCol[i*3+2] = cb * b;
+    starSize[i] = 0.6 + Math.random() * 1.6;
+  }
+  starGeom.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  starGeom.setAttribute('color',    new THREE.BufferAttribute(starCol, 3));
+  starGeom.setAttribute('size',     new THREE.BufferAttribute(starSize, 1));
+  const starMat = new THREE.PointsMaterial({
+    size: 1.1,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+  const stars = new THREE.Points(starGeom, starMat);
+  scene.add(stars);
+
+  // ----------------------------
+  // Bloom postprocessing
+  // ----------------------------
+  const bloom = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.62,  // strength
+    0.85,  // radius
+    0.05,  // threshold
+  );
+  Graph.postProcessingComposer().addPass(bloom);
+
+  // ----------------------------
+  // Camera + auto-orbit
+  // ----------------------------
+  Graph.cameraPosition({ x: 0, y: 60, z: 600 }, { x: 0, y: 0, z: 0 }, 0);
+  let lastInteractionTs = 0;
+  const ORBIT_RESUME_MS = 5000;
+  const ORBIT_PERIOD_MS = 30000;
+  let autoOrbiting = true;
+
+  const controls = Graph.controls();
+  if (controls) {
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.rotateSpeed = 0.6;
+    controls.zoomSpeed = 0.7;
+    controls.addEventListener('start', () => {
+      lastInteractionTs = performance.now();
+      autoOrbiting = false;
+      document.getElementById('status-mode').textContent = 'USER CONTROL';
+    });
+  }
+
+  // Track raw user input on the canvas too (mouse wheel etc.)
+  ['mousedown', 'wheel', 'touchstart'].forEach(ev => {
+    elem.addEventListener(ev, () => {
+      lastInteractionTs = performance.now();
+      autoOrbiting = false;
+      document.getElementById('status-mode').textContent = 'USER CONTROL';
+    }, { passive: true });
+  });
+
+  // ----------------------------
+  // Hover behavior — highlight 1-hop neighborhood
+  // ----------------------------
+  const DIM_OPACITY = 0.12;
+  let hoveredNodeId = null;
+  let highlightSet = null;
+
+  function applyHighlight(node) {
+    hoveredNodeId = node ? node.id : null;
+    if (node) {
+      highlightSet = new Set(adj.get(node.id));
+      highlightSet.add(node.id);
+    } else {
+      highlightSet = null;
+    }
+    // Update node materials
+    for (const n of nodes) {
+      if (!n.__mat) continue;
+      const target = highlightSet
+        ? (highlightSet.has(n.id) ? 1.0 : DIM_OPACITY)
+        : 1.0;
+      n.__mat.opacity = target;
+      n.__mat.transparent = true;
+      // boost emissive on hovered
+      if (n.id === hoveredNodeId) n.__mat.emissiveIntensity = 2.4;
+      else if (highlightSet && highlightSet.has(n.id)) n.__mat.emissiveIntensity = 1.7;
+      else if (highlightSet) n.__mat.emissiveIntensity = 0.5;
+      else {
+        // restore base
+        if (n.kind === 'company') n.__mat.emissiveIntensity = 1.4;
+        else if (n.kind === 'investor') n.__mat.emissiveIntensity = 1.1;
+        else if (n.kind === 'founder') n.__mat.emissiveIntensity = 0.9;
+        else n.__mat.emissiveIntensity = 0.6;
+      }
+      // labels — hide non-neighborhood
+      if (n.__label) {
+        n.__label.material.opacity = highlightSet
+          ? (highlightSet.has(n.id) ? 1.0 : 0.05)
+          : 0.78;
+      }
+    }
+    // Force-graph link opacity is global; we override with linkColor that knows highlight
+    Graph.linkOpacity(highlightSet ? 0.55 : 0.32);
+    // Refresh link colors so dimmed edges fade
+    Graph.linkColor(linkColorWithHighlight);
+    Graph.linkDirectionalParticleColor(particleColorWithHighlight);
+  }
+
+  function inHighlight(id) {
+    return !highlightSet || highlightSet.has(id);
+  }
+
+  function linkColorWithHighlight(l) {
+    const sId = typeof l.source === 'object' ? l.source.id : l.source;
+    const tId = typeof l.target === 'object' ? l.target.id : l.target;
+    const s = nodeById.get(sId), t = nodeById.get(tId);
+    if (!s || !t) return 'rgba(255,255,255,0.1)';
+    let baseAlpha;
+    let col;
+    if (l.kind === 'invest') {
+      col = blendHex(s.color, t.color, 0.5, 0.5);
+      baseAlpha = 0.62;
+    } else if (l.kind === 'founded') {
+      col = '#ffd2a8';
+      baseAlpha = 0.45;
+    } else {
+      col = t.color || '#8a93a6';
+      baseAlpha = 0.10;
+    }
+    const inHL = highlightSet ? (highlightSet.has(sId) && highlightSet.has(tId)) : true;
+    const alpha = highlightSet ? (inHL ? Math.max(baseAlpha, 0.7) : 0.04) : baseAlpha;
+    return hexToRgba(col, alpha);
+  }
+  function particleColorWithHighlight(l) {
+    const sId = typeof l.source === 'object' ? l.source.id : l.source;
+    const tId = typeof l.target === 'object' ? l.target.id : l.target;
+    const inHL = highlightSet ? (highlightSet.has(sId) && highlightSet.has(tId)) : true;
+    const t = nodeById.get(tId);
+    const col = t?.color || '#ffffff';
+    return inHL ? col : hexToRgba(col, 0.08);
+  }
+  // Initial paint
+  Graph.linkColor(linkColorWithHighlight);
+  Graph.linkDirectionalParticleColor(particleColorWithHighlight);
+
+  Graph.onNodeHover((node) => {
+    elem.style.cursor = node ? 'pointer' : 'default';
+    applyHighlight(node);
+    if (node) showInfoCard(node);
+    else hideInfoCard();
+  });
+
+  Graph.onNodeClick((node) => {
+    if (!node) return;
+    // Fly camera to node
+    flyTo(node, 1100);
+  });
+
+  // ----------------------------
+  // Info card render
+  // ----------------------------
+  const card = document.getElementById('info-card');
+  function showInfoCard(node) {
+    const sw = document.getElementById('ic-swatch');
+    const v  = document.getElementById('ic-vert');
+    const nm = document.getElementById('ic-name');
+    const ds = document.getElementById('ic-desc');
+    const gd = document.getElementById('ic-grid');
+    const ch = document.getElementById('ic-chips');
+    const fund = document.getElementById('ic-funding');
+
+    const color = node.kind === 'investor' ? '#f5f9ff'
+                : node.kind === 'founder'  ? '#ffd2a8'
+                : node.color;
+    sw.style.background = color; sw.style.color = color;
+
+    let kindLabel = '';
+    if (node.kind === 'company')  kindLabel = `Company · ${VERTICAL_SHORT[node.vertical] || node.vertical}`;
+    if (node.kind === 'investor') kindLabel = `Investor${node.type ? ' · ' + node.type : ''}`;
+    if (node.kind === 'founder')  kindLabel = 'Founder';
+    if (node.kind === 'person')   kindLabel = `Person · ${VERTICAL_SHORT[node.vertical] || node.vertical}`;
+    v.textContent = kindLabel;
+    nm.textContent = node.name || '—';
+
+    let desc = '';
+    if (node.kind === 'company')  desc = node.description || '';
+    if (node.kind === 'investor') desc = node.description || `Active investor across the quantum ecosystem with ${node.portfolio || 0} tracked positions.`;
+    if (node.kind === 'founder')  desc = `Founder of ${(node.companiesList || []).join(', ') || '—'}.`;
+    if (node.kind === 'person')   desc = `${node.title || 'Team member'} at ${node.company || '—'}.`;
+    desc = (desc || '').replace(/\s+/g, ' ').trim();
+    if (desc.length > 240) desc = desc.slice(0, 237).trimEnd() + '…';
+    ds.textContent = desc;
+    ds.style.display = desc ? '' : 'none';
+
+    // Grid (key/value pairs)
+    gd.innerHTML = '';
+    function addRow(k, val) {
+      if (val === undefined || val === null || val === '') return;
+      const d = document.createElement('div');
+      d.className = 'item';
+      d.innerHTML = `<span class="k">${k}</span><span class="v">${val}</span>`;
+      gd.appendChild(d);
+    }
+    if (node.kind === 'company') {
+      addRow('country', node.country);
+      addRow('city', node.city);
+      addRow('founded', node.founded || '—');
+      addRow('investors', (node.investorsList || []).length);
+      addRow('founders', (node.foundersList || []).length);
+      addRow('employees', node.employees || '—');
+    } else if (node.kind === 'investor') {
+      addRow('country', node.country || '—');
+      addRow('portfolio', node.portfolio || 0);
+    } else if (node.kind === 'founder') {
+      addRow('companies', (node.companiesList || []).length);
+    } else if (node.kind === 'person') {
+      addRow('country', node.country || '—');
+      addRow('followers', (node.followers || 0).toLocaleString());
+    }
+
+    // Chips: categories or company list
+    ch.innerHTML = '';
+    let chips = [];
+    if (node.kind === 'company') chips = (node.categories || []).slice(0, 6);
+    if (node.kind === 'founder') chips = (node.companiesList || []).slice(0, 6);
+    if (chips.length) {
+      for (const c of chips) {
+        const e = document.createElement('span');
+        e.className = 'chip';
+        e.textContent = c;
+        ch.appendChild(e);
+      }
+    }
+
+    // Funding (synthetic) only for companies
+    if (node.kind === 'company' && node.funding) {
+      fund.style.display = '';
+      document.getElementById('ic-amount').textContent = '$' + node.funding.amount + 'M';
+      document.getElementById('ic-round').textContent = ' · ' + node.funding.round;
+    } else {
+      fund.style.display = 'none';
+    }
+
+    card.classList.add('show');
+  }
+  function hideInfoCard() {
+    card.classList.remove('show');
+  }
+
+  // ----------------------------
+  // Search
+  // ----------------------------
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  function searchNodes(q) {
+    q = q.trim().toLowerCase();
+    if (!q) return [];
+    const out = [];
+    for (const n of nodes) {
+      if (n.kind === 'person') continue; // de-noise
+      if ((n.name || '').toLowerCase().includes(q)) out.push(n);
+      if (out.length >= 14) break;
+    }
+    // sort: investors with portfolio first, companies by name length
+    out.sort((a, b) => {
+      const ka = a.kind === 'investor' ? 0 : (a.kind === 'company' ? 1 : 2);
+      const kb = b.kind === 'investor' ? 0 : (b.kind === 'company' ? 1 : 2);
+      if (ka !== kb) return ka - kb;
+      return (a.name || '').length - (b.name || '').length;
+    });
+    return out;
+  }
+  function renderSearchResults(rows) {
+    searchResults.innerHTML = '';
+    if (!rows.length) { searchResults.classList.remove('show'); return; }
+    for (const n of rows) {
+      const r = document.createElement('div');
+      r.className = 'search-row';
+      const col = n.kind === 'investor' ? '#f5f9ff' : (n.color || '#8a93a6');
+      r.innerHTML = `
+        <span class="swatch" style="background:${col}; color:${col}"></span>
+        <span class="name">${escapeHtml(n.name)}</span>
+        <span class="meta">${n.kind}</span>
+      `;
+      r.addEventListener('click', () => {
+        searchResults.classList.remove('show');
+        searchInput.value = n.name;
+        flyTo(n, 1100);
+        applyHighlight(n);
+        showInfoCard(n);
+      });
+      searchResults.appendChild(r);
+    }
+    searchResults.classList.add('show');
+  }
+  searchInput.addEventListener('input', (e) => {
+    renderSearchResults(searchNodes(e.target.value));
+  });
+  searchInput.addEventListener('focus', (e) => {
+    if (e.target.value) renderSearchResults(searchNodes(e.target.value));
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#search')) searchResults.classList.remove('show');
+  });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const rows = searchNodes(searchInput.value);
+      if (rows.length) {
+        const n = rows[0];
+        searchResults.classList.remove('show');
+        flyTo(n, 1100);
+        applyHighlight(n);
+        showInfoCard(n);
+      }
+    } else if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchResults.classList.remove('show');
+    }
+  });
+
+  // ----------------------------
+  // Legend interaction — click toggles vertical visibility (companies + people)
+  // ----------------------------
+  const verticalEnabled = new Set(VERTICAL_ORDER);
+  for (const row of legendRows) {
+    row.addEventListener('click', () => {
+      const v = row.dataset.vert;
+      if (verticalEnabled.has(v)) { verticalEnabled.delete(v); row.classList.remove('active'); }
+      else                        { verticalEnabled.add(v);    row.classList.add('active'); }
+      // Hide via opacity on materials
+      for (const n of nodes) {
+        if (!n.__mat) continue;
+        if (n.kind !== 'company' && n.kind !== 'person') continue;
+        const enabled = verticalEnabled.has(n.vertical || 'Other');
+        n.__mat.opacity = enabled ? (highlightSet ? (highlightSet.has(n.id) ? 1.0 : DIM_OPACITY) : 1.0) : 0.0;
+        n.__mat.visible = enabled || (n.__mat.opacity > 0);
+        if (n.__label) n.__label.material.opacity = enabled ? 0.78 : 0.0;
+      }
+    });
+  }
+
+  // ----------------------------
+  // Camera fly-to a node
+  // ----------------------------
+  function flyTo(node, ms = 1000) {
+    const x = node.x || 0, y = node.y || 0, z = node.z || 0;
+    const dist = 110;
+    const ratio = 1 + dist / Math.max(1, Math.hypot(x, y, z));
+    Graph.cameraPosition(
+      { x: x * ratio, y: y * ratio, z: z * ratio },
+      { x, y, z },
+      ms,
+    );
+    autoOrbiting = false;
+    lastInteractionTs = performance.now();
+    document.getElementById('status-mode').textContent = 'FOCUS';
+  }
+
+  // ----------------------------
+  // Auto-orbit loop
+  // ----------------------------
+  let orbitAngle = 0;
+  let lastFrameTs = performance.now();
+  const camera = Graph.camera();
+  const renderer = Graph.renderer();
+
+  // Smooth FPS readout
+  let fpsAcc = 0, fpsFrames = 0, fpsT0 = performance.now();
+  function tick() {
+    const now = performance.now();
+    const dt = now - lastFrameTs;
+    lastFrameTs = now;
+
+    // Resume orbit?
+    if (!autoOrbiting && (now - lastInteractionTs) > ORBIT_RESUME_MS) {
+      autoOrbiting = true;
+      document.getElementById('status-mode').textContent = 'AUTO-ORBIT';
+    }
+
+    if (autoOrbiting && controls) {
+      // Orbit the camera around target (which is the controls.target — usually origin)
+      const target = controls.target;
+      const cam = camera;
+      const dx = cam.position.x - target.x;
+      const dz = cam.position.z - target.z;
+      const r = Math.hypot(dx, dz);
+      const theta = Math.atan2(dz, dx);
+      const omega = (2 * Math.PI) / ORBIT_PERIOD_MS; // rad per ms
+      const newTheta = theta + omega * dt;
+      cam.position.x = target.x + Math.cos(newTheta) * r;
+      cam.position.z = target.z + Math.sin(newTheta) * r;
+      cam.lookAt(target);
+      controls.update();
+    }
+
+    // Slowly rotate the starfield for parallax depth
+    stars.rotation.y += 0.000015 * dt;
+    stars.rotation.x += 0.0000075 * dt;
+
+    // FPS
+    fpsFrames++;
+    fpsAcc += dt;
+    if (fpsAcc > 500) {
+      const fps = Math.round(1000 * fpsFrames / fpsAcc);
+      document.getElementById('status-fps').textContent = `${fps} FPS`;
+      fpsAcc = 0; fpsFrames = 0;
+    }
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // ----------------------------
+  // Resize handling for bloom
+  // ----------------------------
+  window.addEventListener('resize', () => {
+    bloom.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // ----------------------------
+  // Hide loading once first frame is rendered
+  // ----------------------------
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hide');
+  }, 800);
+
+})().catch(err => {
+  console.error('[Quantum Constellation] init failed:', err);
+  const l = document.getElementById('loading');
+  if (l) l.querySelector('.label').textContent = 'Error: ' + (err.message || err);
+});
+
+// ============================================================
+// Helpers
+// ============================================================
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  const i = parseInt(hex, 16);
+  return { r: (i >> 16) & 255, g: (i >> 8) & 255, b: i & 255 };
+}
+function blendHex(a, b, wa = 0.5, wb = 0.5) {
+  const A = hexToRgb(a), B = hexToRgb(b);
+  const r = Math.round(A.r * wa + B.r * wb);
+  const g = Math.round(A.g * wa + B.g * wb);
+  const bl = Math.round(A.b * wa + B.b * wb);
+  return `rgb(${r},${g},${bl})`;
+}
+function hexToRgba(hex, a) {
+  if (hex.startsWith('rgb')) {
+    // already rgb()
+    return hex.replace(/rgba?\(([^)]+)\)/, (_, inner) => {
+      const parts = inner.split(',').map(s => s.trim());
+      return `rgba(${parts[0]},${parts[1]},${parts[2]},${a})`;
+    });
+  }
+  const c = hexToRgb(hex);
+  return `rgba(${c.r},${c.g},${c.b},${a})`;
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QUANTUM HOTSPOTS — Global Investment Geography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #02040a;
+    --panel: rgba(10, 16, 28, 0.78);
+    --panel-border: rgba(120, 180, 255, 0.14);
+    --ink: #e9f1ff;
+    --ink-dim: #8aa0c2;
+    --ink-faint: #5a708f;
+    --accent: #00e5ff;
+    --gold: #d4af37;
+    --grid: rgba(120, 200, 255, 0.10);
+    --c-quantum: #00e5ff;
+    --c-ai: #b14aed;
+    --c-bio: #2ee6a6;
+    --c-mat: #ffb547;
+    --c-comm: #ff6b6b;
+    --c-cyber: #4d8bff;
+    --c-other: #6f7d96;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  #app { position: fixed; inset: 0; }
+
+  #stars {
+    position: absolute; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  #globe {
+    position: absolute; inset: 0; z-index: 1;
+  }
+
+  /* ---- Title ---- */
+  .title-block {
+    position: absolute;
+    top: 22px; left: 26px;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+  }
+  .title-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.85;
+  }
+  .title-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    margin-right: 10px;
+    transform: translateY(-2px);
+    border-radius: 50%;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent); }
+    50% { opacity: 0.4; box-shadow: 0 0 4px var(--accent); }
+  }
+
+  .title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+  .title .accent { color: var(--accent); }
+
+  .subtitle {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.08em;
+    display: flex;
+    gap: 18px;
+  }
+  .subtitle .stat-num {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .subtitle .sep {
+    color: var(--ink-faint);
+  }
+
+  /* ---- Filter chips ---- */
+  .filters {
+    position: absolute;
+    top: 22px; right: 26px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .filters-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .chips {
+    display: flex; gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 460px;
+  }
+  .chip {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(10,16,28,0.55);
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    user-select: none;
+    display: flex; align-items: center; gap: 7px;
+    font-weight: 500;
+  }
+  .chip .swatch {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--c, #888);
+    box-shadow: 0 0 8px var(--c, #888);
+  }
+  .chip:hover {
+    border-color: rgba(255,255,255,0.30);
+    color: var(--ink);
+  }
+  .chip.active {
+    border-color: var(--c, var(--accent));
+    color: var(--ink);
+    background: color-mix(in srgb, var(--c, var(--accent)) 12%, transparent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--c, var(--accent)) 35%, transparent);
+  }
+  .chip.dim { opacity: 0.35; }
+
+  /* ---- Bottom-left stat panel ---- */
+  .stat-panel {
+    position: absolute;
+    bottom: 22px; left: 26px;
+    z-index: 10;
+    width: 320px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 14px 16px 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+  .panel-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+  }
+
+  .city-row {
+    display: grid;
+    grid-template-columns: 14px 1fr 32px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 11.5px;
+    border-bottom: 1px dashed rgba(120,180,255,0.07);
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .city-row:last-child { border-bottom: none; }
+  .city-row:hover { background: rgba(120, 180, 255, 0.05); }
+  .city-row .rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+  .city-row .name-bar {
+    display: flex; flex-direction: column; gap: 4px;
+    min-width: 0;
+  }
+  .city-row .name {
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .city-row .name .country {
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: 6px;
+    font-size: 10px;
+  }
+  .city-row .bar {
+    display: flex;
+    height: 4px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+  }
+  .city-row .bar > span {
+    height: 100%;
+  }
+  .city-row .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    text-align: right;
+    font-weight: 500;
+  }
+
+  /* ---- Hover info card ---- */
+  .info-card {
+    position: absolute;
+    pointer-events: none;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 12px 14px 13px;
+    min-width: 220px;
+    max-width: 280px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 14px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,255,0.08) inset;
+    opacity: 0;
+    transform: translate(-50%, -120%) translateY(8px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 12;
+    font-size: 11px;
+  }
+  .info-card.visible { opacity: 1; transform: translate(-50%, -120%) translateY(0); }
+  .info-card .ic-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .info-card .ic-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .info-card .ic-country {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .info-card .ic-stats {
+    display: flex; gap: 14px;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-top: 1px solid rgba(120,180,255,0.10);
+    border-bottom: 1px solid rgba(120,180,255,0.10);
+  }
+  .info-card .ic-stat .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .info-card .ic-stat .val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 2px;
+  }
+  .info-card .ic-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.22em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin: 6px 0 6px;
+  }
+  .info-card .ic-bar {
+    display: flex; height: 4px; border-radius: 4px; overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    margin-bottom: 10px;
+  }
+  .info-card .ic-bar span { height: 100%; }
+  .info-card .ic-companies li {
+    list-style: none;
+    font-size: 11px;
+    padding: 2px 0;
+    color: var(--ink);
+    display: flex; justify-content: space-between; gap: 8px;
+  }
+  .info-card .ic-companies li .vert {
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Legend ---- */
+  .legend {
+    position: absolute;
+    bottom: 22px; right: 26px;
+    z-index: 10;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 10.5px;
+    color: var(--ink-dim);
+  }
+  .legend .l-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.26em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .legend .l-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 2px 0;
+  }
+  .legend .arc-demo {
+    height: 2px;
+    width: 36px;
+    background: linear-gradient(90deg, var(--gold), var(--accent));
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0,229,255,0.4);
+  }
+  .legend .pin-demo {
+    width: 6px; height: 12px;
+    background: linear-gradient(180deg, var(--accent), rgba(0,229,255,0));
+    border-radius: 2px;
+  }
+
+  /* ---- Loading overlay ---- */
+  .loading {
+    position: absolute; inset: 0;
+    z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    transition: opacity 0.6s ease;
+  }
+  .loading.gone { opacity: 0; pointer-events: none; }
+  .loading .l-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .loading .l-text::after {
+    content: ''; display: inline-block; width: 8px;
+    animation: dots 1.4s steps(4) infinite;
+  }
+  @keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
+
+  /* ---- Hint corner ---- */
+  .hint {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-align: center;
+    opacity: 0.65;
+  }
+
+  /* ---- Crosshair / scanlines (subtle) ---- */
+  .vignette {
+    position: absolute; inset: 0; z-index: 5;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="stars"></canvas>
+  <div id="globe"></div>
+  <div class="vignette"></div>
+
+  <div class="title-block">
+    <div class="title-eyebrow">SOC // QUANTUM-TECH GEOGRAPHY MODULE</div>
+    <div class="title">QUANTUM <span class="accent">HOTSPOTS</span></div>
+    <div class="subtitle">
+      <span><span class="stat-num" id="stat-cities">—</span> CITIES</span>
+      <span class="sep">|</span>
+      <span><span class="stat-num" id="stat-companies">—</span> COMPANIES</span>
+      <span class="sep">|</span>
+      <span><span class="stat-num" id="stat-investors">—</span> INVESTORS</span>
+      <span class="sep">|</span>
+      <span><span class="stat-num" id="stat-edges">—</span> CAPITAL FLOWS</span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filters-label">FILTER BY VERTICAL</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="stat-panel">
+    <div class="panel-head">
+      <div class="panel-title">TOP HOTSPOT CITIES</div>
+      <div class="panel-meta">RANKED · COMPANIES</div>
+    </div>
+    <div id="city-list"></div>
+  </div>
+
+  <div class="legend">
+    <div class="l-title">LEGEND</div>
+    <div class="l-row"><span class="pin-demo"></span> City pin · height = company count</div>
+    <div class="l-row"><span class="arc-demo"></span> Investor → Company flow</div>
+  </div>
+
+  <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM · HOVER A PIN</div>
+
+  <div class="info-card" id="info-card"></div>
+
+  <div class="loading" id="loading">
+    <div class="l-text">INITIALIZING HOLOSPHERE</div>
+  </div>
+</div>
+
+<!-- THREE first, then globe.gl (which depends on it via three-globe) -->
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script src="https://unpkg.com/globe.gl@2.32.4/dist/globe.gl.min.js"></script>
+
+<script>
+/* ------------------------------------------------------------------
+   GEO-NETWORK HOLOSPHERE
+   Quantum-tech investment ecosystem · 3D globe with arc connections
+   ------------------------------------------------------------------ */
+
+/* === Vertical color palette === */
+const VERTICALS = {
+  'Quantum Computing': '#00e5ff',
+  'AI/ML':             '#b14aed',
+  'Bio/Med':           '#2ee6a6',
+  'Materials/NanoTech':'#ffb547',
+  'Communications':    '#ff6b6b',
+  'Cyber Security':    '#4d8bff',
+  'Other':             '#6f7d96'
+};
+// Helper to resolve any vertical string to a color
+function vertColor(v) {
+  if (!v) return VERTICALS.Other;
+  if (VERTICALS[v]) return VERTICALS[v];
+  // Common aliases
+  const a = v.toLowerCase();
+  if (a.includes('quantum') && a.includes('comput')) return VERTICALS['Quantum Computing'];
+  if (a.includes('ai') || a.includes('ml') || a.includes('machine')) return VERTICALS['AI/ML'];
+  if (a.includes('bio') || a.includes('med') || a.includes('health') || a.includes('pharma')) return VERTICALS['Bio/Med'];
+  if (a.includes('material') || a.includes('nano')) return VERTICALS['Materials/NanoTech'];
+  if (a.includes('comm') || a.includes('network') || a.includes('photon')) return VERTICALS['Communications'];
+  if (a.includes('cyber') || a.includes('security') || a.includes('crypto')) return VERTICALS['Cyber Security'];
+  return VERTICALS.Other;
+}
+
+/* === City → coordinates lookup ===
+   Hand-curated list covering every city present in the dataset
+   (companies + geo + investors) plus all major investor HQ fallbacks.
+   Format: { city: [lat, lng] }                                      */
+const CITY_COORDS = {
+  // --- US ---
+  'San Francisco': [37.7749, -122.4194],
+  'Palo Alto': [37.4419, -122.1430],
+  'Menlo Park': [37.4530, -122.1817],
+  'Mountain View': [37.3861, -122.0839],
+  'San Mateo': [37.5630, -122.3255],
+  'Santa Clara': [37.3541, -121.9552],
+  'Cupertino': [37.3230, -122.0322],
+  'Berkeley': [37.8715, -122.2730],
+  'Burlingame': [37.5779, -122.3478],
+  'San Diego': [32.7157, -117.1611],
+  'Irvine': [33.6846, -117.8265],
+  'Los Angeles': [34.0522, -118.2437],
+  'Thousand Oaks': [34.1706, -118.8376],
+  'Seattle': [47.6062, -122.3321],
+  'Redmond': [47.6740, -122.1215],
+  'Boston': [42.3601, -71.0589],
+  'Cambridge': [42.3736, -71.1097], // US Cambridge (MA)
+  'New York': [40.7128, -74.0060],
+  'Hoboken': [40.7440, -74.0324],
+  'Teaneck': [40.8976, -74.0160],
+  'Armonk': [41.1267, -73.7140],
+  'Chicago': [41.8781, -87.6298],
+  'Boulder': [40.0150, -105.2705],
+  'Broomfield': [39.9205, -105.0867],
+  'Louisville': [39.9778, -105.1319], // CO (Infleqtion)
+  'College Park': [38.9897, -76.9378],
+  'Washington': [38.9072, -77.0369],
+  'Bethesda': [38.9847, -77.0947],
+  'Alexandria': [38.8048, -77.0469],
+  'Manchester': [42.9956, -71.4548], // NH
+  'Burlington': [44.4759, -73.2121], // VT (Gaingels)
+  'Charlotte': [35.2271, -80.8431],
+  'Atlanta': [33.7490, -84.3880],
+  'Miami': [25.7617, -80.1918],
+  'Augusta': [33.4735, -82.0105],
+  'Roanoke': [37.2710, -79.9414],
+  'Pittsburgh': [40.4406, -79.9959],
+  'Bala Cynwyd': [40.0148, -75.2335],
+  'Omaha': [41.2565, -95.9345],
+
+  // --- Canada ---
+  'Toronto': [43.6532, -79.3832],
+  'Vancouver': [49.2827, -123.1207],
+  'Sherbrooke': [45.4001, -71.8825],
+  'Montréal': [45.5017, -73.5673],
+  'Montreal': [45.5017, -73.5673],
+  'Ottawa': [45.4215, -75.6972],
+  'Waterloo': [43.4643, -80.5204],
+
+  // --- UK / Ireland ---
+  'London': [51.5074, -0.1278],
+  'Cambridge UK': [52.2053, 0.1218],
+  'Oxford': [51.7520, -1.2577],
+  'Newbury': [51.4012, -1.3239],
+  'Swindon': [51.5557, -1.7797],
+  'Edinburgh': [55.9533, -3.1883],
+  'Bristol': [51.4545, -2.5879],
+  'Manchester UK': [53.4808, -2.2426],
+  'Dublin': [53.3498, -6.2603],
+
+  // --- Europe (continental) ---
+  'Paris': [48.8566, 2.3522],
+  'Palaiseau': [48.7148, 2.2456],
+  'Maisons-alfort': [48.8061, 2.4399],
+  'Berlin': [52.5200, 13.4050],
+  'Munich': [48.1351, 11.5820],
+  'Stuttgart': [48.7758, 9.1829],
+  'Hamburg': [53.5511, 9.9937],
+  'Frankfurt': [50.1109, 8.6821],
+  'Amsterdam': [52.3676, 4.9041],
+  'Delft': [52.0116, 4.3571],
+  'Rotterdam': [51.9244, 4.4777],
+  'Brussels': [50.8503, 4.3517],
+  'Luxembourg': [49.6116, 6.1319],
+  'Zurich': [47.3769, 8.5417],
+  'Zug': [47.1662, 8.5155],
+  'Geneva': [46.2044, 6.1432],
+  'Cointrin': [46.2316, 6.1093],
+  'Vienna': [48.2082, 16.3738],
+  'Innsbruck': [47.2692, 11.4041],
+  'Copenhagen': [55.6761, 12.5683],
+  'Stockholm': [59.3293, 18.0686],
+  'Helsinki': [60.1699, 24.9384],
+  'Espoo': [60.2055, 24.6559],
+  'Turku': [60.4518, 22.2666],
+  'Oslo': [59.9139, 10.7522],
+  'Reykjavík': [64.1466, -21.9426],
+  'Reykjavik': [64.1466, -21.9426],
+  'Madrid': [40.4168, -3.7038],
+  'Barcelona': [41.3851, 2.1734],
+  'San Sebastian': [43.3183, -1.9812],
+  'Donostia-san Sebastián': [43.3183, -1.9812],
+  'Rome': [41.9028, 12.4964],
+  'Milan': [45.4642, 9.1900],
+
+  // --- Middle East ---
+  'Tel Aviv': [32.0853, 34.7818],
+  'Jerusalem': [31.7683, 35.2137],
+  'Dubai': [25.2048, 55.2708],
+
+  // --- Asia ---
+  'Tokyo': [35.6762, 139.6503],
+  'Minato': [35.6585, 139.7454],
+  'Osaka': [34.6937, 135.5023],
+  'Kyoto': [35.0116, 135.7681],
+  'Beijing': [39.9042, 116.4074],
+  'Shanghai': [31.2304, 121.4737],
+  'Xuhui': [31.1880, 121.4365],
+  'Shenzhen': [22.5431, 114.0579],
+  'Hong Kong': [22.3193, 114.1694],
+  'Hsinchu': [24.8138, 120.9675],
+  'Taipei': [25.0330, 121.5654],
+  'Seoul': [37.5665, 126.9780],
+  'Singapore': [1.3521, 103.8198],
+  'Bangalore': [12.9716, 77.5946],
+  'Mumbai': [19.0760, 72.8777],
+  'Noida': [28.5355, 77.3910],
+  'Delhi': [28.6139, 77.2090],
+
+  // --- Oceania ---
+  'Sydney': [-33.8688, 151.2093],
+  'Melbourne': [-37.8136, 144.9631],
+  'Canberra': [-35.2809, 149.1300],
+  'Brisbane': [-27.4698, 153.0251]
+};
+
+/* === Investor → city lookups (synthetic fill-ins) ===
+   Used when an investor record has no city. All entries marked
+   with a SYN trailing comment are assigned plausible primary HQ
+   cities from public information. Does not modify input data. */
+const INVESTOR_HQ_FILL = {
+  // SYNTHETIC HQ assignments for investors missing city in source data
+  'Quantonation':                         'Paris',           /* SYN */
+  'Government of Canada':                 'Ottawa',          /* SYN */
+  'National Science Foundation':          'Alexandria',      /* SYN */
+  'Royal Bank of Canada':                 'Toronto',         /* SYN */
+  'Cisco Investments':                    'San Francisco',   /* SYN — close to HQ */
+  'SandboxAQ':                            'Palo Alto',       /* SYN */
+  'Stony Lonesome Group':                 'New York',        /* SYN */
+  'National Research Council of Canada Industrial Research Assistance Program': 'Ottawa', /* SYN */
+  'National IT Industry Promotion Agency':'Seoul',           /* SYN */
+  'Sequoia Capital':                      'Menlo Park',      /* SYN */
+  'SoftBank':                             'Tokyo',           /* SYN */
+  'Andreessen Horowitz':                  'Menlo Park',      /* SYN — confirms */
+  'Tiger Global':                         'New York',        /* SYN */
+  'European Investment Bank':             'Luxembourg',      /* SYN — confirms */
+  'In-Q-Tel':                             'Arlington',       /* SYN */
+  'DARPA':                                'Washington',      /* SYN */
+  'KKR':                                  'New York',        /* SYN */
+  'BlackRock':                            'New York',        /* SYN */
+  'Blackstone':                           'New York',        /* SYN */
+  'Goldman Sachs':                        'New York',        /* SYN */
+  'JP Morgan Chase':                      'New York',        /* SYN */
+  'Citi':                                 'New York',        /* SYN */
+  'Citi Ventures':                        'New York',        /* SYN */
+  'Intel Capital':                        'Santa Clara',     /* SYN */
+  'Google Ventures':                      'Mountain View',   /* SYN */
+  'GV':                                   'Mountain View',   /* SYN */
+  'Tencent':                              'Shenzhen',        /* SYN — confirms */
+  'Alibaba':                              'Shanghai',        /* SYN */
+  'Baidu':                                'Beijing',         /* SYN */
+  'Naspers':                              'Amsterdam',       /* SYN */
+  'Atomico':                              'London',          /* SYN */
+  'Index Ventures':                       'London',          /* SYN */
+  'Accel':                                'Palo Alto',       /* SYN */
+  'Lightspeed':                           'Menlo Park',      /* SYN */
+  'GIC':                                  'Singapore',       /* SYN */
+  'Khosla Ventures':                      'Menlo Park',      /* SYN */
+  'Founders Fund':                        'San Francisco',   /* SYN — confirms */
+  'a16z':                                 'Menlo Park'       /* SYN */
+};
+
+// Aliases (some cities appear under variant names)
+const CITY_ALIASES = {
+  'Cambridge, UK': 'Cambridge UK',
+  'Cambridge GB': 'Cambridge UK',
+  'Manchester, UK': 'Manchester UK',
+  'Maisons-alfort': 'Maisons-alfort',
+  'Donostia-san Sebastián': 'San Sebastian'
+};
+
+function resolveCityCoords(city, country) {
+  if (!city) return null;
+  // Disambiguate Cambridge: there's a UK and a US one
+  if (city === 'Cambridge') {
+    if (country && /united kingdom|uk|england/i.test(country)) return CITY_COORDS['Cambridge UK'];
+    return CITY_COORDS['Cambridge']; // US default
+  }
+  if (city === 'Manchester' && country && /united kingdom|uk|england/i.test(country)) {
+    return CITY_COORDS['Manchester UK'];
+  }
+  if (CITY_COORDS[city]) return CITY_COORDS[city];
+  if (CITY_ALIASES[city] && CITY_COORDS[CITY_ALIASES[city]]) return CITY_COORDS[CITY_ALIASES[city]];
+  // Try fuzzy: lowercased
+  const lower = city.toLowerCase();
+  for (const k of Object.keys(CITY_COORDS)) {
+    if (k.toLowerCase() === lower) return CITY_COORDS[k];
+  }
+  return null;
+}
+
+/* === Starfield (parallax) === */
+function initStarfield() {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let w, h, dpr;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.width = window.innerWidth * dpr;
+    h = canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const layers = [
+    { count: 240, speed: 0.012, size: [0.4, 0.9],  alpha: [0.25, 0.55] },
+    { count: 140, speed: 0.025, size: [0.6, 1.4],  alpha: [0.40, 0.80] },
+    { count: 60,  speed: 0.045, size: [1.0, 2.0],  alpha: [0.55, 0.95] }
+  ];
+
+  const stars = [];
+  for (const layer of layers) {
+    for (let i = 0; i < layer.count; i++) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
+        a: layer.alpha[0] + Math.random() * (layer.alpha[1] - layer.alpha[0]),
+        twinkleOff: Math.random() * Math.PI * 2,
+        twinkleSpd: 0.5 + Math.random() * 1.5,
+        speed: layer.speed,
+        // Color tint: mostly white-blue with rare warm
+        tint: Math.random() < 0.06 ? '255, 210, 170' : (Math.random() < 0.25 ? '180, 220, 255' : '230, 240, 255')
+      });
+    }
+  }
+
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  window.addEventListener('mousemove', (e) => {
+    tx = (e.clientX / window.innerWidth - 0.5) * 2;
+    ty = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    mx += (tx - mx) * 0.04;
+    my += (ty - my) * 0.04;
+    ctx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+      const px = (s.x * w) + mx * s.speed * 80 * dpr;
+      const py = (s.y * h) + my * s.speed * 80 * dpr;
+      const tw = 0.6 + 0.4 * Math.sin(t * s.twinkleSpd + s.twinkleOff);
+      ctx.fillStyle = `rgba(${s.tint}, ${s.a * tw})`;
+      ctx.beginPath();
+      ctx.arc(px, py, s.r * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* === Build city → vertical breakdown for tooltip + bars === */
+function buildBars(verticals) {
+  // verticals: {Quantum Computing: 2, ...}
+  const total = Object.values(verticals).reduce((a, b) => a + b, 0) || 1;
+  return Object.entries(verticals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([v, n]) => `<span style="width:${(n / total) * 100}%; background:${vertColor(v)}"></span>`)
+    .join('');
+}
+
+function dominantVertical(verticals) {
+  const entries = Object.entries(verticals || {});
+  if (!entries.length) return 'Other';
+  entries.sort((a, b) => b[1] - a[1]);
+  return entries[0][0];
+}
+
+/* === Mix colors weighted by vertical counts (for pin color) === */
+function mixVerticalColor(verticals) {
+  const entries = Object.entries(verticals || {});
+  if (!entries.length) return VERTICALS.Other;
+  let r = 0, g = 0, b = 0, total = 0;
+  for (const [v, n] of entries) {
+    const c = vertColor(v);
+    const m = c.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if (!m) continue;
+    r += parseInt(m[1], 16) * n;
+    g += parseInt(m[2], 16) * n;
+    b += parseInt(m[3], 16) * n;
+    total += n;
+  }
+  if (!total) return VERTICALS.Other;
+  return `rgb(${Math.round(r/total)}, ${Math.round(g/total)}, ${Math.round(b/total)})`;
+}
+
+/* === Main === */
+async function main() {
+  initStarfield();
+
+  const data = await fetch('../data/quantum_ecosystem.json').then(r => r.json());
+
+  // Build company lookup
+  const companyById = new Map();
+  for (const c of data.companies) companyById.set(c.id, c);
+
+  // Build investor lookup with HQ fallback
+  const investorById = new Map();
+  for (const i of data.investors) {
+    let city = i.city;
+    if (!city && INVESTOR_HQ_FILL[i.name]) city = INVESTOR_HQ_FILL[i.name];
+    investorById.set(i.id || i.name, { ...i, city, _filled: !i.city && !!city });
+  }
+
+  // Build city aggregate
+  // Use data.geo as base, ensuring coords for each
+  const cityAgg = new Map(); // key: city|country
+  for (const g of data.geo) {
+    const coords = resolveCityCoords(g.city, g.country);
+    if (!coords) continue;
+    const key = g.city + '|' + (g.country || '');
+    cityAgg.set(key, {
+      key,
+      city: g.city,
+      country: g.country,
+      lat: coords[0],
+      lng: coords[1],
+      companies: g.companies.map(id => companyById.get(id)).filter(Boolean),
+      verticals: g.verticals || {},
+      company_count: g.company_count,
+      isInvestorOnly: false
+    });
+  }
+
+  // Build arcs: investor city → company city
+  const arcs = [];
+  let unresolvedArcs = 0;
+  const investorCitySeen = new Set();
+  for (const inv of data.investments) {
+    const investorRec = investorById.get(inv.investor);
+    const companyRec = companyById.get(inv.company);
+    if (!investorRec || !companyRec) continue;
+    const invCoords = resolveCityCoords(investorRec.city, investorRec.country);
+    const compCoords = resolveCityCoords(companyRec.city, companyRec.country);
+    if (!invCoords || !compCoords) { unresolvedArcs++; continue; }
+    // Skip if same city — looks like a self-loop
+    if (Math.abs(invCoords[0] - compCoords[0]) < 0.01 && Math.abs(invCoords[1] - compCoords[1]) < 0.01) continue;
+    const distLat = invCoords[0] - compCoords[0];
+    const distLng = invCoords[1] - compCoords[1];
+    const dist = Math.sqrt(distLat * distLat + distLng * distLng);
+    arcs.push({
+      startLat: invCoords[0],
+      startLng: invCoords[1],
+      endLat: compCoords[0],
+      endLng: compCoords[1],
+      investor: investorRec.name,
+      investorCity: investorRec.city,
+      company: companyRec.name,
+      companyCity: companyRec.city,
+      vertical: companyRec.vertical || 'Other',
+      colorStart: '#d4af37',
+      colorEnd: vertColor(companyRec.vertical),
+      altitude: Math.min(0.7, 0.10 + dist / 360 * 1.6),
+      _key: `${investorRec.city}>${companyRec.city}`
+    });
+    investorCitySeen.add(`${investorRec.city}|${investorRec.country || ''}`);
+  }
+
+  // Add investor-only cities to the city set (so pins exist for HQs)
+  for (const k of investorCitySeen) {
+    if (cityAgg.has(k)) continue;
+    const [city, country] = k.split('|');
+    const coords = resolveCityCoords(city, country);
+    if (!coords) continue;
+    cityAgg.set(k, {
+      key: k,
+      city, country,
+      lat: coords[0], lng: coords[1],
+      companies: [],
+      verticals: {},
+      company_count: 0,
+      isInvestorOnly: true
+    });
+  }
+
+  const cities = [...cityAgg.values()];
+
+  // Compute pin altitudes/sizes
+  const maxCompanies = Math.max(1, ...cities.map(c => c.company_count || 0));
+  for (const c of cities) {
+    const norm = (c.company_count || 0) / maxCompanies;
+    // Investor-only cities get a tiny pin
+    c._alt = c.isInvestorOnly ? 0.012 : 0.04 + norm * 0.30;
+    c._radius = c.isInvestorOnly ? 0.18 : 0.32 + norm * 0.55;
+    c._color = c.isInvestorOnly ? '#d4af37' : mixVerticalColor(c.verticals);
+    c._dominant = dominantVertical(c.verticals);
+  }
+
+  /* === Build header stats === */
+  document.getElementById('stat-cities').textContent = cities.filter(c => !c.isInvestorOnly).length;
+  document.getElementById('stat-companies').textContent = data.companies.length;
+  document.getElementById('stat-investors').textContent = data.investors.length;
+  document.getElementById('stat-edges').textContent = arcs.length;
+
+  /* === Filter chips === */
+  const chipsEl = document.getElementById('chips');
+  const verticalsInData = Array.from(new Set(data.companies.map(c => c.vertical || 'Other')));
+  // Order: prefer canonical order, then any extras
+  const canonicalOrder = ['Quantum Computing','Communications','Cyber Security','AI/ML','Bio/Med','Materials/NanoTech','Other'];
+  const orderedVerts = canonicalOrder.filter(v => verticalsInData.includes(v))
+    .concat(verticalsInData.filter(v => !canonicalOrder.includes(v)));
+  const activeFilters = new Set(orderedVerts);
+  for (const v of orderedVerts) {
+    const c = vertColor(v);
+    const chip = document.createElement('div');
+    chip.className = 'chip active';
+    chip.style.setProperty('--c', c);
+    chip.dataset.vert = v;
+    chip.innerHTML = `<span class="swatch"></span><span>${v}</span>`;
+    chip.addEventListener('click', () => {
+      if (activeFilters.has(v)) activeFilters.delete(v);
+      else activeFilters.add(v);
+      // If all selected → none deactivated; if user clicks active and others remain, dim that one
+      // We toggle the chip class
+      chip.classList.toggle('active', activeFilters.has(v));
+      // If no filters selected, treat as all-on (UX nicety)
+      if (activeFilters.size === 0) {
+        for (const vv of orderedVerts) activeFilters.add(vv);
+        document.querySelectorAll('.chip').forEach(el => el.classList.add('active'));
+      }
+      applyFilters();
+    });
+    chipsEl.appendChild(chip);
+  }
+
+  /* === Bottom-left: top 10 cities === */
+  const cityList = document.getElementById('city-list');
+  const topCities = cities
+    .filter(c => !c.isInvestorOnly)
+    .sort((a, b) => b.company_count - a.company_count)
+    .slice(0, 10);
+  topCities.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'city-row';
+    row.innerHTML = `
+      <div class="rank">${String(i + 1).padStart(2, '0')}</div>
+      <div class="name-bar">
+        <div class="name">${c.city}<span class="country">${c.country || ''}</span></div>
+        <div class="bar">${buildBars(c.verticals)}</div>
+      </div>
+      <div class="count">${c.company_count}</div>
+    `;
+    row.addEventListener('mouseenter', () => focusCity(c));
+    row.addEventListener('click', () => zoomToCity(c));
+    cityList.appendChild(row);
+  });
+
+  /* === Globe instance === */
+  const globeEl = document.getElementById('globe');
+
+  // Build land/country GeoJSON via natural earth (low-res) hosted on github.
+  // We'll fetch country polygons separately for graticule/borders.
+  let countriesGeo = null;
+  try {
+    countriesGeo = await fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+      .then(r => r.json());
+  } catch (e) { /* graceful */ }
+
+  const Globe = window.Globe;
+  const world = Globe()
+    (globeEl)
+    .backgroundColor('rgba(0,0,0,0)')
+    .showAtmosphere(true)
+    .atmosphereColor('#4d8bff')
+    .atmosphereAltitude(0.22)
+    .showGlobe(true)
+    .globeImageUrl(null)              // NO default earth texture
+    .globeMaterial(new THREE.MeshPhongMaterial({
+      color: 0x07101e,
+      emissive: 0x06121f,
+      emissiveIntensity: 0.55,
+      shininess: 6,
+      transparent: true,
+      opacity: 0.96
+    }))
+    .showGraticules(true);
+
+  // Country polygons as faint cyan outlines + subtle fill
+  if (countriesGeo) {
+    world
+      .polygonsData(countriesGeo.features.filter(f => f.properties.ISO_A2 !== 'AQ'))
+      .polygonCapColor(() => 'rgba(40, 90, 140, 0.12)')
+      .polygonSideColor(() => 'rgba(0, 0, 0, 0)')
+      .polygonStrokeColor(() => 'rgba(120, 220, 255, 0.32)')
+      .polygonAltitude(0.005);
+  }
+
+  // Custom 3D pins (extruded cylinders) instead of default points
+  world
+    .customLayerData(cities)
+    .customThreeObject(d => {
+      const group = new THREE.Group();
+
+      // Main pin = cylinder
+      const radiusBase = 0.45 * d._radius;
+      const radiusTop  = 0.18 * d._radius;
+      const height = d._alt * 100; // globe radius ≈ 100 units in three-globe
+      const geo = new THREE.CylinderGeometry(radiusTop, radiusBase, height, 12, 1, false);
+      // Translate so base sits on globe surface
+      geo.translate(0, height / 2, 0);
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(d._color),
+        transparent: true,
+        opacity: 0.85
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      group.add(mesh);
+
+      // Glowing top cap (sphere)
+      const capGeo = new THREE.SphereGeometry(0.45 * d._radius + 0.15, 12, 12);
+      capGeo.translate(0, height + 0.15, 0);
+      const capMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(d._color),
+        transparent: true,
+        opacity: 1
+      });
+      const cap = new THREE.Mesh(capGeo, capMat);
+      group.add(cap);
+
+      // Outer halo (larger, semi-transparent)
+      const haloGeo = new THREE.SphereGeometry(0.45 * d._radius + 0.55, 12, 12);
+      haloGeo.translate(0, height + 0.15, 0);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(d._color),
+        transparent: true,
+        opacity: 0.20,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      group.add(halo);
+
+      // Investor-only marker is more muted
+      if (d.isInvestorOnly) {
+        mat.opacity = 0.55;
+        capMat.opacity = 0.6;
+        haloMat.opacity = 0.10;
+      }
+
+      // Save refs for animation + filtering
+      group.userData = { d, mesh, cap, halo, mat, capMat, haloMat, height };
+      return group;
+    })
+    .customThreeObjectUpdate((obj, d) => {
+      // Position at lat/lng on globe surface (alt=0 → globe radius)
+      Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0));
+      // Orient the cylinder so its local +Y points OUTWARD (away from origin).
+      // After lookAt(origin): local -Z points to origin, local +Z points outward.
+      // Rotating -90° around X maps local +Y → previous +Z → outward direction.
+      obj.lookAt(0, 0, 0);
+      obj.rotateX(-Math.PI / 2);
+    });
+
+  // Arcs
+  world
+    .arcsData(arcs)
+    .arcStartLat(d => d.startLat)
+    .arcStartLng(d => d.startLng)
+    .arcEndLat(d => d.endLat)
+    .arcEndLng(d => d.endLng)
+    .arcColor(d => [d.colorStart, d.colorEnd])
+    .arcStroke(0.36)
+    .arcAltitude(d => d.altitude)
+    .arcDashLength(0.42)
+    .arcDashGap(1.2)
+    .arcDashAnimateTime(d => 3500 + Math.random() * 2500)
+    .arcsTransitionDuration(0);
+
+  // Auto-rotate (controls)
+  const controls = world.controls();
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.36;       // ~one revolution / 60s at default
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.rotateSpeed = 0.5;
+  controls.zoomSpeed = 0.8;
+  controls.minDistance = 130;
+  controls.maxDistance = 600;
+
+  // Set initial camera
+  world.pointOfView({ lat: 30, lng: -20, altitude: 2.4 }, 0);
+
+  // Improve scene
+  const scene = world.scene();
+  // Slightly stronger directional light for pins
+  const dirLight = new THREE.DirectionalLight(0xbfd9ff, 0.7);
+  dirLight.position.set(1, 1, 1);
+  scene.add(dirLight);
+  scene.add(new THREE.AmbientLight(0x4060a0, 0.35));
+
+  // Heatmap shell — outer translucent sphere additive blend
+  const shellGeo = new THREE.SphereGeometry(101.5, 64, 64);
+  const shellMat = new THREE.ShaderMaterial({
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    uniforms: { time: { value: 0 } },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vPos;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vPos = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vNormal;
+      varying vec3 vPos;
+      uniform float time;
+      void main() {
+        float fres = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
+        vec3 cyan = vec3(0.0, 0.65, 1.0);
+        vec3 violet = vec3(0.55, 0.20, 0.95);
+        vec3 col = mix(cyan, violet, 0.5 + 0.5 * sin(time * 0.18 + vPos.y * 0.02));
+        gl_FragColor = vec4(col * fres, fres * 0.55);
+      }
+    `
+  });
+  const shell = new THREE.Mesh(shellGeo, shellMat);
+  scene.add(shell);
+
+  /* === Pulse animation for top caps === */
+  let lastTime = performance.now();
+  function animate(now) {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+    shellMat.uniforms.time.value = now / 1000;
+
+    // Pulsate caps subtly
+    const t = now / 1000;
+    const objs = world.scene().children;
+    // We can't easily walk only pin groups; rely on customLayerData reflection
+    // (three-globe puts customLayerData objects in a specific group)
+    // Workaround: we kept references via group.userData
+    // walk scene to find groups with userData.d
+    walkPins(world.scene(), (g) => {
+      const ud = g.userData;
+      if (!ud || !ud.d) return;
+      const d = ud.d;
+      if (d.isInvestorOnly) {
+        ud.haloMat.opacity = 0.08 + 0.05 * (0.5 + 0.5 * Math.sin(t * 1.6 + d.lat));
+      } else {
+        const base = 0.18 + (d.company_count / maxCompanies) * 0.12;
+        ud.haloMat.opacity = base + 0.18 * (0.5 + 0.5 * Math.sin(t * 1.8 + d.lat * 0.3));
+        ud.capMat.opacity = 0.85 + 0.15 * (0.5 + 0.5 * Math.sin(t * 2.4 + d.lng * 0.2));
+      }
+    });
+    requestAnimationFrame(animate);
+  }
+  function walkPins(node, fn) {
+    if (node.userData && node.userData.d) fn(node);
+    if (node.children) for (const c of node.children) walkPins(c, fn);
+  }
+  requestAnimationFrame(animate);
+
+  /* === Hover info card via screen projection === */
+  const infoCard = document.getElementById('info-card');
+  let hoveredCity = null;
+  let mouseX = 0, mouseY = 0;
+  globeEl.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    pickCity(e);
+    if (hoveredCity) updateInfoCardPosition();
+  });
+  globeEl.addEventListener('mouseleave', () => {
+    hoveredCity = null;
+    infoCard.classList.remove('visible');
+  });
+
+  // Use raycaster to pick pin groups
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  function pickCity(evt) {
+    const rect = globeEl.getBoundingClientRect();
+    ndc.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+    ndc.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(ndc, world.camera());
+    // Gather all pin meshes
+    const meshes = [];
+    walkPins(world.scene(), (g) => { if (g.userData && g.userData.mesh) meshes.push(g.userData.mesh, g.userData.cap); });
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length) {
+      // Walk up to group
+      let g = hits[0].object;
+      while (g && !(g.userData && g.userData.d)) g = g.parent;
+      if (g && g.userData.d !== hoveredCity) {
+        focusCity(g.userData.d);
+      }
+      if (!g) {
+        if (hoveredCity) { hoveredCity = null; infoCard.classList.remove('visible'); }
+      }
+    } else {
+      if (hoveredCity) { hoveredCity = null; infoCard.classList.remove('visible'); }
+    }
+  }
+
+  function focusCity(c) {
+    hoveredCity = c;
+    // Render card content
+    const top5 = (c.companies || []).slice().sort((a, b) => (b.investors||[]).length - (a.investors||[]).length).slice(0, 5);
+    const totalCompanies = c.company_count || 0;
+    // Connected investor cities (count of arcs into this city)
+    const inflow = arcs.filter(a => a.companyCity === c.city).length;
+    const outflow = arcs.filter(a => a.investorCity === c.city).length;
+    infoCard.innerHTML = `
+      <div class="ic-eyebrow">CITY · HOTSPOT</div>
+      <div class="ic-name">${c.city}</div>
+      <div class="ic-country">${c.country || ''}</div>
+      <div class="ic-stats">
+        <div class="ic-stat"><div class="lbl">Companies</div><div class="val">${totalCompanies}</div></div>
+        <div class="ic-stat"><div class="lbl">In-flows</div><div class="val">${inflow}</div></div>
+        <div class="ic-stat"><div class="lbl">Out-flows</div><div class="val">${outflow}</div></div>
+      </div>
+      ${Object.keys(c.verticals).length ? `
+        <div class="ic-section-label">VERTICAL MIX</div>
+        <div class="ic-bar">${buildBars(c.verticals)}</div>
+      ` : ''}
+      ${top5.length ? `
+        <div class="ic-section-label">TOP COMPANIES</div>
+        <ul class="ic-companies">
+          ${top5.map(co => `<li><span>${co.name}</span><span class="vert" style="color:${vertColor(co.vertical)}">${co.vertical || 'Other'}</span></li>`).join('')}
+        </ul>
+      ` : (c.isInvestorOnly ? `<div class="ic-section-label">INVESTOR HUB</div>` : '')}
+    `;
+    infoCard.classList.add('visible');
+    updateInfoCardPosition();
+  }
+
+  function updateInfoCardPosition() {
+    if (!hoveredCity) return;
+    // Project city's lat/lng to screen
+    const v = world.getCoords(hoveredCity.lat, hoveredCity.lng, hoveredCity._alt + 0.05);
+    const vec = new THREE.Vector3(v.x, v.y, v.z);
+    vec.project(world.camera());
+    const rect = globeEl.getBoundingClientRect();
+    const x = (vec.x * 0.5 + 0.5) * rect.width + rect.left;
+    const y = (-vec.y * 0.5 + 0.5) * rect.height + rect.top;
+    infoCard.style.left = `${x}px`;
+    infoCard.style.top = `${y}px`;
+  }
+
+  function zoomToCity(c) {
+    world.pointOfView({ lat: c.lat, lng: c.lng, altitude: 1.4 }, 1400);
+  }
+
+  /* === Auto-rotate pause/resume on interaction === */
+  let resumeTimer = null;
+  function pauseAutoRotate() {
+    controls.autoRotate = false;
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => { controls.autoRotate = true; }, 5000);
+  }
+  globeEl.addEventListener('pointerdown', pauseAutoRotate);
+  globeEl.addEventListener('wheel', pauseAutoRotate, { passive: true });
+
+  /* === Filter behavior === */
+  function applyFilters() {
+    // Update arcs: only show arcs whose vertical is active, dim the rest
+    world.arcsData(arcs.map(a => ({
+      ...a,
+      _hidden: !activeFilters.has(a.vertical)
+    })))
+    .arcColor(d => d._hidden
+      ? ['rgba(80,80,80,0.04)', 'rgba(80,80,80,0.04)']
+      : [d.colorStart, d.colorEnd])
+    .arcStroke(d => d._hidden ? 0.10 : 0.36);
+
+    // Update pin opacity: dim cities with no active vertical
+    walkPins(world.scene(), (g) => {
+      const ud = g.userData;
+      if (!ud || !ud.d) return;
+      const d = ud.d;
+      let active;
+      if (d.isInvestorOnly) {
+        // investor cities active only if any vertical they fund is active
+        const fundedVerts = new Set(arcs.filter(a => a.investorCity === d.city).map(a => a.vertical));
+        active = [...fundedVerts].some(v => activeFilters.has(v)) || activeFilters.size === Object.keys(VERTICALS).length;
+      } else {
+        active = Object.keys(d.verticals).some(v => activeFilters.has(v));
+      }
+      const dim = !active;
+      ud.mat.opacity = dim ? 0.10 : (d.isInvestorOnly ? 0.55 : 0.85);
+      ud.capMat.opacity = dim ? 0.18 : 0.95;
+      ud.haloMat.opacity = dim ? 0.04 : 0.22;
+    });
+  }
+
+  // Hide loading overlay after first render
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('gone');
+  }, 700);
+
+  console.log(`[Holosphere] cities=${cities.length} arcs=${arcs.length} unresolved=${unresolvedArcs}`);
+}
+
+main().catch(err => {
+  console.error(err);
+  document.getElementById('loading').innerHTML = '<div class="l-text" style="color:#ff6b6b">FAILED TO INITIALIZE — check console</div>';
+});
+</script>
+</body>
+</html>
