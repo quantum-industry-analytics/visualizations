@@ -525,7 +525,19 @@ function render(M) {
    * ------------------------------------------------------------------------ */
   function computeLayout() {
     W = window.innerWidth; H = window.innerHeight;
-    plotL = 240; plotR = W - 60;
+    // Reserve right-side space so the circuit doesn't crash into the
+    // top-right panels (State Counters + Vertical Filter legend).
+    // Panel block occupies roughly the top ~280px of the right edge with width ~380px.
+    // Panels live in a band along the top-right; below them, full width is OK.
+    // We measure the panels host live so the reservation tracks reality.
+    let panelReserve = 60;
+    const panelsEl = document.querySelector(".panels");
+    if (panelsEl) {
+      const r = panelsEl.getBoundingClientRect();
+      // 26px right padding of .topbar + a 16px breathing gap from the panel's left edge
+      panelReserve = Math.ceil((window.innerWidth - r.left)) + 16;
+    }
+    plotL = 240; plotR = W - panelReserve;
     plotT = 130; plotB = H - 60;
 
     // wire spacing: fit all wires within plot area

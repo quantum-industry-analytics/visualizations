@@ -319,6 +319,130 @@
 
   /* HINT (above counts on small screens isn't needed) */
 
+  /* HOW-TO-READ EXPLAINER */
+  #helpBtn {
+    position: fixed; left: 24px; top: 96px; z-index: 110;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 11px 6px 9px;
+    background: var(--panel);
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    border: 1px solid var(--panel-edge);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.18s, color 0.18s, background 0.18s;
+    user-select: none;
+  }
+  #helpBtn:hover {
+    border-color: rgba(212,175,55,0.5);
+    color: var(--ink);
+    background: rgba(8,10,18,0.78);
+  }
+  #helpBtn .qmark {
+    width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(212,175,55,0.55);
+    border-radius: 50%;
+    color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0;
+  }
+  #helpBtn[hidden] { display: none; }
+
+  #helpPanel {
+    position: fixed; left: 24px; top: 96px; z-index: 111;
+    width: 320px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding: 16px 18px 18px;
+    opacity: 0; transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+  }
+  #helpPanel.open {
+    opacity: 1; transform: translateY(0);
+    pointer-events: auto;
+  }
+  #helpPanel::-webkit-scrollbar { width: 4px; }
+  #helpPanel::-webkit-scrollbar-track { background: transparent; }
+  #helpPanel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  #helpPanel .hp-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid rgba(212,175,55,0.28);
+    margin-bottom: 12px;
+  }
+  #helpPanel .hp-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; letter-spacing: 0.36em; text-transform: uppercase;
+    color: var(--ink); font-weight: 600;
+  }
+  #helpPanel .hp-title::before {
+    content: ''; display: inline-block; width: 14px; height: 1px;
+    background: var(--accent); vertical-align: middle; margin-right: 9px;
+    opacity: 0.85;
+  }
+  #helpPanel .hp-close {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 2px 6px;
+    transition: color 0.15s;
+  }
+  #helpPanel .hp-close:hover { color: var(--accent); }
+  #helpPanel .hp-section { padding: 10px 0; }
+  #helpPanel .hp-section + .hp-section {
+    border-top: 1px solid rgba(212,175,55,0.13);
+  }
+  #helpPanel .hp-shead {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 6px;
+  }
+  #helpPanel .hp-shead .glyph {
+    width: 22px; height: 22px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  #helpPanel .hp-shead .glyph svg { width: 100%; height: 100%; display: block; }
+  #helpPanel .hp-shead h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink); font-weight: 500;
+  }
+  #helpPanel .hp-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px; line-height: 1.55;
+    color: var(--ink-soft);
+    padding-left: 31px;
+  }
+  #helpPanel .hp-body em {
+    color: var(--accent); font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.04em;
+  }
+  #helpPanel .hp-caveat {
+    margin-top: 4px;
+    padding: 9px 11px;
+    background: rgba(212,175,55,0.06);
+    border: 1px solid rgba(212,175,55,0.18);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  #helpPanel .hp-caveat .lbl {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
   /* LOADING */
   #loader {
     position: fixed; inset: 0; z-index: 100;
@@ -398,7 +522,147 @@
   <span class="stat acc"><b id="cntFps">0</b>fps</span>
 </div>
 
+<button id="helpBtn" class="ui" type="button" hidden>
+  <span class="qmark">?</span><span>How to read</span>
+</button>
+
+<div id="helpPanel" class="panel ui" role="dialog" aria-label="How to read this visualization">
+  <div class="hp-head">
+    <div class="hp-title">How to read this</div>
+    <button class="hp-close" type="button" aria-label="Dismiss">Dismiss ×</button>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-shead">
+      <span class="glyph">
+        <svg viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="3.5" fill="#00e5ff" opacity="0.95"/>
+          <circle cx="11" cy="11" r="7" stroke="#00e5ff" stroke-opacity="0.45" stroke-width="0.8"/>
+          <circle cx="11" cy="11" r="9.5" stroke="#00e5ff" stroke-opacity="0.18" stroke-width="0.6"/>
+        </svg>
+      </span>
+      <h5>Distance = similarity</h5>
+    </div>
+    <div class="hp-body">
+      Distance between companies = <em>semantic similarity</em>. Companies near each other describe their work in similar terms.
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-shead">
+      <span class="glyph">
+        <svg viewBox="0 0 22 22" fill="none">
+          <path d="M2 17 L7 11 L11 14 L15 6 L20 4" stroke="#d4af37" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85"/>
+          <circle cx="2" cy="17" r="1.3" fill="#d4af37"/>
+          <circle cx="7" cy="11" r="1.3" fill="#d4af37"/>
+          <circle cx="11" cy="14" r="1.3" fill="#d4af37"/>
+          <circle cx="15" cy="6" r="1.3" fill="#d4af37"/>
+          <circle cx="20" cy="4" r="1.3" fill="#d4af37"/>
+        </svg>
+      </span>
+      <h5>Projection · TF-IDF → UMAP</h5>
+    </div>
+    <div class="hp-body">
+      Built from each company's description + categories + vertical. <em>TF-IDF</em> features compressed from ~2000 dimensions to <em>3D</em> via <em>UMAP</em>, preserving local structure (close pairs stay close).
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-shead">
+      <span class="glyph">
+        <svg viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="8" fill="#b14aed" opacity="0.10"/>
+          <circle cx="11" cy="11" r="5" fill="#b14aed" opacity="0.20"/>
+          <circle cx="9" cy="10" r="1.1" fill="#b14aed"/>
+          <circle cx="13" cy="10.5" r="1.1" fill="#b14aed"/>
+          <circle cx="11" cy="13" r="1.1" fill="#b14aed"/>
+        </svg>
+      </span>
+      <h5>Cluster halos</h5>
+    </div>
+    <div class="hp-body">
+      Soft volumes = emergent <em>KMeans</em> clusters in the TF-IDF space. The terms shown in the legend are the most distinctive words for each cluster.
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-shead">
+      <span class="glyph">
+        <svg viewBox="0 0 22 22" fill="none">
+          <path d="M3 16 C 7 4, 15 4, 19 16" stroke="#2ee6a6" stroke-width="1.4" fill="none" opacity="0.9" stroke-linecap="round"/>
+          <circle cx="3" cy="16" r="1.6" fill="#2ee6a6"/>
+          <circle cx="19" cy="16" r="1.6" fill="#2ee6a6"/>
+        </svg>
+      </span>
+      <h5>Filaments</h5>
+    </div>
+    <div class="hp-body">
+      Curved tubes = pairs sharing one or more <em>investors</em>. Brighter = more shared investors.
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-shead">
+      <span class="glyph">
+        <svg viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="2.4" fill="#ffb547"/>
+          <line x1="11" y1="11" x2="3" y2="5" stroke="#ffb547" stroke-width="0.9" opacity="0.85"/>
+          <line x1="11" y1="11" x2="19" y2="6" stroke="#ffb547" stroke-width="0.9" opacity="0.85"/>
+          <line x1="11" y1="11" x2="4" y2="17" stroke="#ffb547" stroke-width="0.9" opacity="0.85"/>
+          <line x1="11" y1="11" x2="18" y2="17" stroke="#ffb547" stroke-width="0.9" opacity="0.85"/>
+          <line x1="11" y1="11" x2="11" y2="2" stroke="#ffb547" stroke-width="0.9" opacity="0.85"/>
+          <circle cx="3" cy="5" r="1.1" fill="#ffb547" opacity="0.7"/>
+          <circle cx="19" cy="6" r="1.1" fill="#ffb547" opacity="0.7"/>
+          <circle cx="4" cy="17" r="1.1" fill="#ffb547" opacity="0.7"/>
+          <circle cx="18" cy="17" r="1.1" fill="#ffb547" opacity="0.7"/>
+          <circle cx="11" cy="2" r="1.1" fill="#ffb547" opacity="0.7"/>
+        </svg>
+      </span>
+      <h5>Hover · nearest neighbors</h5>
+    </div>
+    <div class="hp-body">
+      Hovering a node draws beams to its top-5 nearest semantic neighbors (computed in the original <em>TF-IDF</em> space — <em>not</em> the 3D projection).
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="hp-caveat">
+      <span class="lbl">Caveat</span>
+      UMAP is a non-linear projection. Absolute distances are not metric — only local neighborhoods are reliable. Treat clusters as "these companies do similar things," not "distance = quantitative similarity score."
+    </div>
+  </div>
+</div>
+
 <div id="loader"><div class="ld">embedding · projecting · clustering · 3D</div></div>
+
+<script>
+// HOW-TO-READ explainer panel logic (vanilla, runs immediately)
+(function(){
+  const STORAGE_KEY = 'viz06_helpDismissed';
+  const btn = document.getElementById('helpBtn');
+  const panel = document.getElementById('helpPanel');
+  const closeBtn = panel.querySelector('.hp-close');
+  function open(){
+    panel.classList.add('open');
+    btn.hidden = true;
+  }
+  function close(){
+    panel.classList.remove('open');
+    btn.hidden = false;
+    try { localStorage.setItem(STORAGE_KEY, '1'); } catch(_){}
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  // Default-open on first load; keep dismissed state across visits
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(_){}
+  if (dismissed){
+    btn.hidden = false;
+  } else {
+    open();
+  }
+})();
+</script>
 
 <script type="module">
 import * as THREE from 'three';

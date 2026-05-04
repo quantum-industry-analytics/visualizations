@@ -72,7 +72,9 @@
     mix-blend-mode: overlay;
   }
 
-  canvas, svg { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+  #contourCanvas, #voronoiSvg, #overlaySvg {
+    display: block; position: absolute; inset: 0; width: 100%; height: 100%;
+  }
   #contourCanvas { z-index: 2; pointer-events: none; }
   #voronoiSvg   { z-index: 3; }
   #overlaySvg   { z-index: 4; pointer-events: none; }
@@ -450,6 +452,127 @@
     text-transform: uppercase;
   }
 
+  /* HOW-TO-READ EXPLAINER */
+  #helpBtn {
+    position: fixed; left: 26px; top: 110px; z-index: 22;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px 7px 10px;
+    background: var(--panel);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    color: var(--fg-dim);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.18s, color 0.18s, background 0.18s;
+    user-select: none;
+  }
+  #helpBtn:hover {
+    border-color: rgba(212,175,55,0.55);
+    color: var(--pearl);
+  }
+  #helpBtn .qmark {
+    width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(212,175,55,0.6);
+    border-radius: 50%;
+    color: var(--gold);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0;
+  }
+  #helpBtn[hidden] { display: none; }
+
+  #helpPanel {
+    position: fixed; left: 26px; top: 110px; z-index: 23;
+    width: 320px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding: 16px 18px 18px;
+    opacity: 0; transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+  }
+  #helpPanel.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  #helpPanel::-webkit-scrollbar { width: 4px; }
+  #helpPanel::-webkit-scrollbar-track { background: transparent; }
+  #helpPanel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  #helpPanel .hp-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid rgba(212,175,55,0.3);
+    margin-bottom: 12px;
+  }
+  #helpPanel .hp-title {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 11px; letter-spacing: 0.36em; text-transform: uppercase;
+    color: var(--pearl); font-weight: 600;
+  }
+  #helpPanel .hp-title::before {
+    content: ""; display: inline-block; width: 14px; height: 1px;
+    background: var(--gold); vertical-align: middle; margin-right: 9px;
+    opacity: 0.85;
+  }
+  #helpPanel .hp-close {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--fg-faint);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 2px 6px;
+    transition: color 0.15s;
+  }
+  #helpPanel .hp-close:hover { color: var(--gold); }
+  #helpPanel .hp-section { padding: 10px 0; }
+  #helpPanel .hp-section + .hp-section {
+    border-top: 1px solid rgba(212,175,55,0.14);
+  }
+  #helpPanel .hp-shead {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 6px;
+  }
+  #helpPanel .hp-shead .glyph {
+    width: 22px; height: 22px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  #helpPanel .hp-shead .glyph svg { width: 100%; height: 100%; display: block; }
+  #helpPanel .hp-shead h5 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--pearl); font-weight: 500;
+    margin: 0;
+  }
+  #helpPanel .hp-body {
+    font-family: "Inter", sans-serif;
+    font-size: 11.5px; line-height: 1.55;
+    color: var(--fg-dim);
+    padding-left: 31px;
+  }
+  #helpPanel .hp-body em {
+    color: var(--gold-bright); font-style: normal;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px; letter-spacing: 0.04em;
+  }
+  #helpPanel .hp-caveat {
+    margin-top: 4px;
+    padding: 9px 11px;
+    background: rgba(212,175,55,0.06);
+    border: 1px solid rgba(212,175,55,0.18);
+    border-radius: 6px;
+    font-family: "Inter", sans-serif;
+    font-size: 11px; line-height: 1.5;
+    color: var(--fg-dim);
+  }
+  #helpPanel .hp-caveat .lbl {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
 </style>
 </head>
 <body>
@@ -497,6 +620,120 @@
   <div id="hovercard" class="panel"></div>
 
   <div id="focuspanel" class="panel"></div>
+
+  <button id="helpBtn" type="button" hidden>
+    <span class="qmark">?</span><span>How to read</span>
+  </button>
+
+  <div id="helpPanel" class="panel" role="dialog" aria-label="How to read this visualization">
+    <div class="hp-head">
+      <div class="hp-title">How to read this</div>
+      <button class="hp-close" type="button" aria-label="Dismiss">Dismiss &times;</button>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-shead">
+        <span class="glyph">
+          <svg viewBox="0 0 22 22" fill="none">
+            <polygon points="2,4 9,2 17,5 20,12 14,19 6,18 3,11" fill="#00e5ff" fill-opacity="0.14" stroke="#00e5ff" stroke-opacity="0.65" stroke-width="0.8"/>
+            <circle cx="11" cy="11" r="1.5" fill="#00e5ff"/>
+          </svg>
+        </span>
+        <h5>Territories</h5>
+      </div>
+      <div class="hp-body">
+        Each polygon = the spatial region closest to that company's center. Larger or central cells just mean <em>fewer competitors nearby in the layout</em> — not market share.
+      </div>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-shead">
+        <span class="glyph">
+          <svg viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="11" r="2.4" fill="#b14aed"/>
+            <circle cx="4" cy="6" r="1.6" fill="#b14aed" opacity="0.7"/>
+            <circle cx="18" cy="7" r="1.6" fill="#b14aed" opacity="0.7"/>
+            <circle cx="6" cy="17" r="1.6" fill="#b14aed" opacity="0.7"/>
+            <circle cx="17" cy="16" r="1.6" fill="#b14aed" opacity="0.7"/>
+            <line x1="11" y1="11" x2="4" y2="6" stroke="#b14aed" stroke-opacity="0.6" stroke-width="0.8" stroke-dasharray="1.5 1.5"/>
+            <line x1="11" y1="11" x2="18" y2="7" stroke="#b14aed" stroke-opacity="0.6" stroke-width="0.8" stroke-dasharray="1.5 1.5"/>
+            <line x1="11" y1="11" x2="6" y2="17" stroke="#b14aed" stroke-opacity="0.6" stroke-width="0.8" stroke-dasharray="1.5 1.5"/>
+            <line x1="11" y1="11" x2="17" y2="16" stroke="#b14aed" stroke-opacity="0.6" stroke-width="0.8" stroke-dasharray="1.5 1.5"/>
+          </svg>
+        </span>
+        <h5>Why companies sit where they do</h5>
+      </div>
+      <div class="hp-body">
+        <em>Force-directed</em> layout: companies are pulled toward their vertical's cluster center, repelled by overlap. Position is <em>structural, not geographic</em>.
+      </div>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-shead">
+        <span class="glyph">
+          <svg viewBox="0 0 22 22" fill="none">
+            <ellipse cx="11" cy="11" rx="9" ry="6" stroke="#7cd6ff" stroke-opacity="0.30" stroke-width="0.7" fill="none"/>
+            <ellipse cx="11" cy="11" rx="6.5" ry="4.3" stroke="#7cd6ff" stroke-opacity="0.55" stroke-width="0.7" fill="none"/>
+            <ellipse cx="11" cy="11" rx="4" ry="2.7" stroke="#b4e6ff" stroke-opacity="0.8" stroke-width="0.8" fill="none"/>
+            <ellipse cx="11" cy="11" rx="1.7" ry="1.2" fill="#f0faff" fill-opacity="0.85"/>
+          </svg>
+        </span>
+        <h5>Contour lines</h5>
+      </div>
+      <div class="hp-body">
+        Topographic isolines = <em>funding-density elevation</em>. Peaks rise where the most-funded companies cluster. Higher altitude = more capital deployed in that region.
+      </div>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-shead">
+        <span class="glyph">
+          <svg viewBox="0 0 22 22" fill="none">
+            <circle cx="6" cy="14" r="1.4" fill="#ffb547" opacity="0.85"/>
+            <circle cx="11" cy="11" r="2.6" fill="#ffb547"/>
+            <circle cx="11" cy="11" r="4.2" stroke="#ffb547" stroke-opacity="0.4" stroke-width="0.7" fill="none"/>
+            <circle cx="17" cy="7" r="3.6" fill="#ffb547"/>
+            <circle cx="17" cy="7" r="5.5" stroke="#ffb547" stroke-opacity="0.35" stroke-width="0.7" fill="none"/>
+          </svg>
+        </span>
+        <h5>Dot size</h5>
+      </div>
+      <div class="hp-body">
+        Dot size = synthesized total funding for that company (deterministic, marked <em>SYN</em> until real data is plumbed in).
+      </div>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-caveat">
+        <span class="lbl">Caveat</span>
+        Layout is deterministic but <em style="color:inherit;font-family:inherit;font-size:inherit;letter-spacing:inherit;font-weight:600">not geographic</em> — Berlin and San Francisco aren't shown by location. Verticals form clusters; that's the structure.
+      </div>
+    </div>
+  </div>
+
+<script>
+// HOW-TO-READ explainer panel
+(function(){
+  const STORAGE_KEY = 'viz10_helpDismissed';
+  const btn = document.getElementById('helpBtn');
+  const panel = document.getElementById('helpPanel');
+  const closeBtn = panel.querySelector('.hp-close');
+  function open(){
+    panel.classList.add('open');
+    btn.hidden = true;
+  }
+  function close(){
+    panel.classList.remove('open');
+    btn.hidden = false;
+    try { localStorage.setItem(STORAGE_KEY, '1'); } catch(_){}
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(_){}
+  if (dismissed){ btn.hidden = false; } else { open(); }
+})();
+</script>
 
 <script>
 //==================================================================

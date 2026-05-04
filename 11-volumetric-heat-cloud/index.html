@@ -446,6 +446,285 @@
   }
   .info-card .companies b { color: var(--ink); font-weight: 500; }
 
+  /* ---- Detail panel (persistent, click-driven) ---- */
+  .detail-panel {
+    position: absolute;
+    top: 22px;
+    right: 26px;
+    z-index: 12;
+    width: 340px;
+    max-height: calc(100vh - 44px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: linear-gradient(180deg, rgba(10, 18, 32, 0.94), rgba(8, 14, 26, 0.88));
+    border: 1px solid rgba(0, 229, 255, 0.34);
+    border-radius: 14px;
+    padding: 18px 20px 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 1.55;
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.55),
+      0 0 28px rgba(0, 229, 255, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    opacity: 0;
+    transform: translateX(28px);
+    transition: opacity .26s ease, transform .26s cubic-bezier(.2, .85, .25, 1);
+    pointer-events: none;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+  .detail-panel.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .detail-panel::-webkit-scrollbar { width: 6px; }
+  .detail-panel::-webkit-scrollbar-track { background: transparent; }
+  .detail-panel::-webkit-scrollbar-thumb {
+    background: rgba(120, 180, 255, 0.18);
+    border-radius: 3px;
+  }
+  .detail-panel .dp-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1;
+    transition: all .18s ease;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(120, 180, 255, 0.10);
+  }
+  .detail-panel .dp-close:hover {
+    color: var(--ink);
+    background: rgba(0, 229, 255, 0.10);
+    border-color: rgba(0, 229, 255, 0.34);
+  }
+  .detail-panel .dp-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-right: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .detail-panel .dp-eyebrow .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .detail-panel .dp-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 2px;
+    padding-right: 28px;
+  }
+  .detail-panel .dp-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.20em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .detail-panel .dp-row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin: 14px 0 6px;
+  }
+  .detail-panel .dp-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .detail-panel .dp-stat {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(120, 180, 255, 0.06);
+    border-radius: 8px;
+    padding: 9px 10px 8px;
+  }
+  .detail-panel .dp-stat .num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .detail-panel .dp-stat .num .unit {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-dim);
+    margin-left: 2px;
+    letter-spacing: 0.06em;
+  }
+  .detail-panel .dp-stat .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.20em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .detail-panel .dp-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 46px;
+    padding: 4px 0 2px;
+    margin-bottom: 2px;
+  }
+  .detail-panel .dp-bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 1.5px;
+    min-height: 2px;
+    opacity: 0.32;
+    position: relative;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .detail-panel .dp-bar.has {
+    opacity: 1;
+    box-shadow: 0 0 7px var(--accent);
+  }
+  .detail-panel .dp-bar:hover { transform: scaleY(1.06); }
+  .detail-panel .dp-bar-axis {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.10em;
+    color: var(--ink-faint);
+    margin-top: 1px;
+  }
+  .detail-panel .dp-verts {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .detail-panel .dp-vrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 5px;
+  }
+  .detail-panel .dp-vrow .vsw {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
+    flex-shrink: 0;
+  }
+  .detail-panel .dp-vrow .nm { flex: 1; color: var(--ink); }
+  .detail-panel .dp-vrow .ct {
+    color: var(--ink-faint);
+    font-size: 10px;
+    letter-spacing: 0.10em;
+  }
+  .detail-panel .dp-companies {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .detail-panel .dp-companies::-webkit-scrollbar { width: 4px; }
+  .detail-panel .dp-companies::-webkit-scrollbar-thumb {
+    background: rgba(120, 180, 255, 0.16);
+    border-radius: 2px;
+  }
+  .detail-panel .dp-crow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 9px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(120, 180, 255, 0.05);
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+  }
+  .detail-panel .dp-crow .vsw {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
+    flex-shrink: 0;
+  }
+  .detail-panel .dp-crow .nm { flex: 1; }
+  .detail-panel .dp-crow .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .detail-panel .dp-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid rgba(120, 180, 255, 0.10);
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all .18s ease;
+    user-select: none;
+  }
+  .detail-panel .dp-back:hover {
+    color: var(--accent);
+    border-color: rgba(0, 229, 255, 0.34);
+    background: rgba(0, 229, 255, 0.06);
+  }
+  .detail-panel .dp-syn-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    background: rgba(120, 180, 255, 0.08);
+    border: 1px solid rgba(120, 180, 255, 0.10);
+    padding: 1.5px 5px;
+    border-radius: 99px;
+    vertical-align: 1px;
+  }
+
   /* ---- Status bar ---- */
   .status {
     position: absolute;
@@ -576,6 +855,15 @@
     <div class="verts" id="ic-verts"></div>
     <div class="row-label">Companies</div>
     <div class="companies" id="ic-companies-list">—</div>
+  </div>
+
+  <div class="detail-panel" id="detail-panel">
+    <div class="dp-close" id="dp-close" title="Dismiss">×</div>
+    <div class="dp-eyebrow" id="dp-eyebrow"><span class="dot" style="color:#00e5ff"></span><span id="dp-eyebrow-label">Detail</span></div>
+    <div class="dp-title" id="dp-title">—</div>
+    <div class="dp-subtitle" id="dp-subtitle">—</div>
+    <div id="dp-body"></div>
+    <div class="dp-back" id="dp-back">← back to overview</div>
   </div>
 
   <div class="status">
@@ -856,6 +1144,11 @@ function aggregate(data) {
   }
 
   // Walk investments → tally by company city.
+  // Also build:
+  //   - cityYearCapital: city -> Map<year, totalAmountMUSD>
+  //   - cityCapitalTotal: city -> totalAmountMUSD
+  //   - cellInvestments: cellKey "city|year|vert" -> [investment...]
+  const cellInvestments = new Map();
   for (const inv of data.investments) {
     const co = companyMap.get(inv.company);
     if (!co) continue;
@@ -865,8 +1158,27 @@ function aggregate(data) {
     node.investments++;
     node.investors.add(inv.investor);
     node.yearCounts.set(inv.year, (node.yearCounts.get(inv.year) || 0) + 1);
-    const vk = `${inv.year}|${co.vertical || "Other"}`;
+    const vert = co.vertical || "Other";
+    const vk = `${inv.year}|${vert}`;
     node.yearVertCounts.set(vk, (node.yearVertCounts.get(vk) || 0) + 1);
+
+    // Capital aggregations (// SYN — amounts are synthesized in loadData)
+    if (!node.yearCapital) node.yearCapital = new Map();
+    if (!node.yearVertCapital) node.yearVertCapital = new Map();
+    if (!node.totalCapital) node.totalCapital = 0;
+    const amt = inv.amount_musd || 0; // SYN
+    node.totalCapital += amt;          // SYN
+    node.yearCapital.set(inv.year, (node.yearCapital.get(inv.year) || 0) + amt); // SYN
+    node.yearVertCapital.set(vk, (node.yearVertCapital.get(vk) || 0) + amt);     // SYN
+
+    // Per-cell investment list (for cloud-click panel)
+    const cellKey = `${node.key}|${inv.year}|${vert}`;
+    if (!cellInvestments.has(cellKey)) cellInvestments.set(cellKey, []);
+    cellInvestments.get(cellKey).push({
+      ...inv,
+      company_name: co.name || co.id || inv.company,
+      vertical: vert,
+    });
   }
 
   // Add investor-only cities (markers, no clouds).
@@ -890,6 +1202,8 @@ function aggregate(data) {
   return {
     cityNodes,
     investorOnly,
+    cellInvestments,
+    companyMap,
   };
 }
 
@@ -930,9 +1244,10 @@ controls.maxDistance = 700;
 controls.maxPolarAngle = Math.PI * 0.495; // never go below ground
 controls.target.set(0, 70, 0);
 controls.autoRotate = true;
-controls.autoRotateSpeed = (2 * Math.PI / 70) * (60 / (2 * Math.PI)); // ~70s/rev
-// OrbitControls autoRotateSpeed unit: 30 = 60s/rev, so:
-controls.autoRotateSpeed = 30 * (60 / 70); // ≈25.7
+// OrbitControls: autoRotateSpeed = 2.0 → 30 seconds/rev at 60fps.
+// We want ~80 seconds/rev so users can comfortably read city positions.
+// 2.0 * (30/80) = 0.75
+controls.autoRotateSpeed = 0.75; // ~80s per full revolution
 
 let lastInteract = -Infinity;
 controls.addEventListener("start", () => {
@@ -1243,8 +1558,14 @@ let cityGroup = null;
 let cloudInstancedMesh = null;
 let cloudParticles = []; // metadata array
 let cityHoverTargets = []; // for raycasting
+let cloudProxyTargets = []; // invisible proxy meshes for cloud click hit-testing
+let cloudProxyGroup = null;
 let coreSampleLine = null;
 let activeFilter = { vertical: "all", year: "all", yearValue: 2017 };
+
+// Click-driven persistent state
+let activePanel = null; // { type: 'city'|'cloud', node?, cell? }
+let highlightedCloudKey = null; // cellKey when a single cloud is isolated
 
 function dominantVertical(node) {
   let best = null, bestN = -1;
@@ -1324,7 +1645,10 @@ function build(data) {
 
   // ===== Volumetric clouds =====
   // For each (city, year, vertical) aggregate, sample N particles in a 3D Gaussian.
+  // Also build per-cell aggregates and invisible proxy spheres for click hit-testing.
   const allParticles = [];
+  const cellAggregates = new Map(); // cellKey -> { city, year, vert, count, centroid, sigmaH, sigmaV, cellId }
+  let cellIdCounter = 1; // start at 1 so 0/-1 can mean "no isolation"
   for (const node of cities) {
     for (const [vk, count] of node.yearVertCounts.entries()) {
       const [yearStr, vert] = vk.split("|");
@@ -1334,6 +1658,17 @@ function build(data) {
       const N = Math.max(8, Math.floor(30 * Math.log(1 + count * 1.4) + 12));
       const sigmaH = 11 + Math.min(count, 8) * 0.8;
       const sigmaV = 3.2 + Math.min(count, 6) * 0.25;
+      const cellKey = `${node.key}|${year}|${vert}`;
+      const cellId = cellIdCounter++;
+      cellAggregates.set(cellKey, {
+        cellKey,
+        cellId,
+        cityKey: node.key,
+        cityNode: node,
+        year, vert, count,
+        cx, cy, cz,
+        sigmaH, sigmaV,
+      });
       const seed = hash(`${node.key}|${year}|${vert}`);
       const rnd = mulberry32(seed);
       for (let i = 0; i < N; i++) {
@@ -1365,6 +1700,7 @@ function build(data) {
           intensity,
           count,
           phase: rnd() * Math.PI * 2,
+          cellId,
         });
       }
     }
@@ -1379,6 +1715,7 @@ function build(data) {
   const yearArr = new Float32Array(N);
   const vertIdxArr = new Float32Array(N);
   const phaseArr = new Float32Array(N);
+  const cellHashArr = new Float32Array(N);
 
   const VERT_LIST = ["Quantum Computing", "AI/ML", "Bio/Med", "Materials/NanoTech", "Communications", "Cyber Security", "Other"];
   for (let i = 0; i < N; i++) {
@@ -1396,6 +1733,7 @@ function build(data) {
     const vi = VERT_LIST.indexOf(p.vert);
     vertIdxArr[i] = vi < 0 ? 6 : vi;
     phaseArr[i] = p.phase;
+    cellHashArr[i] = p.cellId;
   }
   cloudParticles = allParticles;
 
@@ -1407,6 +1745,7 @@ function build(data) {
   cloudGeo.setAttribute("aYear", new THREE.BufferAttribute(yearArr, 1));
   cloudGeo.setAttribute("aVert", new THREE.BufferAttribute(vertIdxArr, 1));
   cloudGeo.setAttribute("aPhase", new THREE.BufferAttribute(phaseArr, 1));
+  cloudGeo.setAttribute("aCellHash", new THREE.BufferAttribute(cellHashArr, 1));
 
   const cloudMat = new THREE.ShaderMaterial({
     transparent: true,
@@ -1418,6 +1757,9 @@ function build(data) {
       uVertFilter: { value: -1 }, // -1 = all
       uHoverCity: { value: new THREE.Vector3(9999, 9999, 9999) },
       uHoverActive: { value: 0 },
+      uIsolateCell: { value: -1 }, // -1 = none; otherwise cell hash
+      uIsolateBoost: { value: 1.0 }, // brighten matched cell
+      uIsolateFade: { value: 0.25 }, // fade non-matched cells to 25% alpha
     },
     vertexShader: `
       attribute float aSize;
@@ -1425,6 +1767,7 @@ function build(data) {
       attribute float aYear;
       attribute float aVert;
       attribute float aPhase;
+      attribute float aCellHash;
       varying vec3 vCol;
       varying float vAlpha;
       uniform float uTime;
@@ -1432,11 +1775,23 @@ function build(data) {
       uniform float uVertFilter;
       uniform vec3 uHoverCity;
       uniform float uHoverActive;
+      uniform float uIsolateCell;
+      uniform float uIsolateBoost;
+      uniform float uIsolateFade;
       void main() {
         vCol = color;
         float yf = (uYearFilter < 0.0) ? 1.0 : (abs(aYear - uYearFilter) < 0.5 ? 1.0 : 0.10);
         float vf = (uVertFilter < 0.0) ? 1.0 : (abs(aVert - uVertFilter) < 0.5 ? 1.0 : 0.06);
         float fade = yf * vf;
+
+        // Single-cloud isolation (after click on a cloud)
+        float isoMult = 1.0;
+        float isoBoost = 1.0;
+        if (uIsolateCell > 0.0) {
+          bool match = abs(aCellHash - uIsolateCell) < 0.5;
+          isoMult = match ? 1.0 : uIsolateFade;
+          isoBoost = match ? uIsolateBoost : 1.0;
+        }
 
         // Slight horizontal drift
         float driftX = sin(uTime * 0.18 + aPhase) * 0.45;
@@ -1451,8 +1806,8 @@ function build(data) {
           float d = length(pos.xz - uHoverCity.xz);
           hb = 1.0 + (1.0 - smoothstep(0.0, 28.0, d)) * 1.6;
         }
-        vAlpha = aAlpha * fade * hb;
-        vCol = color * (0.85 + (hb - 1.0) * 0.6);
+        vAlpha = aAlpha * fade * hb * isoMult;
+        vCol = color * (0.85 + (hb - 1.0) * 0.6) * isoBoost;
 
         vec4 mv = modelViewMatrix * vec4(pos, 1.0);
         gl_PointSize = aSize * (260.0 / -mv.z) * (0.85 + 0.15 * sin(uTime + aPhase));
@@ -1477,6 +1832,44 @@ function build(data) {
   const cloud = new THREE.Points(cloudGeo, cloudMat);
   cloudInstancedMesh = cloud;
   scene.add(cloud);
+
+  // ===== Cloud click proxies =====
+  // Each (city, year, vertical) cell gets an invisible sphere mesh whose
+  // bounding volume roughly matches the visible cloud blob. We keep
+  // visible=false but raycast against these for reliable click hit-testing.
+  cloudProxyGroup = new THREE.Group();
+  cloudProxyTargets = [];
+  const proxyGeo = new THREE.SphereGeometry(1, 12, 8);
+  // Fully transparent material so the proxies don't visually appear,
+  // but we keep .visible = true so the raycaster intersects them.
+  const proxyMat = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    colorWrite: false,
+  });
+  for (const cell of cellAggregates.values()) {
+    // Radius slightly larger than visible cloud bounding box
+    const r = Math.max(cell.sigmaH * 1.6, 9);
+    const proxy = new THREE.Mesh(proxyGeo, proxyMat);
+    proxy.position.set(cell.cx, cell.cy, cell.cz);
+    proxy.scale.set(r, Math.max(cell.sigmaV * 2.4, 5.5), r);
+    proxy.renderOrder = -1; // not drawn anyway, but keep out of bloom/depth
+    proxy.userData = {
+      type: "cloud",
+      cellKey: cell.cellKey,
+      cell,
+    };
+    proxy.matrixAutoUpdate = false;
+    proxy.updateMatrix();
+    proxy.updateMatrixWorld(true);
+    cloudProxyGroup.add(proxy);
+    cloudProxyTargets.push(proxy);
+  }
+  scene.add(cloudProxyGroup);
+
+  // Expose cell aggregates for the panel.
+  AGG.cellAggregates = cellAggregates;
 
   // Stats
   document.getElementById("s-cities").textContent = cities.length;
@@ -1632,6 +2025,316 @@ function showCoreSample(node) {
 }
 
 // =============================================================
+// Click → persistent detail panel
+// =============================================================
+const clickRaycaster = new THREE.Raycaster();
+clickRaycaster.params.Sprite = { threshold: 0 };
+let pointerDownPos = null;
+let pointerDownTime = 0;
+
+renderer.domElement.addEventListener("pointerdown", (e) => {
+  pointerDownPos = { x: e.clientX, y: e.clientY };
+  pointerDownTime = performance.now();
+});
+
+renderer.domElement.addEventListener("pointerup", (e) => {
+  if (!pointerDownPos) return;
+  const dx = e.clientX - pointerDownPos.x;
+  const dy = e.clientY - pointerDownPos.y;
+  const moved = Math.hypot(dx, dy);
+  const dt = performance.now() - pointerDownTime;
+  pointerDownPos = null;
+  // Reject drags (orbit) and long presses
+  if (moved > 5 || dt > 700) return;
+  handleSceneClick(e);
+});
+
+function handleSceneClick(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  clickRaycaster.setFromCamera({ x: nx, y: ny }, camera);
+
+  // City markers first (they're at ground level, less likely to be obscured)
+  const cityHits = clickRaycaster.intersectObjects(cityHoverTargets, false);
+  if (cityHits.length) {
+    const node = cityHits[0].object.userData.node;
+    openCityPanel(node);
+    return;
+  }
+  // Then cloud proxies
+  const cloudHits = clickRaycaster.intersectObjects(cloudProxyTargets, false);
+  if (cloudHits.length) {
+    // Pick the closest hit's cell
+    const cell = cloudHits[0].object.userData.cell;
+    openCloudPanel(cell);
+    return;
+  }
+  // Empty space → dismiss
+  closeDetailPanel();
+}
+
+function openCityPanel(node) {
+  activePanel = { type: "city", node };
+  // Clear cloud isolation when switching to a city panel
+  setIsolatedCell(null);
+  renderCityPanel(node);
+  showDetailPanel();
+  tweenCameraToCity(node);
+}
+
+function openCloudPanel(cell) {
+  activePanel = { type: "cloud", cell };
+  setIsolatedCell(cell.cellId);
+  renderCloudPanel(cell);
+  showDetailPanel();
+  // Frame the camera near the cell, but keep the city's column in view
+  tweenCameraToCell(cell);
+}
+
+function closeDetailPanel() {
+  activePanel = null;
+  setIsolatedCell(null);
+  const dp = document.getElementById("detail-panel");
+  dp.classList.remove("visible");
+}
+
+function showDetailPanel() {
+  const dp = document.getElementById("detail-panel");
+  dp.classList.add("visible");
+}
+
+function setIsolatedCell(cellId) {
+  highlightedCloudKey = cellId;
+  if (!cloudInstancedMesh) return;
+  cloudInstancedMesh.material.uniforms.uIsolateCell.value = (cellId == null) ? -1 : cellId;
+  cloudInstancedMesh.material.uniforms.uIsolateBoost.value = (cellId == null) ? 1.0 : 1.6;
+  cloudInstancedMesh.material.uniforms.uIsolateFade.value = (cellId == null) ? 1.0 : 0.25;
+}
+
+function fmtCapital(musd) {
+  // musd = millions of USD (synthesized)
+  if (musd >= 1000) return `$${(musd / 1000).toFixed(2)}<span class="unit">B</span>`;
+  if (musd >= 1)    return `$${musd.toFixed(0)}<span class="unit">M</span>`;
+  return `$${(musd * 1000).toFixed(0)}<span class="unit">K</span>`;
+}
+
+// Build a deterministic synthetic investor count for a cell
+function synCellInvestorCount(cell, invList) {
+  const set = new Set();
+  for (const inv of invList) set.add(inv.investor);
+  // Return real count, no extra synthesis needed.
+  return set.size;
+}
+
+function renderCityPanel(node) {
+  const domV = dominantVertical(node) || "Other";
+  const domHex = VERT_HEX[domV] || VERT_HEX.Other;
+
+  document.getElementById("dp-eyebrow").innerHTML =
+    `<span class="dot" style="color:${domHex}"></span><span>City profile</span>`;
+  document.getElementById("dp-title").textContent = node.city;
+  document.getElementById("dp-subtitle").textContent = node.country;
+
+  const totalCap = node.totalCapital || 0; // SYN
+  const body = [];
+
+  // Stats grid
+  body.push(`
+    <div class="dp-stats">
+      <div class="dp-stat">
+        <div class="num">${node.investments}</div>
+        <div class="lab">Investments</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${node.investors.size}</div>
+        <div class="lab">Investors</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${node.company_count}</div>
+        <div class="lab">Companies</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${fmtCapital(totalCap)}</div>
+        <div class="lab">Total capital <span class="dp-syn-tag">SYN</span></div>
+      </div>
+    </div>
+  `);
+
+  // Year-by-year capital sparkline (// SYN — capital values are synthesized)
+  const yearCapital = node.yearCapital || new Map();
+  let maxCap = 0;
+  for (const v of yearCapital.values()) maxCap = Math.max(maxCap, v);
+  const bars = [];
+  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
+    const v = yearCapital.get(y) || 0;
+    const h = 4 + (maxCap ? (v / maxCap) * 38 : 0);
+    bars.push(`<div class="dp-bar${v > 0 ? " has" : ""}" style="height:${h}px" title="${y}: ${fmtCapital(v).replace(/<[^>]+>/g,'')} (${node.yearCounts.get(y)||0} investments)"></div>`);
+  }
+  body.push(`
+    <div class="dp-row-label">Capital invested by year <span class="dp-syn-tag">SYN</span></div>
+    <div class="dp-bars">${bars.join("")}</div>
+    <div class="dp-bar-axis"><span>${YEAR_MIN}</span><span>${YEAR_MAX}</span></div>
+  `);
+
+  // Top 3 verticals
+  const topV = Object.entries(node.verticals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+  const vRows = topV.map(([v, n]) => {
+    const hex = VERT_HEX[v] || VERT_HEX.Other;
+    return `
+      <div class="dp-vrow">
+        <span class="vsw" style="color:${hex};background:${hex}"></span>
+        <span class="nm">${v}</span>
+        <span class="ct">${n} ${n === 1 ? "co." : "cos."}</span>
+      </div>`;
+  }).join("");
+  body.push(`
+    <div class="dp-row-label">Top 3 verticals</div>
+    <div class="dp-verts">${vRows}</div>
+  `);
+
+  // Companies headquartered here
+  const companyRows = (node.companies || []).map(name => {
+    // Look up the company's vertical from the data
+    const co = AGG.companyMap.get(name) ||
+               [...AGG.companyMap.values()].find(c => c.name === name);
+    const v = (co && co.vertical) || "Other";
+    const hex = VERT_HEX[v] || VERT_HEX.Other;
+    return `
+      <div class="dp-crow">
+        <span class="vsw" style="color:${hex};background:${hex}"></span>
+        <span class="nm">${name}</span>
+        <span class="meta">${v.split("/")[0]}</span>
+      </div>`;
+  }).join("");
+  body.push(`
+    <div class="dp-row-label">Companies HQ here (${(node.companies || []).length})</div>
+    <div class="dp-companies">${companyRows || '<div class="dp-crow"><span class="nm" style="color:var(--ink-faint)">—</span></div>'}</div>
+  `);
+
+  document.getElementById("dp-body").innerHTML = body.join("");
+}
+
+function renderCloudPanel(cell) {
+  const node = cell.cityNode;
+  const vertHex = VERT_HEX[cell.vert] || VERT_HEX.Other;
+  const invs = (AGG.cellInvestments && AGG.cellInvestments.get(cell.cellKey)) || [];
+
+  document.getElementById("dp-eyebrow").innerHTML =
+    `<span class="dot" style="color:${vertHex}"></span><span>${cell.vert} · ${cell.year}</span>`;
+  document.getElementById("dp-title").textContent = node.city;
+  document.getElementById("dp-subtitle").textContent =
+    `${node.country} · ${cell.vert} · ${cell.year}`;
+
+  // Total synthesized capital for this cell
+  let cellCap = 0;
+  const investorSet = new Set();
+  const companySet = new Set();
+  for (const inv of invs) {
+    cellCap += inv.amount_musd || 0;       // SYN
+    investorSet.add(inv.investor);
+    companySet.add(inv.company);
+  }
+
+  const body = [];
+  body.push(`
+    <div class="dp-stats">
+      <div class="dp-stat">
+        <div class="num">${invs.length}</div>
+        <div class="lab">Investments</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${investorSet.size}</div>
+        <div class="lab">Investors</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${companySet.size}</div>
+        <div class="lab">Companies</div>
+      </div>
+      <div class="dp-stat">
+        <div class="num">${fmtCapital(cellCap)}</div>
+        <div class="lab">Capital <span class="dp-syn-tag">SYN</span></div>
+      </div>
+    </div>
+  `);
+
+  // Investments list
+  const rows = invs.map(inv => {
+    return `
+      <div class="dp-crow">
+        <span class="vsw" style="color:${vertHex};background:${vertHex}"></span>
+        <span class="nm">${inv.company_name}<br><span style="font-size:9.5px;letter-spacing:0.10em;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;text-transform:uppercase">← ${inv.investor}</span></span>
+        <span class="meta">${inv.round || ""}<br>${fmtCapital(inv.amount_musd || 0).replace(/<[^>]+>/g,m=>m.includes('unit')?m:m)}</span>
+      </div>`;
+  }).join("");
+  body.push(`
+    <div class="dp-row-label">Investments in this cell <span class="dp-syn-tag">SYN amounts</span></div>
+    <div class="dp-companies">${rows || '<div class="dp-crow"><span class="nm" style="color:var(--ink-faint)">No investments recorded.</span></div>'}</div>
+  `);
+
+  document.getElementById("dp-body").innerHTML = body.join("");
+}
+
+// =============================================================
+// Camera tween — ease-in-out, ~700ms
+// =============================================================
+let cameraTween = null;
+function tweenCameraTo(targetPos, targetLook, durMs = 700) {
+  const startCam = camera.position.clone();
+  const startTarget = controls.target.clone();
+  const t0 = performance.now();
+  // Halt auto-rotate during tween
+  controls.autoRotate = false;
+  lastInteract = t0; // suppress auto re-engage for a moment
+
+  if (cameraTween) cameraTween.cancelled = true;
+  const tween = { cancelled: false };
+  cameraTween = tween;
+
+  function step() {
+    if (tween.cancelled) return;
+    const t = Math.min(1, (performance.now() - t0) / durMs);
+    // Smoothstep ease-in-out
+    const e = t * t * (3 - 2 * t);
+    camera.position.lerpVectors(startCam, targetPos, e);
+    controls.target.lerpVectors(startTarget, targetLook, e);
+    if (t < 1) requestAnimationFrame(step);
+    else cameraTween = null;
+  }
+  step();
+}
+
+function tweenCameraToCity(node) {
+  // Aim at the city's column midway up
+  const look = new THREE.Vector3(node.x, (Y_MIN + Y_MAX) / 2, node.z);
+  // Camera offset: pull back along (current dir from target to camera), shorter dist
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  const dist = 200;
+  const targetPos = look.clone().add(dir.multiplyScalar(dist));
+  // Ensure altitude is comfortable
+  if (targetPos.y < 90) targetPos.y = 90;
+  tweenCameraTo(targetPos, look, 700);
+}
+
+function tweenCameraToCell(cell) {
+  const look = new THREE.Vector3(cell.cx, cell.cy, cell.cz);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  const dist = 130;
+  const targetPos = look.clone().add(dir.multiplyScalar(dist));
+  if (targetPos.y < 70) targetPos.y = 70;
+  tweenCameraTo(targetPos, look, 700);
+}
+
+// Wire dismiss controls
+document.getElementById("dp-close").addEventListener("click", closeDetailPanel);
+document.getElementById("dp-back").addEventListener("click", closeDetailPanel);
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && activePanel) closeDetailPanel();
+});
+
+// =============================================================
 // UI: vertical chips, year slider
 // =============================================================
 function setupChips() {
@@ -1732,8 +2435,8 @@ function tick() {
   const now = performance.now();
   const elapsed = (now - t0) / 1000;
 
-  // Resume auto-rotate
-  if (!controls.autoRotate && now - lastInteract > 5000) {
+  // Resume auto-rotate (suppressed while a detail panel is open)
+  if (!controls.autoRotate && !activePanel && now - lastInteract > 5000) {
     controls.autoRotate = true;
     document.getElementById("status-cam").textContent = "Auto-orbit";
   }
