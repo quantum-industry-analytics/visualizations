@@ -446,6 +446,54 @@
   }
   .info-card .companies b { color: var(--ink); font-weight: 500; }
 
+  /* ---- Reset view button (always visible) ---- */
+  .reset-view-btn {
+    position: absolute;
+    top: 22px;
+    right: 50%;
+    transform: translateX(50%);
+    z-index: 13;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 14px 7px;
+    background: linear-gradient(180deg, rgba(10, 18, 32, 0.86), rgba(8, 14, 26, 0.78));
+    border: 1px solid rgba(255, 181, 71, 0.36);
+    border-radius: 99px;
+    color: #ffd285;
+    cursor: pointer;
+    user-select: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.45),
+      0 0 14px rgba(255, 181, 71, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: color .18s ease, border-color .18s ease, box-shadow .22s ease, background .18s ease, transform .18s ease;
+  }
+  .reset-view-btn .rv-glyph {
+    font-size: 13px;
+    color: #ffb547;
+    text-shadow: 0 0 8px rgba(255, 181, 71, 0.55);
+    transition: transform .35s cubic-bezier(.2,.85,.25,1);
+    display: inline-block;
+  }
+  .reset-view-btn:hover {
+    color: #ffeccc;
+    border-color: #ffb547;
+    background: linear-gradient(180deg, rgba(40, 28, 12, 0.9), rgba(24, 16, 6, 0.82));
+    box-shadow:
+      0 6px 22px rgba(0, 0, 0, 0.55),
+      0 0 22px rgba(255, 181, 71, 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .reset-view-btn:hover .rv-glyph { transform: rotate(-180deg); }
+  .reset-view-btn:active { transform: translateX(50%) scale(0.97); }
+
   /* ---- Detail panel (persistent, click-driven) ---- */
   .detail-panel {
     position: absolute;
@@ -819,6 +867,10 @@
     <div class="filter-label">Isolate vertical</div>
     <div class="chips" id="vert-chips"></div>
   </div>
+
+  <button class="reset-view-btn" id="reset-view-btn" title="Reset camera and dismiss panels (Esc)">
+    <span class="rv-glyph">↺</span><span>Reset View</span>
+  </button>
 
   <div class="legend">
     <h4>Verticals</h4>
@@ -1248,6 +1300,14 @@ controls.autoRotate = true;
 // We want ~80 seconds/rev so users can comfortably read city positions.
 // 2.0 * (30/80) = 0.75
 controls.autoRotateSpeed = 0.75; // ~80s per full revolution
+
+// Snapshot the default ("home") camera framing once at init, so the
+// "Reset View" affordance always returns to the original overview —
+// regardless of any later orbit/pan/zoom or click-to-frame interactions.
+const homeCameraState = {
+  position: camera.position.clone(),
+  target:   controls.target.clone(),
+};
 
 let lastInteract = -Infinity;
 controls.addEventListener("start", () => {
@@ -2327,11 +2387,25 @@ function tweenCameraToCell(cell) {
   tweenCameraTo(targetPos, look, 700);
 }
 
-// Wire dismiss controls
-document.getElementById("dp-close").addEventListener("click", closeDetailPanel);
-document.getElementById("dp-back").addEventListener("click", closeDetailPanel);
+// Full reset: dismiss any panel, clear cloud isolation, tween camera back
+// to the home framing captured at scene init, and re-engage auto-rotate
+// after a brief delay so the user can see the camera settle.
+function resetView() {
+  closeDetailPanel();
+  setIsolatedCell(null);
+  tweenCameraTo(homeCameraState.position, homeCameraState.target, 700);
+  // Push lastInteract slightly into the past so auto-rotate re-engages
+  // ~3s after the tween completes (tick() guards on a 5s idle window).
+  lastInteract = performance.now() - 2000;
+  document.getElementById("status-cam").textContent = "Auto-orbit";
+}
+
+// Wire dismiss controls — every "exit" affordance does a full reset.
+document.getElementById("dp-close").addEventListener("click", resetView);
+document.getElementById("dp-back").addEventListener("click", resetView);
+document.getElementById("reset-view-btn").addEventListener("click", resetView);
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && activePanel) closeDetailPanel();
+  if (e.key === "Escape") resetView();
 });
 
 // =============================================================
